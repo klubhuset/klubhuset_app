@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:klubhuset/tabs/home_tab.dart';
-import 'styles.dart';
 
 String _appTitle = 'Klubhuset';
 

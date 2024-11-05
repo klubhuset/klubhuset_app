@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:klubhuset/pages/player_of_the_match_page.dart';
+import 'package:klubhuset/pages/match_polls_list_page.dart';
 
 class HomeTab extends StatelessWidget {
   @override
@@ -43,8 +43,7 @@ class HomeTab extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(
-                    builder: (context) => PlayerOfTheMatchPage()),
+                CupertinoPageRoute(builder: (context) => MatchPollsListPage()),
               );
             },
           ),
