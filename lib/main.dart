@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:klubhuset/tabs/home_tab.dart';
+import 'package:klubhuset/tab/home_tab.dart';
 
 String _appTitle = 'Klubhuset';
 
@@ -33,17 +33,6 @@ class KlubhusetApp extends StatelessWidget {
 // Home page class
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return CupertinoPageScaffold(
-  //     navigationBar: CupertinoNavigationBar(
-  //       leading: Text(_appTitle,
-  //           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-  //     ),
-  //     child: Container(),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
