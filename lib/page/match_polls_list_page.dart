@@ -1,33 +1,44 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/model/match_poll_state.dart';
-import 'package:klubhuset/model/test_state.dart';
-import 'package:klubhuset/model/test_state_notifier.dart';
-import 'package:klubhuset/page/match_poll_page.dart';
-import 'package:klubhuset/repository/match_polls_repository.dart';
+import 'package:klubhuset/helpers/date_helper.dart';
+import 'package:klubhuset/model/match_polls_state.dart';
+import 'package:klubhuset/page/create_match_poll_page.dart';
+import 'package:klubhuset/repository/players_repository.dart';
+import 'package:klubhuset/tab/home_tab.dart';
+import 'package:provider/provider.dart';
 
 class MatchPollsListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // var addedMatchPolls = MatchPollState.of(context);
-    // var allMatchPolls = MatchPollsRepository.getMatchPolls();
+    // TODO 1: Load existing match polls to MatchPollsState
+    // Provider.of<MatchPollsState>(context, listen: false)
+    //     .setMatchPolls(MatchPollsRepository.getMatchPolls());
 
-    // //addedMatchPolls.addMatchPolls(allMatchPolls);
-    // for (var element in addedMatchPolls.getMatchPolls()) {
-    //   print('Match poll: ${element.matchName} : ${element.playerOfTheMatchId}');
-    // }
+    var matchPolls = context.watch<MatchPollsState>().matchPolls;
 
-    final TestState testState = TestState();
+    var players = PlayersRepository.getAllPlayers();
 
-    testState.setMatchPolls(MatchPollsRepository.getMatchPolls());
+    // TODO 1: Consider showing if an element is new in the list and sort match polls by newest date
 
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: Text('Afstemninger'),
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(
+                context,
+                CupertinoPageRoute(builder: (context) => HomeTab()),
+              );
+            },
+            child: Icon(
+              semanticLabel: 'Tilbage',
+              CupertinoIcons.chevron_left,
+            ),
+          ),
           trailing: GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
-                CupertinoPageRoute(builder: (context) => MatchPollPage()),
+                CupertinoPageRoute(builder: (context) => CreateMatchPollPage()),
               );
             },
             child: Icon(
@@ -37,111 +48,112 @@ class MatchPollsListPage extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-            child: TestStateNotifier(
-          testState: testState,
-          child: Builder(builder: (context) {
-            return SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  CupertinoListSection.insetGrouped(
-                    children: <CupertinoListTile>[
-                      CupertinoListTile(
-                          title: Text(
-                              'Length: ${testState.addedMatchPolls.length}')),
-                    ],
-                  )
-                ],
+            child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              ...List.generate(
+                matchPolls.length,
+                (index) => CupertinoListTile(
+                  title: Text(players
+                      .firstWhere(
+                          (x) => x.id == matchPolls[index].playerOfTheMatchId)
+                      .name),
+                  subtitle: Text(
+                      '${matchPolls[index].matchName} - d. ${DateHelper.getFormattedDate(matchPolls[index].created)}'),
+                  additionalInfo: Text(
+                      '${matchPolls[index].playerOfTheMatchVotes} stemmer'),
+                ),
               ),
-            );
-          }),
+            ],
+          ),
         )));
   }
 }
 
 
 /*
-
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ),
-                      CupertinoListTile(
-                        title: Text('Skjold vs B93'),
-                        subtitle: Text('Kampens spiller: Anders H. Brandt'),
-                      ), */
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+                  // CupertinoListTile(
+                  //   title: Text('Skjold vs B93'),
+                  //   subtitle: Text('Kampens spiller: Anders H. Brandt'),
+                  // ),
+*/

@@ -1,7 +1,12 @@
+import 'package:flutter/foundation.dart';
+
 class MatchPoll {
-  final int id;
+  final int id = UniqueKey().hashCode;
   final String matchName;
   final int playerOfTheMatchId;
+  final int playerOfTheMatchVotes;
+  final DateTime created = DateTime.now();
 
-  const MatchPoll(this.id, this.matchName, this.playerOfTheMatchId);
+  MatchPoll(
+      this.matchName, this.playerOfTheMatchId, this.playerOfTheMatchVotes);
 }

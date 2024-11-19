@@ -1,11 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:klubhuset/model/match_polls_state.dart';
+import 'package:klubhuset/model/player_votes_state.dart';
 import 'package:klubhuset/tab/home_tab.dart';
+import 'package:provider/provider.dart';
 
 String _appTitle = 'Klubhuset';
 
 void main() {
-  runApp(const KlubhusetApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => PlayerVotesState()),
+        ChangeNotifierProvider(create: (context) => MatchPollsState()),
+      ],
+      child: const KlubhusetApp(),
+    ),
+  );
 }
 
 class KlubhusetApp extends StatelessWidget {
