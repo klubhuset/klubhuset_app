@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/match_poll_row_item.dart';
 import 'package:klubhuset/model/match_poll.dart';
-import 'package:klubhuset/model/match_polls_state.dart';
+import 'package:klubhuset/state/match_polls_state.dart';
 import 'package:klubhuset/model/player_vote.dart';
-import 'package:klubhuset/model/player_votes_state.dart';
-import 'package:klubhuset/page/match_polls_list_page.dart';
+import 'package:klubhuset/state/player_votes_state.dart';
+import 'package:klubhuset/page/match_polls_page.dart';
 import 'package:klubhuset/repository/players_repository.dart';
 import 'package:provider/provider.dart';
 
@@ -111,6 +111,26 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
       return;
     }
 
+    if (playerVotes.isEmpty) {
+      // Show CupertinoDialog if there is no votes
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: Text('Fejl'),
+          content: Text('Afgiv mindst én stemme for at oprette en afstemning.'),
+          actions: <CupertinoDialogAction>[
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Ok'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     // Sort list of player votes based on highest number of vores
     PlayerVote playerVoteWithMostVotes =
         playerVotes.reduce((a, b) => a.votes > b.votes ? a : b);
@@ -136,9 +156,9 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   List<MatchPollRowItem> getMatchPollRowItems() {
     List<MatchPollRowItem> matchPollRowItems = [];
 
-    final allPlayers = PlayersRepository.getAllPlayers();
+    final squad = PlayersRepository.getSquad();
 
-    for (var player in allPlayers) {
+    for (var player in squad) {
       var matchPollItem =
           MatchPollRowItem(playerId: player.id, playerName: player.name);
 

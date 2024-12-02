@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/model/player_votes_state.dart';
+import 'package:klubhuset/state/player_votes_state.dart';
 import 'package:klubhuset/model/player_vote.dart';
 import 'package:provider/provider.dart';
 

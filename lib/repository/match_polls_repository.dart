@@ -3,7 +3,7 @@ import 'package:klubhuset/model/player.dart';
 import 'package:klubhuset/repository/players_repository.dart';
 
 class MatchPollsRepository {
-  static Player firstPlayer = PlayersRepository.getAllPlayers().first;
+  static Player firstPlayer = PlayersRepository.getSquad().first;
 
   static List<MatchPoll> _allMatchPolls = <MatchPoll>[
     MatchPoll('Skjold vs Atalanta', firstPlayer.id, 4),
