@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 String _appTitle = 'Klubhuset';
 
-void main() {
+void main() async {
   runApp(
     MultiProvider(
       providers: [
@@ -17,6 +17,9 @@ void main() {
       child: const KlubhusetApp(),
     ),
   );
+
+  // Connect to database
+  //await Database.connect();
 }
 
 class KlubhusetApp extends StatelessWidget {
