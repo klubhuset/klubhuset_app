@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:klubhuset/repository/players_repository.dart';
 import 'package:klubhuset/state/match_polls_state.dart';
 import 'package:klubhuset/state/player_votes_state.dart';
 import 'package:klubhuset/tab/home_tab.dart';
@@ -17,9 +18,6 @@ void main() async {
       child: const KlubhusetApp(),
     ),
   );
-
-  // Connect to database
-  //await Database.connect();
 }
 
 class KlubhusetApp extends StatelessWidget {
@@ -32,6 +30,9 @@ class KlubhusetApp extends StatelessWidget {
     // orientations to portrait up and down.
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
+    // Initialize squad
+    PlayersRepository.initializeSquad();
 
     return CupertinoApp(
       title: _appTitle,

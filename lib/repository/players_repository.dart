@@ -1,29 +1,29 @@
+import 'dart:convert';
+
 import 'package:klubhuset/model/player.dart';
+import 'package:http/http.dart' as http;
 
 class PlayersRepository {
-  static List<Player> _allPlayers = <Player>[
-    Player('Anders H. Brandt', true),
-    Player('Christopher V. H. Nielsen', false),
-    Player('Torben Hansen', false),
-    Player('Niels Nielsen', false),
-    Player('Thimotheus Frederiksen', false),
-    Player('Lennard Andersen', false),
-    Player('Tobias Olsen', false),
-    Player('Peter Rasmussen', false),
-    Player('Erik Bulmer', false),
-    Player('Werner Sørensen', false),
-    Player('Ulrik H. J. Abrahamsen', false),
-    Player('Birger Ulriksen', false),
-    Player('Lars Larsen', false),
-    Player('Ulrik Thomsen', false),
-    Player('Mads Mikkelsen Thomsen', false),
-  ];
+  static List<PlayerDetails> _allPlayers = <PlayerDetails>[];
 
-  static List<Player> getSquad() {
+  static Future<List<PlayerDetails>> initializeSquad() async {
+    var url = Uri.parse('https://localhost:3000/api/player');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> json = jsonDecode(response.body);
+
+      return json.map((item) => PlayerDetails.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to fetch squad');
+    }
+  }
+
+  static List<PlayerDetails> getSquad() {
     return _allPlayers;
   }
 
-  static Player getPlayer(int playerId) {
+  static PlayerDetails getPlayer(int playerId) {
     return _allPlayers.firstWhere((x) => x.id == playerId);
   }
 
@@ -32,7 +32,8 @@ class PlayersRepository {
         !_allPlayers.any((x) => x.name.toLowerCase() == name.toLowerCase());
 
     if (doesPlayerNotAlreadyExist) {
-      _allPlayers.add(Player(name, isTeamOwner));
+      // TODO 1: Fix this
+      // _allPlayers.add(Player(name, isTeamOwner));
     }
   }
 
