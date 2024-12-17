@@ -7,7 +7,7 @@ import 'package:klubhuset/model/player_details.dart'; // Antagelse om PlayerDeta
 
 class SquadPage extends StatefulWidget {
   @override
-  _SquadPageState createState() => _SquadPageState();
+  State<SquadPage> createState() => _SquadPageState();
 }
 
 class _SquadPageState extends State<SquadPage> {
