@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/component/loading_indicator.dart';
 import 'package:klubhuset/repository/players_repository.dart';
 import 'package:klubhuset/page/add_player_to_squad_page.dart';
 import 'package:klubhuset/tab/home_tab.dart';
@@ -53,8 +52,8 @@ class _SquadPageState extends State<SquadPage> {
       child: SafeArea(
         child: FutureHandler<List<PlayerDetails>>(
           future: squad,
+          noDataFoundMessage: 'Ingen spillere fundet.',
           onSuccess: (context, data) {
-            // Success case, display list of players
             return SingleChildScrollView(
               child: CupertinoListSection.insetGrouped(
                 header: const Text('Spillere i truppen'),

@@ -78,6 +78,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
         child: SingleChildScrollView(
           child: FutureHandler<List<Map<String, dynamic>>>(
             future: matchPollsData,
+            noDataFoundMessage: 'Ingen afstemninger fundet.',
             onSuccess: (context, data) {
               // If data is available, build the list
               return ListView.builder(
