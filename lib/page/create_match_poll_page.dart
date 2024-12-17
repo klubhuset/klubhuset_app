@@ -35,12 +35,14 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: Text('Ny afstemning'),
-          trailing: GestureDetector(
-              onTap: () => createMatchPoll(context, playerVotes),
-              child: Text('Opret',
-                  style: TextStyle(
-                      color: CupertinoColors.systemIndigo,
-                      fontWeight: FontWeight.bold))),
+          trailing: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => createMatchPoll(context, playerVotes),
+            child: Text('Opret',
+                style: TextStyle(
+                    color: CupertinoColors.systemIndigo,
+                    fontWeight: FontWeight.bold)),
+          ),
         ),
         child: SafeArea(
             child: SingleChildScrollView(

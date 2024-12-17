@@ -24,8 +24,9 @@ class _SquadPageState extends State<SquadPage> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Truppen'),
-        leading: GestureDetector(
-          onTap: () {
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
             Navigator.pop(
               context,
               CupertinoPageRoute(builder: (context) => HomeTab()),
@@ -36,8 +37,9 @@ class _SquadPageState extends State<SquadPage> {
             CupertinoIcons.chevron_left,
           ),
         ),
-        trailing: GestureDetector(
-          onTap: () {
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
             Navigator.push(
               context,
               CupertinoPageRoute(builder: (context) => AddPlayerToSquadPage()),

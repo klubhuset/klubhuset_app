@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/error_message.dart';
 import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/component/loading_indicator.dart';
 import 'package:klubhuset/helpers/date_helper.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/player_details.dart';
