@@ -1,26 +1,23 @@
 import 'dart:convert';
 
-import 'package:klubhuset/model/player.dart';
+import 'package:klubhuset/model/player_details.dart';
 import 'package:http/http.dart' as http;
 
 class PlayersRepository {
   static List<PlayerDetails> _allPlayers = <PlayerDetails>[];
 
-  static Future<List<PlayerDetails>> initializeSquad() async {
-    var url = Uri.parse('https://localhost:3000/api/player');
+  static Future<List<PlayerDetails>> getSquad() async {
+    var url = Uri.parse('http://localhost:3000/api/player/all');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> json = jsonDecode(response.body);
+      Iterable json = jsonDecode(response.body)['body'];
 
-      return json.map((item) => PlayerDetails.fromJson(item)).toList();
+      return List<PlayerDetails>.from(
+          json.map((content) => PlayerDetails.fromJson(content)));
     } else {
       throw Exception('Failed to fetch squad');
     }
-  }
-
-  static List<PlayerDetails> getSquad() {
-    return _allPlayers;
   }
 
   static PlayerDetails getPlayer(int playerId) {

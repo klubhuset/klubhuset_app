@@ -1,21 +1,21 @@
 import 'dart:collection';
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/model/match_poll.dart';
+import 'package:klubhuset/model/match_poll_details.dart';
 
 class MatchPollsState extends ChangeNotifier {
-  final List<MatchPoll> _matchPolls = [];
+  final List<MatchPollDetails> _matchPolls = [];
 
   MatchPollsState();
 
-  UnmodifiableListView<MatchPoll> get matchPolls =>
+  UnmodifiableListView<MatchPollDetails> get matchPolls =>
       UnmodifiableListView(_matchPolls);
 
-  void setMatchPolls(List<MatchPoll> matchPolls) {
+  void setMatchPolls(List<MatchPollDetails> matchPolls) {
     _matchPolls.clear();
     _matchPolls.addAll(matchPolls);
   }
 
-  void addMatchPoll(MatchPoll matchPoll) {
+  void addMatchPoll(MatchPollDetails matchPoll) {
     bool doesMatchPollAlreadyExistsByName =
         _matchPolls.any((x) => x.matchName == matchPoll.matchName);
 

@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/match_poll_row_item.dart';
-import 'package:klubhuset/model/match_poll.dart';
+import 'package:klubhuset/model/create_match_poll_command.dart';
+import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/state/match_polls_state.dart';
 import 'package:klubhuset/model/player_vote.dart';
 import 'package:klubhuset/state/player_votes_state.dart';
 import 'package:klubhuset/page/match_polls_page.dart';
-import 'package:klubhuset/repository/players_repository.dart';
 import 'package:provider/provider.dart';
 
 class CreateMatchPollPage extends StatefulWidget {
@@ -84,7 +84,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   void createMatchPoll(BuildContext context, List<PlayerVote> playerVotes) {
     //TODO 1: Handle if there's not votes and if vores are the same
 
-    List<MatchPoll> existingMatchPolls =
+    List<MatchPollDetails> existingMatchPolls =
         Provider.of<MatchPollsState>(context, listen: false).matchPolls;
 
     bool doesMatchNameAlreadyExists = existingMatchPolls.any(
@@ -138,11 +138,13 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     int playerOfTheMatchId = playerVoteWithMostVotes.playerId;
     int numberOfVotes = playerVoteWithMostVotes.votes;
 
-    MatchPoll matchPoll =
-        MatchPoll(_textController.text, playerOfTheMatchId, numberOfVotes);
+    CreateMatchPollCommand matchPoll = CreateMatchPollCommand(
+        _textController.text, playerOfTheMatchId, numberOfVotes);
 
-    Provider.of<MatchPollsState>(context, listen: false)
-        .addMatchPoll(matchPoll);
+    // Create match poll with new endpoint
+
+    // Provider.of<MatchPollsState>(context, listen: false)
+    //     .addMatchPoll(matchPoll);
 
     Provider.of<PlayerVotesState>(context, listen: false)
         .removeAllPlayerVotes();
@@ -156,14 +158,15 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   List<MatchPollRowItem> getMatchPollRowItems() {
     List<MatchPollRowItem> matchPollRowItems = [];
 
-    final squad = PlayersRepository.getSquad();
+    // TODO 1: Fix this
+    // final squad = PlayersRepository.getSquad();
 
-    for (var player in squad) {
-      var matchPollItem =
-          MatchPollRowItem(playerId: player.id, playerName: player.name);
+    // for (var player in squad) {
+    //   var matchPollItem =
+    //       MatchPollRowItem(playerId: player.id, playerName: player.name);
 
-      matchPollRowItems.add(matchPollItem);
-    }
+    //   matchPollRowItems.add(matchPollItem);
+    // }
 
     return matchPollRowItems;
   }

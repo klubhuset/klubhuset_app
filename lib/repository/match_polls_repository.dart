@@ -1,17 +1,20 @@
-import 'package:klubhuset/model/match_poll.dart';
-import 'package:klubhuset/model/player.dart';
-import 'package:klubhuset/repository/players_repository.dart';
+import 'dart:convert';
+import 'package:klubhuset/model/match_poll_details.dart';
+
+import 'package:http/http.dart' as http;
 
 class MatchPollsRepository {
-  static PlayerDetails firstPlayer = PlayersRepository.getSquad().first;
+  static Future<List<MatchPollDetails>> getMatchPolls() async {
+    var url = Uri.parse('http://localhost:3000/api/match/matchpolls/all');
+    var response = await http.get(url);
 
-  static List<MatchPoll> _allMatchPolls = <MatchPoll>[
-    MatchPoll('Skjold vs Atalanta', firstPlayer.id, 4),
-    MatchPoll('Skjold vs Arsenal', firstPlayer.id, 6),
-    MatchPoll('Skjold vs FC Barcelona', firstPlayer.id, 2),
-  ];
+    if (response.statusCode == 200) {
+      Iterable json = jsonDecode(response.body)['body'];
 
-  static List<MatchPoll> getMatchPolls() {
-    return _allMatchPolls;
+      return List<MatchPollDetails>.from(
+          json.map((content) => MatchPollDetails.fromJson(content)));
+    } else {
+      throw Exception('Failed to fetch squad');
+    }
   }
 }
