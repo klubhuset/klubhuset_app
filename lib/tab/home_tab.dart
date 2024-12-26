@@ -28,17 +28,14 @@ class HomeTab extends StatelessWidget {
               color: Color.fromRGBO(38, 64, 139, 100),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Container(
-              //margin: EdgeInsets.fromLTRB(15, 15, 0, 0),
-              child: const Center(
-                  child: Text(
-                "Kampens spiller",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              )),
-            ),
+            child: const Center(
+                child: Text(
+              "Kampens spiller",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold),
+            )),
           ),
           onPressed: () {
             Navigator.push(
@@ -62,17 +59,14 @@ class HomeTab extends StatelessWidget {
               color: Color.fromRGBO(224, 159, 62, 100),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Container(
-              //margin: EdgeInsets.fromLTRB(15, 15, 0, 0),
-              child: const Center(
-                  child: Text(
-                "Truppen",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              )),
-            ),
+            child: const Center(
+                child: Text(
+              "Truppen",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold),
+            )),
           ),
           onPressed: () {
             Navigator.push(

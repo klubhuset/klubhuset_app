@@ -1,44 +1,44 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:klubhuset/model/create_player_command.dart';
 import 'package:klubhuset/model/player_details.dart';
 import 'package:http/http.dart' as http;
 
 class PlayersRepository {
-  static List<PlayerDetails> _allPlayers = <PlayerDetails>[];
-
   static Future<List<PlayerDetails>> getSquad() async {
-    var url = Uri.parse('http://localhost:3000/api/player/all');
+    await dotenv.load(); // Initialize dotenv
+
+    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/player/all');
+
     var response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      Iterable json = jsonDecode(response.body)['body'];
-
-      return List<PlayerDetails>.from(
-          json.map((content) => PlayerDetails.fromJson(content)));
-    } else {
+    if (response.statusCode != 200) {
       throw Exception('Failed to fetch squad');
     }
+
+    Iterable json = jsonDecode(response.body)['body'];
+
+    return List<PlayerDetails>.from(
+        json.map((content) => PlayerDetails.fromJson(content)));
   }
 
-  static PlayerDetails getPlayer(int playerId) {
-    return _allPlayers.firstWhere((x) => x.id == playerId);
-  }
+  static Future<int> createPlayer(String name, String email) async {
+    await dotenv.load(); // Initialize dotenv
 
-  static void addPlayer(String name, bool isTeamOwner) {
-    bool doesPlayerNotAlreadyExist =
-        !_allPlayers.any((x) => x.name.toLowerCase() == name.toLowerCase());
+    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/player');
 
-    if (doesPlayerNotAlreadyExist) {
-      // TODO 1: Fix this
-      // _allPlayers.add(Player(name, isTeamOwner));
+    CreatePlayerCommand createPlayerCommand =
+        CreatePlayerCommand(name, email, false);
+
+    var response = await http.post(url, body: createPlayerCommand.toJson());
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add player');
     }
-  }
 
-  static void removePlayer(int playerId) {
-    _allPlayers.removeWhere((x) => x.id == playerId);
-  }
+    var json = jsonDecode(response.body);
 
-  static bool doesPlayerAlreadyExistByName(String name) {
-    return _allPlayers.any((x) => x.name == name);
+    return json['id'];
   }
 }

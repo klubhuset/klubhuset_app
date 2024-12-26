@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:klubhuset/state/match_polls_state.dart';
 import 'package:klubhuset/state/player_votes_state.dart';
 import 'package:klubhuset/tab/home_tab.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +11,6 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => PlayerVotesState()),
-        ChangeNotifierProvider(create: (context) => MatchPollsState()),
       ],
       child: const KlubhusetApp(),
     ),

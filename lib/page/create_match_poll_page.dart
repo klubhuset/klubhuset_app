@@ -1,30 +1,35 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/match_poll_row_item.dart';
-import 'package:klubhuset/model/create_match_poll_command.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
-import 'package:klubhuset/state/match_polls_state.dart';
+import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/repository/match_polls_repository.dart';
 import 'package:klubhuset/model/player_vote.dart';
 import 'package:klubhuset/state/player_votes_state.dart';
 import 'package:klubhuset/page/match_polls_page.dart';
 import 'package:provider/provider.dart';
 
 class CreateMatchPollPage extends StatefulWidget {
+  final List<PlayerDetails> squad;
+  final List<MatchPollDetails> matchPolls;
+
+  CreateMatchPollPage({required this.squad, required this.matchPolls});
+
   @override
   State<CreateMatchPollPage> createState() => _CreateMatchPollPageState();
 }
 
 class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
-  late TextEditingController _textController;
+  late TextEditingController _matchNameController;
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController();
+    _matchNameController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _textController.dispose();
+    _matchNameController.dispose();
     super.dispose();
   }
 
@@ -37,7 +42,17 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
           middle: Text('Ny afstemning'),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
-            onPressed: () => createMatchPoll(context, playerVotes),
+            onPressed: () async {
+              await createMatchPoll(context, playerVotes);
+
+              if (context.mounted) {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => MatchPollsListPage()),
+                );
+              }
+            },
             child: Text('Opret',
                 style: TextStyle(
                     color: CupertinoColors.systemIndigo,
@@ -62,7 +77,8 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
                           validator: (String? value) =>
                               validateNameOfMatchInput(value),
                           keyboardType: TextInputType.name,
-                          controller: _textController,
+                          controller: _matchNameController,
+                          maxLength: 255,
                         )
                       ])),
 
@@ -83,14 +99,10 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     return null;
   }
 
-  void createMatchPoll(BuildContext context, List<PlayerVote> playerVotes) {
-    //TODO 1: Handle if there's not votes and if vores are the same
-
-    List<MatchPollDetails> existingMatchPolls =
-        Provider.of<MatchPollsState>(context, listen: false).matchPolls;
-
-    bool doesMatchNameAlreadyExists = existingMatchPolls.any(
-        (x) => x.matchName.toLowerCase() == _textController.text.toLowerCase());
+  Future<void> createMatchPoll(
+      BuildContext context, List<PlayerVote> playerVotes) async {
+    bool doesMatchNameAlreadyExists = widget.matchPolls.any((x) =>
+        x.matchName.toLowerCase() == _matchNameController.text.toLowerCase());
 
     if (doesMatchNameAlreadyExists) {
       // Show CupertinoDialog if match name exists
@@ -140,35 +152,22 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     int playerOfTheMatchId = playerVoteWithMostVotes.playerId;
     int numberOfVotes = playerVoteWithMostVotes.votes;
 
-    CreateMatchPollCommand matchPoll = CreateMatchPollCommand(
-        _textController.text, playerOfTheMatchId, numberOfVotes);
-
-    // Create match poll with new endpoint
-
-    // Provider.of<MatchPollsState>(context, listen: false)
-    //     .addMatchPoll(matchPoll);
+    await MatchPollsRepository.createMatchPoll(
+        _matchNameController.text, playerOfTheMatchId, numberOfVotes);
 
     Provider.of<PlayerVotesState>(context, listen: false)
         .removeAllPlayerVotes();
-
-    Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (context) => MatchPollsListPage()),
-    );
   }
 
   List<MatchPollRowItem> getMatchPollRowItems() {
     List<MatchPollRowItem> matchPollRowItems = [];
 
-    // TODO 1: Fix this
-    // final squad = PlayersRepository.getSquad();
+    for (var player in widget.squad) {
+      var matchPollItem =
+          MatchPollRowItem(playerId: player.id, playerName: player.name);
 
-    // for (var player in squad) {
-    //   var matchPollItem =
-    //       MatchPollRowItem(playerId: player.id, playerName: player.name);
-
-    //   matchPollRowItems.add(matchPollItem);
-    // }
+      matchPollRowItems.add(matchPollItem);
+    }
 
     return matchPollRowItems;
   }

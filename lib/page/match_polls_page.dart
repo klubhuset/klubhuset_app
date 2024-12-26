@@ -14,7 +14,7 @@ class MatchPollsListPage extends StatefulWidget {
 }
 
 class _MatchPollsListPageState extends State<MatchPollsListPage> {
-  late Future<List<Map<String, dynamic>>> matchPollsData;
+  late Future<Map<String, dynamic>> matchPollsData;
 
   @override
   void initState() {
@@ -23,21 +23,23 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
     matchPollsData = _fetchMatchPollsData();
   }
 
-  Future<List<Map<String, dynamic>>> _fetchMatchPollsData() async {
+  Future<Map<String, dynamic>> _fetchMatchPollsData() async {
     // Fetching both matchPolls and squad data
     final squad = await PlayersRepository.getSquad();
     final matchPolls = await MatchPollsRepository.getMatchPolls();
 
-    // Combine the two into one list of maps, matching players with their polls
-    return matchPolls.map((poll) {
-      final player =
-          squad.firstWhere((player) => player.id == poll.playerOfTheMatchId);
-
-      return {
-        'matchPoll': poll,
-        'player': player,
-      };
-    }).toList();
+    // Combine the two into one map
+    return {
+      'squad': squad,
+      'matchPolls': matchPolls.map((poll) {
+        final player =
+            squad.firstWhere((player) => player.id == poll.playerOfTheMatchId);
+        return {
+          'matchPoll': poll,
+          'player': player,
+        };
+      }).toList(),
+    };
   }
 
   @override
@@ -60,11 +62,21 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () {
-            Navigator.push(
-              context,
-              CupertinoPageRoute(builder: (context) => CreateMatchPollPage()),
-            );
+          onPressed: () async {
+            final data = await matchPollsData;
+            final squad = data['squad'] as List<PlayerDetails>;
+            final matchPolls = data['matchPolls'] as List<MatchPollDetails>;
+
+            if (context.mounted) {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    builder: (context) => CreateMatchPollPage(
+                          squad: squad,
+                          matchPolls: matchPolls,
+                        )),
+              );
+            }
           },
           child: Icon(
             CupertinoIcons.add,
@@ -74,18 +86,21 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
       ),
       child: SafeArea(
         child: SingleChildScrollView(
-          child: FutureHandler<List<Map<String, dynamic>>>(
+          child: FutureHandler<Map<String, dynamic>>(
             future: matchPollsData,
             noDataFoundMessage: 'Ingen afstemninger fundet.',
             onSuccess: (context, data) {
+              final matchPolls =
+                  data['matchPolls'] as List<Map<String, dynamic>>;
+
               // If data is available, build the list
               return ListView.builder(
                 shrinkWrap:
                     true, // This is required avoid page and scroll issues
                 padding: EdgeInsets.only(top: 20.0),
-                itemCount: data.length,
+                itemCount: matchPolls.length,
                 itemBuilder: (context, index) {
-                  final dataToBeUsed = data[index];
+                  final dataToBeUsed = matchPolls[index];
                   final matchPoll =
                       dataToBeUsed['matchPoll'] as MatchPollDetails;
                   final player = dataToBeUsed['player'] as PlayerDetails;

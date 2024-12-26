@@ -19,6 +19,12 @@ class _SquadPageState extends State<SquadPage> {
     squad = PlayersRepository.getSquad();
   }
 
+  Future<void> _refreshSquad() async {
+    setState(() {
+      squad = PlayersRepository.getSquad();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -39,11 +45,23 @@ class _SquadPageState extends State<SquadPage> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () {
-            Navigator.push(
-              context,
-              CupertinoPageRoute(builder: (context) => AddPlayerToSquadPage()),
-            );
+          onPressed: () async {
+            final squadData = await squad;
+
+            if (context.mounted) {
+              final result = await showCupertinoModalPopup(
+                context: context,
+                builder: (context) => CupertinoPageScaffold(
+                  child: AddPlayerToSquadPage(
+                    squad: squadData,
+                  ),
+                ),
+              );
+
+              if (result == true) {
+                _refreshSquad(); // Refresh the squad if a new player was added
+              }
+            }
           },
           child: Icon(
             semanticLabel: 'Tilføj ny spiller',
