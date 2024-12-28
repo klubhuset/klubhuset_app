@@ -5,7 +5,6 @@ import 'package:klubhuset/model/player_details.dart';
 import 'package:klubhuset/repository/match_polls_repository.dart';
 import 'package:klubhuset/model/player_vote.dart';
 import 'package:klubhuset/state/player_votes_state.dart';
-import 'package:klubhuset/page/match_polls_page.dart';
 import 'package:provider/provider.dart';
 
 class CreateMatchPollPage extends StatefulWidget {
@@ -39,18 +38,24 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
 
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Ny afstemning'),
+          leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context,
+                    false); // Return false to indicate no player was added
+              },
+              child: Icon(
+                semanticLabel: 'Annullér',
+                CupertinoIcons.clear,
+              )),
+          middle: Text('Tilføj afstemning'),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () async {
-              await createMatchPoll(context, playerVotes);
+              var wasMatchPollCreated =
+                  await createMatchPoll(context, playerVotes);
 
-              if (context.mounted) {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                      builder: (context) => MatchPollsListPage()),
-                );
+              if (wasMatchPollCreated && context.mounted) {
+                Navigator.of(context).pop();
               }
             },
             child: Text('Opret',
@@ -83,7 +88,10 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
                       ])),
 
               // Vote on the player of the match
-              CupertinoListSection(
+              CupertinoListSection.insetGrouped(
+                  dividerMargin: 0,
+                  additionalDividerMargin: 0,
+                  margin: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 30.0),
                   header: const Text('Stem på kampens spiller'),
                   children: getMatchPollRowItems()),
             ],
@@ -99,7 +107,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     return null;
   }
 
-  Future<void> createMatchPoll(
+  Future<bool> createMatchPoll(
       BuildContext context, List<PlayerVote> playerVotes) async {
     bool doesMatchNameAlreadyExists = widget.matchPolls.any((x) =>
         x.matchName.toLowerCase() == _matchNameController.text.toLowerCase());
@@ -122,7 +130,8 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
           ],
         ),
       );
-      return;
+
+      return false;
     }
 
     if (playerVotes.isEmpty) {
@@ -142,7 +151,8 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
           ],
         ),
       );
-      return;
+
+      return false;
     }
 
     // Sort list of player votes based on highest number of vores
@@ -157,6 +167,8 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
 
     Provider.of<PlayerVotesState>(context, listen: false)
         .removeAllPlayerVotes();
+
+    return true;
   }
 
   List<MatchPollRowItem> getMatchPollRowItems() {

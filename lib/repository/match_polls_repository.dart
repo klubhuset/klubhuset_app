@@ -28,17 +28,17 @@ class MatchPollsRepository {
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/matchpolls');
 
-    CreateMatchPollCommand createMatchPollCommand =
-        CreateMatchPollCommand(matchName, playerOfTheMatchId, numberOfVotes);
+    CreateMatchPollCommand createMatchPollCommand = CreateMatchPollCommand(
+        matchName, playerOfTheMatchId.toString(), numberOfVotes.toString());
 
     var response = await http.post(url, body: createMatchPollCommand.toJson());
 
-    if (response.statusCode != 201) {
+    if (response.statusCode == 201) {
       throw Exception('Failed to create match poll');
     }
 
     var json = jsonDecode(response.body);
 
-    return int.parse(json['id']);
+    return json['id'];
   }
 }

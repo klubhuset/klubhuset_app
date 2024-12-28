@@ -1,7 +1,7 @@
 class CreateMatchPollCommand {
   final String matchName;
-  final int playerOfTheMatchId;
-  final int playerOfTheMatchVotes;
+  final String playerOfTheMatchId;
+  final String playerOfTheMatchVotes;
 
   CreateMatchPollCommand(
       this.matchName, this.playerOfTheMatchId, this.playerOfTheMatchVotes);

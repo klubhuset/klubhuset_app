@@ -34,7 +34,8 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoListTile.notched(
+    return CupertinoListTile(
+        padding: EdgeInsets.only(top: 20.0, bottom: 20.0, left: 20, right: 20),
         title: Text(widget.playerName),
         trailing: SizedBox(
           width: 100,

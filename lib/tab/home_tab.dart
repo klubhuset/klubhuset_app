@@ -2,19 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:klubhuset/page/match_polls_page.dart';
 import 'package:klubhuset/page/squad_page.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: CupertinoColors.systemGrey6,
       body: SafeArea(
           child: Column(children: <Widget>[
-        // Container for team name
-        Container(
-            margin: EdgeInsets.fromLTRB(0, 30, 0, 30),
-            child: Text('Boldklubben skjold',
-                style: const TextStyle(fontSize: 20))),
-
         // Container for Man-of-the-match
         CupertinoButton(
           child: Container(
@@ -38,10 +34,8 @@ class HomeTab extends StatelessWidget {
             )),
           ),
           onPressed: () {
-            Navigator.push(
-              context,
-              CupertinoPageRoute(builder: (context) => MatchPollsListPage()),
-            );
+            Navigator.of(context).push(MaterialWithModalsPageRoute(
+                builder: (context) => MatchPollsListPage()));
           },
         ),
 
@@ -69,10 +63,8 @@ class HomeTab extends StatelessWidget {
             )),
           ),
           onPressed: () {
-            Navigator.push(
-              context,
-              CupertinoPageRoute(builder: (context) => SquadPage()),
-            );
+            Navigator.of(context).push(
+                MaterialWithModalsPageRoute(builder: (context) => SquadPage()));
           },
         )
       ])),

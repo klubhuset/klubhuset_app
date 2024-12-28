@@ -35,20 +35,19 @@ class _AddPlayerToSquadPageState extends State<AddPlayerToSquadPage> {
         navigationBar: CupertinoNavigationBar(
           middle: Text('Tilføj spiller'),
           leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context,
-                  false); // Return false to indicate no player was added
-            },
-            child: Text('Annullér',
-                style: TextStyle(
-                    color: CupertinoColors.systemIndigo,
-                    fontWeight: FontWeight.bold)),
-          ),
+              onTap: () {
+                Navigator.pop(context,
+                    false); // Return false to indicate no player was added
+              },
+              child: Icon(
+                semanticLabel: 'Annullér',
+                CupertinoIcons.clear,
+              )),
           trailing: GestureDetector(
               onTap: () async {
-                await addPlayerToSquad(context);
+                var wasPlayerAddedToSquad = await addPlayerToSquad(context);
 
-                if (context.mounted) {
+                if (wasPlayerAddedToSquad && context.mounted) {
                   Navigator.pop(context, true);
                 }
               },
@@ -64,7 +63,7 @@ class _AddPlayerToSquadPageState extends State<AddPlayerToSquadPage> {
                 Form.maybeOf(primaryFocus!.context!)?.save();
               },
               child: CupertinoFormSection.insetGrouped(
-                  header: const Text('Spilleroplysninger'),
+                  header: const Text(''),
                   children: <Widget>[
                     CupertinoFormRow(
                       prefix: Text('Navn'),
@@ -112,12 +111,32 @@ class _AddPlayerToSquadPageState extends State<AddPlayerToSquadPage> {
     return null;
   }
 
-  Future<void> addPlayerToSquad(BuildContext context) async {
+  Future<bool> addPlayerToSquad(BuildContext context) async {
     var playerName = _nameController.text;
     var playerEmail = _emailController.text;
     var doesPlayerAlreadyExistByNameOrEmail =
         widget.squad.any((x) => x.name == playerName || x.email == playerEmail);
-    ;
+
+    if (playerName.isEmpty || playerEmail.isEmpty) {
+      // Show CupertinoDialog if player name or email is empty
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: Text('Fejl'),
+          content: Text('Indtast venligst navn og e-mail.'),
+          actions: <CupertinoDialogAction>[
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Ok'),
+            ),
+          ],
+        ),
+      );
+
+      return false;
+    }
 
     if (doesPlayerAlreadyExistByNameOrEmail) {
       // Show CupertinoDialog if player already exists
@@ -137,12 +156,15 @@ class _AddPlayerToSquadPageState extends State<AddPlayerToSquadPage> {
           ],
         ),
       );
-      return;
+
+      return false;
     }
 
     await PlayersRepository.createPlayer(
       playerName,
       playerEmail,
     );
+
+    return true;
   }
 }

@@ -2,9 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:klubhuset/state/player_votes_state.dart';
 import 'package:klubhuset/tab/home_tab.dart';
+import 'package:klubhuset/tab/profile_tab.dart';
 import 'package:provider/provider.dart';
 
 String _appTitle = 'Klubhuset';
+
+// TODO 2 (CVHN): Add caching to the app
 
 void main() async {
   runApp(
@@ -31,9 +34,9 @@ class KlubhusetApp extends StatelessWidget {
     return CupertinoApp(
       title: _appTitle,
       theme: CupertinoThemeData(
-        brightness: Brightness.light,
-        primaryColor: CupertinoColors.systemIndigo,
-      ),
+          brightness: Brightness.light,
+          primaryColor: CupertinoColors.systemIndigo,
+          scaffoldBackgroundColor: CupertinoColors.systemBackground),
       home: const MainPage(),
     );
   }
@@ -64,7 +67,7 @@ class MainPage extends StatelessWidget {
             return CupertinoTabView(builder: (context) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  leading: Text('Hjem',
+                  leading: Text('Boldklubben',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 20)),
                 ),
@@ -75,12 +78,7 @@ class MainPage extends StatelessWidget {
           case 1:
             return CupertinoTabView(builder: (context) {
               return CupertinoPageScaffold(
-                navigationBar: CupertinoNavigationBar(
-                  leading: Text('Profil',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20)),
-                ),
-                child: Container(),
+                child: ProfileTab(),
               );
             });
         }
