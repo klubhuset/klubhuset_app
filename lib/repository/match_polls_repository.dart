@@ -23,13 +23,15 @@ class MatchPollsRepository {
   }
 
   static Future<int> createMatchPoll(
-      String matchName, int playerOfTheMatchId, int numberOfVotes) async {
+      int matchId, int playerOfTheMatchId, int numberOfVotes) async {
     await dotenv.load(); // Initialize dotenv
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/matchpolls');
 
     CreateMatchPollCommand createMatchPollCommand = CreateMatchPollCommand(
-        matchName, playerOfTheMatchId.toString(), numberOfVotes.toString());
+        matchId.toString(),
+        playerOfTheMatchId.toString(),
+        numberOfVotes.toString());
 
     var response = await http.post(url, body: createMatchPollCommand.toJson());
 

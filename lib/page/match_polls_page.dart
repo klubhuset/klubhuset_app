@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/helpers/date_helper.dart';
+import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/player_details.dart';
 import 'package:klubhuset/repository/match_polls_repository.dart';
+import 'package:klubhuset/repository/match_repository.dart';
 import 'package:klubhuset/repository/players_repository.dart';
 import 'package:klubhuset/page/create_match_poll_page.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -19,6 +21,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
   @override
   void initState() {
     super.initState();
+
     // Fetch both match polls and squad data at once
     matchPollsData = _fetchMatchPollsData();
   }
@@ -26,11 +29,13 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
   Future<Map<String, dynamic>> _fetchMatchPollsData() async {
     // Fetching both matchPolls and squad data
     final squad = await PlayersRepository.getSquad();
+    final matches = await MatchRepository.getMatches();
     final matchPolls = await MatchPollsRepository.getMatchPolls();
 
     // Combine the two into one map
     return {
       'squad': squad,
+      'matches': matches,
       'matchPolls': matchPolls.map((poll) {
         final player =
             squad.firstWhere((player) => player.id == poll.playerOfTheMatchId);
@@ -40,6 +45,12 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
         };
       }).toList(),
     };
+  }
+
+  Future<void> _refreshMatchPolls() async {
+    setState(() {
+      matchPollsData = _fetchMatchPollsData();
+    });
   }
 
   @override
@@ -67,6 +78,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
               onPressed: () async {
                 final data = await matchPollsData;
                 final squad = data['squad'] as List<PlayerDetails>;
+                final matches = data['matches'] as List<MatchDetails>;
                 final matchPolls = (data['matchPolls']
                         as List<Map<String, dynamic>>)
                     .map((matchPollsDataElement) =>
@@ -74,19 +86,24 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
                     .toList();
 
                 if (context.mounted) {
-                  showCupertinoModalBottomSheet(
+                  final result = await showCupertinoModalBottomSheet(
                     expand: true,
                     context: context,
                     builder: (context) => CreateMatchPollPage(
                       squad: squad,
+                      matches: matches,
                       matchPolls: matchPolls,
                     ),
                   );
+
+                  if (result == true) {
+                    _refreshMatchPolls();
+                  }
                 }
               },
               child: Icon(
                 CupertinoIcons.add,
-                semanticLabel: 'Opret ny afstemning',
+                semanticLabel: 'Opret afstemning',
               ),
             ),
           ),
@@ -99,6 +116,19 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
                   final matchPolls =
                       data['matchPolls'] as List<Map<String, dynamic>>;
 
+                  // TODO 2 (CVHN): Clean this up
+                  if (matchPolls.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 50.0),
+                        child: Text(
+                          'Ingen afstemninger fundet.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  }
+
                   // If data is available, build the list
                   return CupertinoListSection.insetGrouped(
                     dividerMargin: 0,
@@ -110,13 +140,16 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
                         final matchPoll =
                             dataToBeUsed['matchPoll'] as MatchPollDetails;
                         final player = dataToBeUsed['player'] as PlayerDetails;
+                        final match = (data['matches'] as List<MatchDetails>)
+                            .firstWhere(
+                                (match) => match.id == matchPoll.matchId);
 
                         return CupertinoListTile(
                           padding: EdgeInsets.only(
                               top: 20.0, bottom: 20.0, left: 20, right: 20),
                           title: Text(player.name),
                           subtitle: Text(
-                            '${matchPoll.matchName} - d. ${DateHelper.getFormattedDate(matchPoll.createdAt)}',
+                            '${match.name} - d. ${DateHelper.getFormattedDate(matchPoll.createdAt)}',
                           ),
                           additionalInfo: Text(
                             '${matchPoll.playerOfTheMatchVotes} stemmer',

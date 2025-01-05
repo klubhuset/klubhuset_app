@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/match_poll_row_item.dart';
+import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/player_details.dart';
 import 'package:klubhuset/repository/match_polls_repository.dart';
@@ -9,26 +10,26 @@ import 'package:provider/provider.dart';
 
 class CreateMatchPollPage extends StatefulWidget {
   final List<PlayerDetails> squad;
+  final List<MatchDetails> matches;
   final List<MatchPollDetails> matchPolls;
 
-  CreateMatchPollPage({required this.squad, required this.matchPolls});
+  CreateMatchPollPage(
+      {required this.squad, required this.matches, required this.matchPolls});
 
   @override
   State<CreateMatchPollPage> createState() => _CreateMatchPollPageState();
 }
 
 class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
-  late TextEditingController _matchNameController;
+  int selectedMatchIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _matchNameController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _matchNameController.dispose();
     super.dispose();
   }
 
@@ -36,7 +37,10 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   Widget build(BuildContext context) {
     var playerVotes = context.watch<PlayerVotesState>().playerVotes;
 
+    var matchesToBeSelected = widget.matches.map((x) => x.name).toList();
+
     return CupertinoPageScaffold(
+        backgroundColor: CupertinoColors.systemGrey6,
         navigationBar: CupertinoNavigationBar(
           leading: GestureDetector(
               onTap: () {
@@ -55,7 +59,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
                   await createMatchPoll(context, playerVotes);
 
               if (wasMatchPollCreated && context.mounted) {
-                Navigator.of(context).pop();
+                Navigator.pop(context, true);
               }
             },
             child: Text('Opret',
@@ -68,24 +72,47 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
             child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              // Input the name of the match
-              Form(
-                  autovalidateMode: AutovalidateMode.always,
-                  onChanged: () {
-                    Form.maybeOf(primaryFocus!.context!)?.save();
-                  },
-                  child: CupertinoFormSection.insetGrouped(
-                      header: const Text('Navn på kampen'),
+              Container(
+                  margin: EdgeInsets.only(
+                    top: 20.0,
+                  ),
+                  child: CupertinoFormSection.insetGrouped(children: <Widget>[
+                    _DatePickerItem(
                       children: <Widget>[
-                        CupertinoTextFormFieldRow(
-                          placeholder: 'F.eks. Skjold mod Frem',
-                          validator: (String? value) =>
-                              validateNameOfMatchInput(value),
-                          keyboardType: TextInputType.name,
-                          controller: _matchNameController,
-                          maxLength: 255,
-                        )
-                      ])),
+                        const Text('Kamp'),
+                        CupertinoButton(
+                          // Display a CupertinoDatePicker in date picker mode.
+                          onPressed: () {
+                            _showDialog(
+                              CupertinoPicker(
+                                magnification: 1.22,
+                                squeeze: 1.2,
+                                useMagnifier: true,
+                                itemExtent: 32.0,
+                                // This sets the initial item.
+                                scrollController: FixedExtentScrollController(
+                                  initialItem: selectedMatchIndex,
+                                ),
+                                // This is called when selected item is changed.
+                                onSelectedItemChanged:
+                                    (dynamic selectedItemIndex) {
+                                  setState(() {
+                                    selectedMatchIndex = selectedItemIndex;
+                                  });
+                                },
+                                children: List<Widget>.generate(
+                                    matchesToBeSelected.length, (int index) {
+                                  return Center(
+                                      child: Text(matchesToBeSelected[index]));
+                                }),
+                              ),
+                            );
+                          },
+                          child: Text(matchesToBeSelected[selectedMatchIndex]),
+                        ),
+                      ],
+                    ),
+                  ])),
 
               // Vote on the player of the match
               CupertinoListSection.insetGrouped(
@@ -99,27 +126,51 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
         )));
   }
 
-  String? validateNameOfMatchInput(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Indtast navnet på kampen';
-    }
-
-    return null;
+  void _showDialog(Widget child) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <Widget>[
+          Container(
+            height: 250,
+            // The Bottom margin is provided to align the popup above the system navigation bar.
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            // Provide a background color for the popup.
+            color: CupertinoColors.systemBackground.resolveFrom(context),
+            // Use a SafeArea widget to avoid system overlaps.
+            child: SafeArea(
+              top: false,
+              child: child,
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          isDefaultAction: true,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Luk'),
+        ),
+      ),
+    );
   }
 
   Future<bool> createMatchPoll(
       BuildContext context, List<PlayerVote> playerVotes) async {
-    bool doesMatchNameAlreadyExists = widget.matchPolls.any((x) =>
-        x.matchName.toLowerCase() == _matchNameController.text.toLowerCase());
+    int matchId = widget.matches[selectedMatchIndex].id;
+    bool doesMatchPollAlreadyExistsForMatch =
+        widget.matchPolls.any((x) => x.matchId == matchId);
 
-    if (doesMatchNameAlreadyExists) {
+    if (doesMatchPollAlreadyExistsForMatch) {
       // Show CupertinoDialog if match name exists
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
           title: Text('Fejl'),
           content: Text(
-              'Afstemning til kampen eksisterer allerede. Ændr navnet på kampen'),
+              'Afstemning til kampen eksisterer allerede. Vælg en anden kamp.'),
           actions: <CupertinoDialogAction>[
             CupertinoDialogAction(
               onPressed: () {
@@ -156,6 +207,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     }
 
     // Sort list of player votes based on highest number of vores
+    // TODO 1 (CVHN): Move this to backend
     PlayerVote playerVoteWithMostVotes =
         playerVotes.reduce((a, b) => a.votes > b.votes ? a : b);
 
@@ -163,7 +215,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     int numberOfVotes = playerVoteWithMostVotes.votes;
 
     await MatchPollsRepository.createMatchPoll(
-        _matchNameController.text, playerOfTheMatchId, numberOfVotes);
+        matchId, playerOfTheMatchId, numberOfVotes);
 
     Provider.of<PlayerVotesState>(context, listen: false)
         .removeAllPlayerVotes();
@@ -182,5 +234,36 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     }
 
     return matchPollRowItems;
+  }
+}
+
+class _DatePickerItem extends StatelessWidget {
+  const _DatePickerItem({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: CupertinoColors.inactiveGray,
+            width: 0.0,
+          ),
+          bottom: BorderSide(
+            color: CupertinoColors.inactiveGray,
+            width: 0.0,
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20.0, 0.0, 5.0, 0.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: children,
+        ),
+      ),
+    );
   }
 }

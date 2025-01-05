@@ -86,6 +86,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///Users/holstchayder/.pub-cache/hosted/pub.dev/intl-0.20.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///Users/holstchayder/.pub-cache/hosted/pub.dev/leak_tracker-10.0.5",
       "packageUri": "lib/",
@@ -224,7 +230,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2024-12-28T10:51:03.683841Z",
+  "generated": "2025-01-05T10:17:40.189073Z",
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/holstchayder/Development/flutter",

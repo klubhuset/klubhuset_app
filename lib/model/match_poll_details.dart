@@ -1,6 +1,6 @@
 class MatchPollDetails {
   final int id;
-  final String matchName;
+  final int matchId;
   final int playerOfTheMatchId;
   final int playerOfTheMatchVotes;
   final DateTime createdAt;
@@ -8,7 +8,7 @@ class MatchPollDetails {
 
   MatchPollDetails(
       {required this.id,
-      required this.matchName,
+      required this.matchId,
       required this.playerOfTheMatchId,
       required this.playerOfTheMatchVotes,
       required this.createdAt,
@@ -17,7 +17,7 @@ class MatchPollDetails {
   factory MatchPollDetails.fromJson(Map<String, dynamic> json) {
     return MatchPollDetails(
       id: json['id'],
-      matchName: json['matchName'],
+      matchId: json['matchId'],
       playerOfTheMatchId: json['playerOfTheMatchId'],
       playerOfTheMatchVotes: json['playerOfTheMatchVotes'],
       createdAt: DateTime.parse(json['createdAt']),

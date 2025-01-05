@@ -1,14 +1,14 @@
 class CreateMatchPollCommand {
-  final String matchName;
+  final String matchId;
   final String playerOfTheMatchId;
   final String playerOfTheMatchVotes;
 
   CreateMatchPollCommand(
-      this.matchName, this.playerOfTheMatchId, this.playerOfTheMatchVotes);
+      this.matchId, this.playerOfTheMatchId, this.playerOfTheMatchVotes);
 
   Map<String, dynamic> toJson() {
     return {
-      'matchName': matchName,
+      'matchId': matchId,
       'playerOfTheMatchId': playerOfTheMatchId,
       'playerOfTheMatchVotes': playerOfTheMatchVotes,
     };

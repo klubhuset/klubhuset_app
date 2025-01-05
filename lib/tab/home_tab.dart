@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:klubhuset/page/match_polls_page.dart';
+import 'package:klubhuset/page/match_programme.dart';
 import 'package:klubhuset/page/squad_page.dart';
 import 'package:klubhuset/page/team_fines_page.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -14,10 +15,36 @@ class HomeTab extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
+              // Container for match programme
+              CupertinoButton(
+                child: Container(
+                  height: 100,
+                  width: 400,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(46, 134, 171, 100),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "Kampprogram",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialWithModalsPageRoute(
+                      builder: (context) => MatchProgrammePage()));
+                },
+              ),
+
               // Container for Man-of-the-match
               CupertinoButton(
                 child: Container(
-                  height: 150,
+                  height: 100,
                   width: 400,
                   decoration: BoxDecoration(
                     color: Color.fromRGBO(38, 64, 139, 100),
@@ -43,7 +70,7 @@ class HomeTab extends StatelessWidget {
               // Container for the Squad
               CupertinoButton(
                 child: Container(
-                  height: 150,
+                  height: 100,
                   width: 400,
                   decoration: BoxDecoration(
                     color: Color.fromRGBO(224, 159, 62, 100),
@@ -69,7 +96,7 @@ class HomeTab extends StatelessWidget {
               // Container for Team Fines
               CupertinoButton(
                 child: Container(
-                  height: 150,
+                  height: 100,
                   width: 400,
                   decoration: BoxDecoration(
                     color: Color.fromRGBO(166, 117, 161, 100),
