@@ -37,8 +37,8 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
       'squad': squad,
       'matches': matches,
       'matchPolls': matchPolls.map((poll) {
-        final player =
-            squad.firstWhere((player) => player.id == poll.playerOfTheMatchId);
+        final player = squad.firstWhere(
+            (player) => player.id == poll.playerOfTheMatchDetails.id);
         return {
           'matchPoll': poll,
           'player': player,

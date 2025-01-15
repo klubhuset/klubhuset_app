@@ -27,7 +27,9 @@ class MatchRepository {
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match');
 
-    CreateMatchCommand createMatchCommand = CreateMatchCommand(name, matchDate);
+    // TODO: Add address
+    CreateMatchCommand createMatchCommand =
+        CreateMatchCommand(name, '', matchDate);
 
     var response = await http.post(url, body: createMatchCommand.toJson());
 
@@ -38,5 +40,20 @@ class MatchRepository {
     var json = jsonDecode(response.body);
 
     return json['id'];
+  }
+
+  static Future<MatchDetails> getMatch(int id) async {
+    await dotenv.load(); // Initialize dotenv
+
+    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/$id');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var json = jsonDecode(response.body)['body'];
+
+      return MatchDetails.fromJson(json);
+    } else {
+      throw Exception('Failed to fetch match');
+    }
   }
 }

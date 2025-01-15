@@ -14,7 +14,9 @@ class CreateMatchPollPage extends StatefulWidget {
   final List<MatchPollDetails> matchPolls;
 
   CreateMatchPollPage(
-      {required this.squad, required this.matches, required this.matchPolls});
+      {required this.squad,
+      this.matches = const [],
+      this.matchPolls = const []});
 
   @override
   State<CreateMatchPollPage> createState() => _CreateMatchPollPageState();
@@ -55,11 +57,11 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () async {
-              var wasMatchPollCreated =
+              var createdMatchPollDetails =
                   await createMatchPoll(context, playerVotes);
 
-              if (wasMatchPollCreated && context.mounted) {
-                Navigator.pop(context, true);
+              if (createdMatchPollDetails != null && context.mounted) {
+                Navigator.pop(context, createdMatchPollDetails);
               }
             },
             child: Text('Opret',
@@ -157,7 +159,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     );
   }
 
-  Future<bool> createMatchPoll(
+  Future<MatchPollDetails?> createMatchPoll(
       BuildContext context, List<PlayerVote> playerVotes) async {
     int matchId = widget.matches[selectedMatchIndex].id;
     bool doesMatchPollAlreadyExistsForMatch =
@@ -182,7 +184,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
         ),
       );
 
-      return false;
+      return null;
     }
 
     if (playerVotes.isEmpty) {
@@ -203,24 +205,16 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
         ),
       );
 
-      return false;
+      return null;
     }
 
-    // Sort list of player votes based on highest number of vores
-    // TODO 1 (CVHN): Move this to backend
-    PlayerVote playerVoteWithMostVotes =
-        playerVotes.reduce((a, b) => a.votes > b.votes ? a : b);
-
-    int playerOfTheMatchId = playerVoteWithMostVotes.playerId;
-    int numberOfVotes = playerVoteWithMostVotes.votes;
-
-    await MatchPollsRepository.createMatchPoll(
-        matchId, playerOfTheMatchId, numberOfVotes);
+    int matchPollId =
+        await MatchPollsRepository.createMatchPoll(matchId, playerVotes);
 
     Provider.of<PlayerVotesState>(context, listen: false)
         .removeAllPlayerVotes();
 
-    return true;
+    return await MatchPollsRepository.getMatchPoll(matchPollId);
   }
 
   List<MatchPollRowItem> getMatchPollRowItems() {

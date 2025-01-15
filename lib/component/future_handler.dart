@@ -34,7 +34,9 @@ class FutureHandler<T> extends StatelessWidget {
         }
 
         // Empty or no data
-        if (!snapshot.hasData || snapshot.data == null) {
+        if (!snapshot.hasData ||
+            snapshot.data == null ||
+            snapshot.data is List && (snapshot.data as List).isEmpty) {
           return Center(
             child: Padding(
               padding: EdgeInsets.only(top: 50.0),

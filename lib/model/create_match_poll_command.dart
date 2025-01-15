@@ -1,16 +1,19 @@
+import 'dart:convert';
+
+import 'package:klubhuset/model/create_match_poll_player_command.dart';
+
 class CreateMatchPollCommand {
   final String matchId;
-  final String playerOfTheMatchId;
-  final String playerOfTheMatchVotes;
+  final List<CreateMatchPollPlayerVoteCommand>
+      createMatchPollPlayerVoteCommands;
 
-  CreateMatchPollCommand(
-      this.matchId, this.playerOfTheMatchId, this.playerOfTheMatchVotes);
+  CreateMatchPollCommand(this.matchId, this.createMatchPollPlayerVoteCommands);
 
   Map<String, dynamic> toJson() {
     return {
       'matchId': matchId,
-      'playerOfTheMatchId': playerOfTheMatchId,
-      'playerOfTheMatchVotes': playerOfTheMatchVotes,
+      'createMatchPollPlayerVoteCommands': jsonEncode(
+          createMatchPollPlayerVoteCommands.map((e) => e.toJson()).toList())
     };
   }
 }
