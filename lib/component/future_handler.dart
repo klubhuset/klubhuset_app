@@ -38,12 +38,9 @@ class FutureHandler<T> extends StatelessWidget {
             snapshot.data == null ||
             snapshot.data is List && (snapshot.data as List).isEmpty) {
           return Center(
-            child: Padding(
-              padding: EdgeInsets.only(top: 50.0),
-              child: Text(
-                (noDataFoundMessage ?? 'Ingen data tilgængelig'),
-                textAlign: TextAlign.center,
-              ),
+            child: Text(
+              (noDataFoundMessage ?? 'Ingen data tilgængelig'),
+              textAlign: TextAlign.center,
             ),
           );
         }

@@ -4,11 +4,19 @@ import 'package:klubhuset/model/player_vote.dart';
 import 'package:provider/provider.dart';
 
 class MatchPollRowItem extends StatefulWidget {
+  final bool disabled;
   final int playerId;
   final String playerName;
+  final int votes;
+  final bool isPlayerPlayerOfTheMatch;
 
   const MatchPollRowItem(
-      {super.key, required this.playerId, required this.playerName});
+      {super.key,
+      this.disabled = false,
+      required this.playerId,
+      required this.playerName,
+      this.votes = 0,
+      this.isPlayerPlayerOfTheMatch = false});
 
   @override
   State<MatchPollRowItem> createState() => _MatchPollRowItemState();
@@ -20,7 +28,7 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: '0');
+    _textController = TextEditingController(text: widget.votes.toString());
 
     // Start listening to changes.
     _textController.addListener(createUpdatePlayerVote);
@@ -37,6 +45,9 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
     return CupertinoListTile(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0, left: 20, right: 20),
         title: Text(widget.playerName),
+        subtitle: widget.isPlayerPlayerOfTheMatch == true
+            ? Text('Kampens spiller')
+            : null,
         trailing: SizedBox(
           width: 100,
           child: CupertinoTextField(
@@ -81,6 +92,7 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
             keyboardType: TextInputType.numberWithOptions(),
             controller: _textController,
             textAlign: TextAlign.center,
+            readOnly: widget.disabled,
           ),
         ));
   }

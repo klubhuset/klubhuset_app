@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/future_handler.dart';
+import 'package:klubhuset/component/match_poll_row_item.dart';
 import 'package:klubhuset/helpers/date_helper.dart';
 import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
@@ -82,14 +83,14 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                 noDataFoundMessage: 'Ingen kamp fundet.',
                 onSuccess: (context, data) {
                   final matchDetails = data['matchDetails'] as MatchDetails;
+                  final squad = data['squad'] as List<PlayerDetails>;
 
                   return Column(
                     children: [
                       Center(
                         child: Container(
-                          margin: const EdgeInsets.only(top: 20.0),
+                          margin: const EdgeInsets.all(20.0),
                           padding: const EdgeInsets.all(20.0),
-                          width: 350,
                           height: 100,
                           decoration: BoxDecoration(
                             color: CupertinoColors.systemBackground,
@@ -116,7 +117,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                width: 350,
+                                width: 380,
                                 child: CupertinoSlidingSegmentedControl<
                                     MatchDetailsSegments>(
                                   backgroundColor: CupertinoColors.systemGrey2,
@@ -158,7 +159,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                           ),
                         ),
                       ),
-                      Center(child: getMatchDetailSegment(matchDetails)),
+                      Center(child: getMatchDetailSegment(matchDetails, squad)),
                     ],
                   );
                 },
@@ -168,12 +169,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
         ));
   }
 
-  Widget getMatchDetailSegment(MatchDetails matchDetails) {
+  Widget getMatchDetailSegment(
+      MatchDetails matchDetails, List<PlayerDetails> squad) {
     if (_selectedSegment == MatchDetailsSegments.info) {
       return Container(
-        margin: const EdgeInsets.only(top: 20.0),
+        margin: const EdgeInsets.all(20.0),
         padding: const EdgeInsets.all(20.0),
-        width: 350,
         height: 160,
         decoration: BoxDecoration(
           color: CupertinoColors.systemBackground,
@@ -197,10 +198,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
       );
     } else if (_selectedSegment == MatchDetailsSegments.manOfTheMatch) {
       return Container(
-        margin: const EdgeInsets.only(top: 20.0),
-        padding: const EdgeInsets.all(20.0),
-        width: 350,
-        height: 160,
+        margin: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.only(top: 20, bottom: 20),
         decoration: BoxDecoration(
           color: CupertinoColors.systemBackground,
           borderRadius: BorderRadius.circular(12.0),
@@ -211,11 +210,13 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
             children: [
               if (_isManOfTheMatchVoted &&
                   matchPollDetails!.matchPollPlayerVotesDetails.isNotEmpty) ...[
-                // TODO: Add for each element in matchPollPlayerVotesDetails
-                Text(
-                  'Test',
-                  style: TextStyle(fontSize: 15),
-                ),
+                // Votes for MOTM
+                CupertinoListSection(
+                    header: const Text('Stemmer'),
+                    topMargin: 0,
+                    margin: EdgeInsets.zero,
+                    backgroundColor: CupertinoColors.systemBackground,
+                    children: getMatchPollRowItems(squad)),
               ] else ...[
                 Text('Ingen afstemning endnu', style: TextStyle(fontSize: 15)),
                 SizedBox(height: 20),
@@ -264,5 +265,25 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
       );
     }
     return Text('');
+  }
+
+  List<MatchPollRowItem> getMatchPollRowItems(List<PlayerDetails> squad) {
+    var matchPollRowItems = matchPollDetails!.matchPollPlayerVotesDetails
+        .map((matchPollPlayerVotes) => MatchPollRowItem(
+            disabled: true,
+            playerId: matchPollPlayerVotes.playerId,
+            playerName: squad
+                .firstWhere(
+                    (element) => element.id == matchPollPlayerVotes.playerId)
+                .name,
+            votes: matchPollPlayerVotes.numberOfVotes,
+            isPlayerPlayerOfTheMatch:
+                matchPollDetails!.playerOfTheMatchDetails.id ==
+                    matchPollPlayerVotes.playerId))
+        .toList();
+
+    matchPollRowItems.sort((a, b) => b.votes.compareTo(a.votes));
+
+    return matchPollRowItems;
   }
 }
