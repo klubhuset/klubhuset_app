@@ -57,35 +57,12 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
                 color: CupertinoColors.lightBackgroundGray,
                 darkColor: CupertinoColors.black,
               ),
-              border: Border(
-                top: BorderSide(
-                  color: CupertinoDynamicColor.withBrightness(
-                    color: Color(0x33000000),
-                    darkColor: Color(0x33FFFFFF),
-                  ),
-                  width: 0.0,
+              border: Border.all(
+                color: CupertinoDynamicColor.withBrightness(
+                  color: Color(0x33000000),
+                  darkColor: Color(0x33FFFFFF),
                 ),
-                bottom: BorderSide(
-                  color: CupertinoDynamicColor.withBrightness(
-                    color: Color(0x33000000),
-                    darkColor: Color(0x33FFFFFF),
-                  ),
-                  width: 0.0,
-                ),
-                left: BorderSide(
-                  color: CupertinoDynamicColor.withBrightness(
-                    color: Color(0x33000000),
-                    darkColor: Color(0x33FFFFFF),
-                  ),
-                  width: 0.0,
-                ),
-                right: BorderSide(
-                  color: CupertinoDynamicColor.withBrightness(
-                    color: Color(0x33000000),
-                    darkColor: Color(0x33FFFFFF),
-                  ),
-                  width: 0.0,
-                ),
+                width: 0.0,
               ),
               borderRadius: BorderRadius.all(Radius.circular(5.0)),
             ),

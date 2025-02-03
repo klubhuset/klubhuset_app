@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/model/player_fine_details.dart';
 import 'package:klubhuset/page/team_fines/assign_fines_modal.dart';
-import 'package:klubhuset/repository/players_repository.dart';
+import 'package:klubhuset/repository/fines_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class TeamFinesPage extends StatefulWidget {
@@ -17,13 +17,12 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
   @override
   void initState() {
     super.initState();
-    playerFineDetailsList = PlayersRepository.getAllPlayerFines();
+    playerFineDetailsList = FinesRepository.getAllPlayerFines();
   }
 
-  // ignore: unused_element
-  Future<void> _refreshSquad() async {
+  Future<void> _refreshPlayerFines() async {
     setState(() {
-      playerFineDetailsList = PlayersRepository.getAllPlayerFines();
+      playerFineDetailsList = FinesRepository.getAllPlayerFines();
     });
   }
 
@@ -79,11 +78,15 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                       children: [
                         getButtonItem('Tildel', CupertinoIcons.money_dollar,
                             onTap: () async {
-                          await showCupertinoModalBottomSheet(
+                          final result = await showCupertinoModalBottomSheet(
                             expand: true,
                             context: context,
                             builder: (context) => AssignFinesModal(),
                           );
+
+                          if (result == true) {
+                            _refreshPlayerFines();
+                          }
                         }),
                         SizedBox(width: 30),
                         getButtonItem(

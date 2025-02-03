@@ -1,4 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:klubhuset/component/future_handler.dart';
+import 'package:klubhuset/model/create_player_fine_command.dart';
+import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/model/player_fine_details.dart';
+import 'package:klubhuset/repository/fines_repository.dart';
+import 'package:klubhuset/repository/players_repository.dart';
 
 class AssignFinesModal extends StatefulWidget {
   @override
@@ -6,189 +12,265 @@ class AssignFinesModal extends StatefulWidget {
 }
 
 class _AssignFinesModalState extends State<AssignFinesModal> {
-  bool isExpanded1 = false;
-  bool isExpanded2 = false;
-  bool isExpanded3 = false;
+  late Future<Map<String, dynamic>> fineTypesAndSquadData;
+  List<Map<String, dynamic>> fineTypesExpanded = [];
+  Map<int, Map<int, bool>> selectedPlayers = {};
+  Map<String, String> playerFinePrices = {};
 
-  // @override
-  // Widget build(BuildContext context) {
-  // return CupertinoPageScaffold(
-  //     backgroundColor: CupertinoColors.systemGrey6,
-  //     navigationBar: CupertinoNavigationBar(
-  //       middle: Text('Tildel bøder'),
-  //       leading: GestureDetector(
-  //           onTap: () {
-  //             Navigator.pop(context,
-  //                 false); // Return false to indicate no player was added
-  //           },
-  //           child: Icon(
-  //             semanticLabel: 'Annullér',
-  //             CupertinoIcons.clear,
-  //           )),
-  //       trailing: GestureDetector(
-  //           onTap: () async {
-  //             if (context.mounted) {
-  //               Navigator.pop(context, true);
-  //             }
-  //           },
-  //           child: Text('Opret',
-  //               style: TextStyle(
-  //                   color: CupertinoColors.systemIndigo,
-  //                   fontWeight: FontWeight.bold))),
-  //     ),
-  //     child: SafeArea(
-  //         child: SingleChildScrollView(
-  //             child: CupertinoListSection.insetGrouped(
-  //       children: <Widget>[
-  //         CupertinoListTile(
-  //           title: Text('Item 1'),
-  //           onTap: () {
-  //             setState(() {
-  //               // Toggle the expansion state of Item 1
-  //               isExpanded1 = !isExpanded1;
-  //             });
-  //           },
-  //         ),
-  //         if (isExpanded1)
-  //           Padding(
-  //             padding: EdgeInsets.symmetric(horizontal: 16),
-  //             child: Column(
-  //               children: [
-  //                 Text('Additional information for Item 1'),
-  //                 // Add more widgets here for additional information
-  //               ],
-  //             ),
-  //           ),
-  //         CupertinoListTile(
-  //           title: Text('Item 2'),
-  //           onTap: () {
-  //             setState(() {
-  //               // Toggle the expansion state of Item 2
-  //               isExpanded2 = !isExpanded2;
-  //             });
-  //           },
-  //         ),
-  //         if (isExpanded2)
-  //           Padding(
-  //             padding: EdgeInsets.symmetric(horizontal: 16),
-  //             child: Column(
-  //               children: [
-  //                 Text('Additional information for Item 2'),
-  //                 // Add more widgets here for additional information
-  //               ],
-  //             ),
-  //           ),
-  //       ],
-  //     ))));
-  List<Map<String, dynamic>> fineTypes = [
-    {"name": "Pis i badet", "price": 215, "expanded": false},
-    {"name": "Gult kort", "price": 215, "expanded": false},
-    {"name": "Glemt støvler", "price": 215, "expanded": false},
-    {"name": "Rødt kort", "price": 215, "expanded": false},
-    {"name": "Kæmpe chance", "price": 215, "expanded": false},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fineTypesAndSquadData = _fetchFineTypesAndSquad();
+  }
 
-  Map<String, int> playerFines = {};
-  List<String> players = ["Anders Holze Brandt", "Spiller 2", "Spiller 3"];
+  Future<Map<String, dynamic>> _fetchFineTypesAndSquad() async {
+    // Fetching both matchPolls and squad data
+    final squad = await PlayersRepository.getSquad();
+    final fineTypeDetailsList = await FinesRepository.getFineTypes();
 
-  void toggleExpansion(int index) {
-    setState(() {
-      fineTypes[index]["expanded"] = !fineTypes[index]["expanded"];
-    });
+    fineTypesExpanded = (fineTypeDetailsList as List<dynamic>).map((fine) {
+      selectedPlayers[fine.id] = {};
+
+      return {
+        'id': fine.id,
+        'name': fine.title,
+        'price': fine.defaultAmount,
+        'expanded': false,
+      };
+    }).toList();
+
+    // Combine the two into one map
+    return {
+      'squad': squad,
+      'fineTypeDetails': fineTypeDetailsList,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      backgroundColor: CupertinoColors.systemGrey6,
       navigationBar: CupertinoNavigationBar(
-        middle: Text("Tildel bøder"),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context,
+                  false); // Return false to indicate no player was added
+            },
+            child: Icon(
+              semanticLabel: 'Annullér',
+              CupertinoIcons.clear,
+            )),
+        middle: Text('Tildel bøder'),
+        trailing: GestureDetector(
+            onTap: () async {
+              var werePlayerFinesCreated = await addFines(context);
+
+              if (werePlayerFinesCreated && context.mounted) {
+                Navigator.pop(context, werePlayerFinesCreated);
+              }
+            },
+            child: Text('Opret',
+                style: TextStyle(
+                    color: CupertinoColors.systemIndigo,
+                    fontWeight: FontWeight.bold))),
       ),
       child: SafeArea(
-        child: CupertinoListSection.insetGrouped(
-          children: fineTypes.asMap().entries.map((entry) {
-            int index = entry.key;
-            var fine = entry.value;
-            return Column(
-              children: [
-                GestureDetector(
-                  onTap: () => toggleExpansion(index),
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                    child: Row(
+        child: SingleChildScrollView(
+          child: FutureHandler<Map<String, dynamic>>(
+              future: fineTypesAndSquadData,
+              noDataFoundMessage: 'Ingen bødetyper fundet.',
+              onSuccess: (context, data) {
+                var squad = data['squad'] as List<PlayerDetails>;
+
+                return CupertinoListSection.insetGrouped(
+                  dividerMargin: 0,
+                  additionalDividerMargin: 0,
+                  children: fineTypesExpanded.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    var fine = entry.value;
+
+                    return Column(
                       children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-                          child: AnimatedRotation(
-                            duration: Duration(milliseconds: 250),
-                            turns: fine["expanded"] ? 0.5 : 0,
+                        GestureDetector(
+                          onTap: () => toggleExpansion(index),
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
-                            child: Icon(CupertinoIcons.chevron_down,
-                                color: CupertinoColors.black),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(fine["name"],
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text("${fine["price"]},-",
-                              style: TextStyle(fontSize: 16)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                AnimatedSize(
-                  duration: Duration(milliseconds: 250),
-                  curve: Curves.easeInOut,
-                  child: fine["expanded"]
-                      ? Column(
-                          children: players.map((player) {
-                            return Padding(
-                              padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(player, style: TextStyle(fontSize: 16)),
-                                  SizedBox(
-                                    width: 80,
-                                    child: CupertinoTextField(
-                                      keyboardType: TextInputType.number,
-                                      placeholder: "${fine["price"]}",
-                                      onChanged: (value) {
-                                        setState(() {
-                                          playerFines[player] =
-                                              int.tryParse(value) ??
-                                                  fine["price"];
-                                        });
-                                      },
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(fontSize: 16),
-                                      decoration: BoxDecoration(
-                                        color: CupertinoColors.white,
-                                        border: Border.all(
-                                            color: CupertinoColors.systemGrey,
-                                            width: 1),
-                                        borderRadius: BorderRadius.circular(5),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            child: Row(
+                              children: [
+                                AnimatedRotation(
+                                  duration: Duration(milliseconds: 300),
+                                  turns: fine['expanded'] ? -0.5 : 0,
+                                  curve: Curves.easeInOut,
+                                  child: Icon(CupertinoIcons.chevron_down,
+                                      color: CupertinoColors.systemGrey),
+                                ),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(fine['name'],
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600)),
+                                ),
+                                SizedBox(
+                                  width: 80,
+                                  child: CupertinoTextField(
+                                    placeholder: fine['price'].toString(),
+                                    placeholderStyle: TextStyle(
+                                        color: CupertinoColors.systemGrey),
+                                    keyboardType: TextInputType.number,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        fine['price'] = int.tryParse(value) ??
+                                            fine['price'];
+                                      });
+                                    },
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: CupertinoColors.black,
+                                        width: 1.0,
                                       ),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(5.0)),
                                     ),
                                   ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        )
-                      : SizedBox.square(),
-                ),
-              ],
-            );
-          }).toList(),
+                                ),
+                                SizedBox(width: 5),
+                                Text('kr.', style: TextStyle(fontSize: 16)),
+                              ],
+                            ),
+                          ),
+                        ),
+                        AnimatedSize(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: fine['expanded']
+                              ? Container(
+                                  margin: EdgeInsets.only(
+                                      top: 8, left: 16, right: 16, bottom: 12),
+                                  padding: EdgeInsets.all(10),
+                                  child: Column(
+                                    children: squad.map((player) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(player.name,
+                                                  style:
+                                                      TextStyle(fontSize: 16)),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  selectedPlayers[fine['id']]![
+                                                          player.id] =
+                                                      !(selectedPlayers[
+                                                                  fine['id']]![
+                                                              player.id] ??
+                                                          false);
+                                                });
+                                              },
+                                              child: Container(
+                                                width: 28,
+                                                height: 28,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    color:
+                                                        CupertinoColors.black,
+                                                    width: 2,
+                                                  ),
+                                                  color: selectedPlayers[
+                                                                  fine['id']]![
+                                                              player.id] ==
+                                                          true
+                                                      ? CupertinoColors.black
+                                                      : CupertinoColors.white,
+                                                ),
+                                                child: selectedPlayers[
+                                                                fine['id']]![
+                                                            player.id] ==
+                                                        true
+                                                    ? Icon(
+                                                        CupertinoIcons
+                                                            .checkmark,
+                                                        color: CupertinoColors
+                                                            .white,
+                                                        size: 18)
+                                                    : null,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                )
+                              : SizedBox.shrink(),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                );
+              }),
         ),
       ),
     );
+  }
+
+  void toggleExpansion(int index) {
+    setState(() {
+      fineTypesExpanded[index]['expanded'] =
+          !fineTypesExpanded[index]['expanded'];
+    });
+  }
+
+  Future<bool> addFines(BuildContext context) async {
+    List<CreatePlayerFineCommand> createPlayerFineCommands = [];
+
+    for (var fine in fineTypesExpanded) {
+      var selectedPlayersIds = selectedPlayers[fine['id']]!
+          .entries
+          .where((entry) => entry.value)
+          .map((entry) => entry.key)
+          .toList();
+
+      for (var playerId in selectedPlayersIds) {
+        createPlayerFineCommands.add(CreatePlayerFineCommand(
+            playerId: playerId.toString(),
+            fineTypeId: fine['id'].toString(),
+            owedAmount: fine['price'].toString()));
+      }
+    }
+
+    if (createPlayerFineCommands.isEmpty) {
+      // Show CupertinoDialog no players has been selected
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: Text('Fejl'),
+          content:
+              Text('Ingen bøder er tildelt. Vælg venligst mindst én spiller.'),
+          actions: <CupertinoDialogAction>[
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Ok'),
+            ),
+          ],
+        ),
+      );
+
+      return false;
+    }
+
+    await FinesRepository.addFineForPlayers(createPlayerFineCommands);
+
+    return true;
   }
 }

@@ -14,11 +14,11 @@
 		</data>
 		<key>flutter_assets/AssetManifest.bin</key>
 		<data>
-		trdd/mu+8hjQeWI0zAimZnq9tZ8=
+		WsNrTrWGe+Zrk7uJXzudgZQp7+Q=
 		</data>
 		<key>flutter_assets/AssetManifest.json</key>
 		<data>
-		tnrS9qqypoH1Jb9QpCUiMnCg7q4=
+		oZyuy5UB2Hd0HbtI50z4x12pnRA=
 		</data>
 		<key>flutter_assets/FontManifest.json</key>
 		<data>
@@ -32,6 +32,10 @@
 		<data>
 		qEY40DKV6yWolMgJeQ4WyULW1tg=
 		</data>
+		<key>flutter_assets/assets/mobilepay_logo.png</key>
+		<data>
+		7uwCvfo+rfF7QxU0/EhLSydeRjE=
+		</data>
 		<key>flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<data>
 		/CUoTuPQqqdexfyOT9lpJhV+2MQ=
@@ -42,7 +46,7 @@
 		</data>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<data>
-		Ph6prtvyDxdnug0M2c1jwBLEhSI=
+		QETXYU5W45SpXnx0gAW0dw84rg8=
 		</data>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -70,14 +74,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			lu1WmTmVAmaWAsNEEwcgNO18Qar/TwVEi5TFqxi+/Qs=
+			U3QgNTEdGMnEIP1ix180mpGzZIkXXEGVJpXiav+vr+c=
 			</data>
 		</dict>
 		<key>flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			r5qkOT8trTRPehmuDbplQ5vS9MGDjEeexF46s67Ey6M=
+			+w0e/yz1YeckMeexedJn4u7dg1xQK6c5eh9llHM4ObU=
 			</data>
 		</dict>
 		<key>flutter_assets/FontManifest.json</key>
@@ -101,6 +105,13 @@
 			9ez8l2cU3i5+RW7VXFNlkUET+Xp1mC2fxQouuR4+Avg=
 			</data>
 		</dict>
+		<key>flutter_assets/assets/mobilepay_logo.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			8kIqliPEqp+9aMSURITPpfF5OmqXngBTLxSsZ1/xJlM=
+			</data>
+		</dict>
 		<key>flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<dict>
 			<key>hash2</key>
@@ -119,7 +130,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			FXoCpJ+Ul4B+rrO4m9UEELgqnkyLHY/eXV3oUym6imc=
+			yM860BVWOrE9Qy5YdI52WK6cSxfWISFPhfqabf8zNfQ=
 			</data>
 		</dict>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>

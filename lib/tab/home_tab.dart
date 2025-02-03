@@ -26,7 +26,7 @@ class HomeTab extends StatelessWidget {
                   ),
                   child: const Center(
                     child: Text(
-                      "Kampprogram",
+                      'Kampprogram',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -52,7 +52,7 @@ class HomeTab extends StatelessWidget {
                   ),
                   child: const Center(
                     child: Text(
-                      "Kampens spiller",
+                      'Kampens spiller',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -78,7 +78,7 @@ class HomeTab extends StatelessWidget {
                   ),
                   child: const Center(
                     child: Text(
-                      "Truppen",
+                      'Truppen',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -104,7 +104,7 @@ class HomeTab extends StatelessWidget {
                   ),
                   child: const Center(
                     child: Text(
-                      "Bødekassen",
+                      'Bødekassen',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
