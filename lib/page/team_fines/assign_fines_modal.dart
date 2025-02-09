@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/model/create_player_fine_command.dart';
 import 'package:klubhuset/model/player_details.dart';
-import 'package:klubhuset/model/player_fine_details.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
 import 'package:klubhuset/repository/players_repository.dart';
 
@@ -120,11 +121,13 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
                                     placeholder: fine['price'].toString(),
                                     placeholderStyle: TextStyle(
                                         color: CupertinoColors.systemGrey),
-                                    keyboardType: TextInputType.number,
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
                                     onChanged: (value) {
                                       setState(() {
-                                        fine['price'] = int.tryParse(value) ??
-                                            fine['price'];
+                                        fine['price'] = value;
                                       });
                                     },
                                     decoration: BoxDecoration(
@@ -135,6 +138,9 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(5.0)),
                                     ),
+                                    inputFormatters: [
+                                      _FinePriceInputFormatter(),
+                                    ],
                                   ),
                                 ),
                                 SizedBox(width: 5),
@@ -153,59 +159,94 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
                                   padding: EdgeInsets.all(10),
                                   child: Column(
                                     children: squad.map((player) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(player.name,
-                                                  style:
-                                                      TextStyle(fontSize: 16)),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  selectedPlayers[fine['id']]![
-                                                          player.id] =
-                                                      !(selectedPlayers[
-                                                                  fine['id']]![
-                                                              player.id] ??
-                                                          false);
-                                                });
-                                              },
-                                              child: Container(
-                                                width: 28,
-                                                height: 28,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color:
-                                                        CupertinoColors.black,
-                                                    width: 2,
-                                                  ),
-                                                  color: selectedPlayers[
-                                                                  fine['id']]![
-                                                              player.id] ==
-                                                          true
-                                                      ? CupertinoColors.black
-                                                      : CupertinoColors.white,
-                                                ),
-                                                child: selectedPlayers[
+                                      return Builder(
+                                        builder: (context) {
+                                          return GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                selectedPlayers[fine['id']]![
+                                                        player.id] =
+                                                    !(selectedPlayers[
                                                                 fine['id']]![
-                                                            player.id] ==
-                                                        true
-                                                    ? Icon(
-                                                        CupertinoIcons
-                                                            .checkmark,
-                                                        color: CupertinoColors
-                                                            .white,
-                                                        size: 18)
-                                                    : null,
+                                                            player.id] ??
+                                                        false);
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 8),
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                          player.name,
+                                                          style: TextStyle(
+                                                              fontSize: 16),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: 22,
+                                                        height: 22,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                            color:
+                                                                CupertinoColors
+                                                                    .black,
+                                                            width: 2,
+                                                          ),
+                                                          color: selectedPlayers[
+                                                                          fine[
+                                                                              'id']]![
+                                                                      player
+                                                                          .id] ==
+                                                                  true
+                                                              ? CupertinoColors
+                                                                  .black
+                                                              : CupertinoColors
+                                                                  .white,
+                                                        ),
+                                                        child: selectedPlayers[fine[
+                                                                        'id']]![
+                                                                    player
+                                                                        .id] ==
+                                                                true
+                                                            ? Icon(
+                                                                CupertinoIcons
+                                                                    .checkmark,
+                                                                color:
+                                                                    CupertinoColors
+                                                                        .white,
+                                                                size: 16)
+                                                            : null,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  if (player.id !=
+                                                      squad
+                                                          .map((x) => x.id)
+                                                          .last)
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                          .only(
+                                                          top:
+                                                              12.0), // Add spacing
+                                                      child: Divider(
+                                                          color: CupertinoColors
+                                                              .systemGrey3,
+                                                          thickness: 1,
+                                                          height: 1),
+                                                    ),
+                                                ],
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          );
+                                        },
                                       );
                                     }).toList(),
                                   ),
@@ -272,5 +313,31 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
     await FinesRepository.addFineForPlayers(createPlayerFineCommands);
 
     return true;
+  }
+}
+
+// Custom formatter to limit the input to 4 digits with 2 decimal places
+class _FinePriceInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    // Allowing only 4 digits before and after the decimal point, accepting comma and period
+    final newText = newValue.text;
+
+    // Regexp to match up to 4 digits with 2 decimals, either using period or comma as decimal separator
+    String formattedText =
+        newText.replaceAll(',', '.'); // Replace comma with period
+
+    // If empty input, allow it
+    if (formattedText.isEmpty) {
+      return newValue;
+    }
+
+    final regex = RegExp(r'^\d{0,4}(\.\d{0,2})?$');
+    if (regex.hasMatch(formattedText)) {
+      return newValue.copyWith(text: formattedText);
+    }
+
+    return oldValue; // Keep old value if the new input exceeds the constraints
   }
 }

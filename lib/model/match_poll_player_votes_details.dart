@@ -1,10 +1,10 @@
 class MatchPollPlayerVotesDetails {
-  int id;
-  int matchPollId;
-  int playerId;
-  int numberOfVotes;
-  DateTime createdAt;
-  DateTime updatedAt;
+  final int id;
+  final int matchPollId;
+  final int playerId;
+  final int numberOfVotes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   MatchPollPlayerVotesDetails(
       {required this.id,
