@@ -4,6 +4,7 @@ import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/model/fine_box_details.dart';
 import 'package:klubhuset/model/player_fine_details.dart';
 import 'package:klubhuset/page/team_fines/assign_fines_modal.dart';
+import 'package:klubhuset/page/team_fines/deposit_modal.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -156,7 +157,17 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
               }
             }),
             SizedBox(width: 30),
-            getButtonItem('Indbetal', CupertinoIcons.arrow_up_square),
+            getButtonItem('Indbetal', CupertinoIcons.arrow_up_square,
+                onTap: () async {
+              final result = await showCupertinoModalBottomSheet(
+                expand: true,
+                context: context,
+                builder: (context) => DepositModal(),
+              );
+              if (result == true) {
+                _refreshFineBox();
+              }
+            }),
             SizedBox(width: 30),
             getButtonItem('Hæv', CupertinoIcons.arrow_down_square),
           ],
