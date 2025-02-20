@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class DepositModal extends StatefulWidget {
   @override
@@ -102,6 +101,28 @@ class _DepositModalState extends State<DepositModal> {
                   ],
                 ),
               ),
+              Container(
+                  margin: const EdgeInsets.fromLTRB(20, 5, 20, 20),
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemBackground,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            'Gå til MobilePay',
+                            style: TextStyle(
+                                fontSize: 18,
+                                decoration: TextDecoration.underline),
+                          ),
+                        ],
+                      )
+                    ],
+                  )),
             ],
           ),
         ),

@@ -6,11 +6,12 @@ import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/player_details.dart';
 import 'package:klubhuset/page/match_polls/create_match_poll_page.dart';
+import 'package:klubhuset/page/team_fines/team_fines_page.dart';
 import 'package:klubhuset/repository/match_repository.dart';
 import 'package:klubhuset/repository/players_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-enum MatchDetailsSegments { info, manOfTheMatch, fines }
+enum MatchDetailsSegments { info, statistics, manOfTheMatch, fines }
 
 class MatchDetailsPage extends StatefulWidget {
   final int matchId;
@@ -110,7 +111,41 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            children: [
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                      MaterialWithModalsPageRoute(
+                                          builder: (context) =>
+                                              TeamFinesPage()));
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: CupertinoColors.systemIndigo,
+                                    borderRadius: BorderRadius.circular(50.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 15.0, horizontal: 30.0),
+                                  child: Text(
+                                    'Gå til Bødekassen',
+                                    style: TextStyle(
+                                      color: CupertinoColors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 40),
                       Center(
                         child: Center(
                           child: Column(
@@ -135,19 +170,25 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                   children: const <MatchDetailsSegments,
                                       Widget>{
                                     MatchDetailsSegments.info: Text(
-                                      'INFO',
-                                      style: TextStyle(
-                                          color: CupertinoColors.black,
-                                          fontSize: 13),
-                                    ),
-                                    MatchDetailsSegments.manOfTheMatch: Text(
-                                      'MOTM',
+                                      'Info',
                                       style: TextStyle(
                                           color: CupertinoColors.black,
                                           fontSize: 13),
                                     ),
                                     MatchDetailsSegments.fines: Text(
-                                      'BØDER',
+                                      'Tilmelding',
+                                      style: TextStyle(
+                                          color: CupertinoColors.black,
+                                          fontSize: 13),
+                                    ),
+                                    MatchDetailsSegments.statistics: Text(
+                                      'Statistik',
+                                      style: TextStyle(
+                                          color: CupertinoColors.black,
+                                          fontSize: 13),
+                                    ),
+                                    MatchDetailsSegments.manOfTheMatch: Text(
+                                      'MVP',
                                       style: TextStyle(
                                           color: CupertinoColors.black,
                                           fontSize: 13),
@@ -173,29 +214,38 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
       MatchDetails matchDetails, List<PlayerDetails> squad) {
     if (_selectedSegment == MatchDetailsSegments.info) {
       return Container(
-        margin: const EdgeInsets.all(20.0),
-        padding: const EdgeInsets.all(20.0),
-        height: 160,
-        decoration: BoxDecoration(
-          color: CupertinoColors.systemBackground,
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Center(
+          margin: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              SizedBox(height: 15),
-              Text(DateHelper.getFormattedDate(matchDetails.matchDate),
-                  style: TextStyle(fontSize: 15)),
-              SizedBox(height: 5),
-              Text('13:00', style: TextStyle(fontSize: 15)),
-              SizedBox(height: 5),
-              Text('Lundehusparken', style: TextStyle(fontSize: 15)),
-              SizedBox(height: 5),
-              Text('Mødetid: 12:30', style: TextStyle(fontSize: 15)),
+              Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.fromLTRB(20, 40, 20, 40),
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemBackground,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text('Kampdetaljer',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 30),
+                        Text(
+                            DateHelper.getFormattedDate(matchDetails.matchDate),
+                            style: TextStyle(fontSize: 15)),
+                        SizedBox(height: 5),
+                        Text('13:00', style: TextStyle(fontSize: 15)),
+                        SizedBox(height: 5),
+                        Text('Lundehusparken', style: TextStyle(fontSize: 15)),
+                        SizedBox(height: 5),
+                        Text('Mødetid: 12:30', style: TextStyle(fontSize: 15)),
+                      ],
+                    ),
+                  )),
             ],
-          ),
-        ),
-      );
+          ));
     } else if (_selectedSegment == MatchDetailsSegments.manOfTheMatch) {
       return Container(
         margin: const EdgeInsets.all(20.0),
@@ -264,7 +314,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
         ),
       );
     }
-    return Text('');
+    return Text('Kommer snart!');
   }
 
   List<MatchPollRowItem> getMatchPollRowItems(List<PlayerDetails> squad) {
