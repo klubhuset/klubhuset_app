@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:klubhuset/component/button/button.dart';
 import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/helpers/url_opener.dart';
 import 'package:klubhuset/model/fine_box_details.dart';
@@ -7,6 +8,7 @@ import 'package:klubhuset/model/fine_type_details.dart';
 import 'package:klubhuset/model/player_details.dart';
 import 'package:klubhuset/model/player_fine_details.dart';
 import 'package:klubhuset/page/team_fines/assign_fines_modal.dart';
+import 'package:klubhuset/page/team_fines/create_fine_type_modal.dart';
 import 'package:klubhuset/page/team_fines/deposit_modal.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -20,18 +22,27 @@ class TeamFinesPage extends StatefulWidget {
 
 class _TeamFinesPageState extends State<TeamFinesPage> {
   late Future<FineBoxDetails> fineBoxDetails;
+  late Future<List<FineTypeDetails>> fineTypeDetails;
 
   TeamOwnerFinesSegments _selectedSegment = TeamOwnerFinesSegments.overview;
 
   @override
   void initState() {
     super.initState();
+
     fineBoxDetails = FinesRepository.getFineBox();
+    fineTypeDetails = FinesRepository.getFineTypes();
   }
 
   Future<void> _refreshFineBox() async {
     setState(() {
       fineBoxDetails = FinesRepository.getFineBox();
+    });
+  }
+
+  Future<void> _refreshFineTypes() async {
+    setState(() {
+      fineTypeDetails = FinesRepository.getFineTypes();
     });
   }
 
@@ -97,52 +108,64 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
   }
 
   Widget? getTeamFinesSegment(double width) {
-    if (_selectedSegment == TeamOwnerFinesSegments.overview) {
-      return FutureHandler<FineBoxDetails>(
+    return FutureHandler<FineBoxDetails>(
         future: fineBoxDetails,
         onSuccess: (context, data) {
           var playerFineDetails = data.playerFineDetails;
 
-          return Column(
-            children: [
-              _buildOverallBalanceSection(data),
-              _buildActionButtonsOverview(),
-              _buildMobilePaySection(),
-              _buildPlayerFineDetailsSection(playerFineDetails, width),
-            ],
-          );
-        },
-      );
-    } else if (_selectedSegment == TeamOwnerFinesSegments.personal) {
-      PlayerFineDetails dummyObject = PlayerFineDetails(
-        id: 1,
-        playerDetails: PlayerDetails(
-            id: 1,
-            name: 'John Doe',
-            email: 'johndoe@example.com',
-            isTeamOwner: true,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now()),
-        fineTypeDetails: FineTypeDetails(
-            id: 1,
-            title: 'Dummy Fine',
-            defaultAmount: 100,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now()),
-        owedAmount: 10,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+          if (_selectedSegment == TeamOwnerFinesSegments.overview) {
+            // Overview section
+            return Column(
+              children: [
+                _buildOverallBalanceSection(data),
+                _buildActionButtonsOverview(data),
+                _buildMobilePaySection(),
+                _buildPlayerFineDetailsSection(playerFineDetails, width),
+              ],
+            );
+          } else if (_selectedSegment == TeamOwnerFinesSegments.fineTypes) {
+            // Fine types section
+            return FutureHandler(
+                future: fineTypeDetails,
+                onSuccess: (context, data) {
+                  return Column(
+                    children: [
+                      _buildActionButtonFineTypes(data),
+                      _buildFineTypesSection(data, width)
+                    ],
+                  );
+                });
+          } else {
+            // Personal section
+            PlayerFineDetails dummyObject = PlayerFineDetails(
+              id: 1,
+              playerDetails: PlayerDetails(
+                  id: 1,
+                  name: 'John Doe',
+                  email: 'johndoe@example.com',
+                  isTeamOwner: true,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now()),
+              fineTypeDetails: FineTypeDetails(
+                  id: 1,
+                  title: 'Dummy Fine',
+                  defaultAmount: 100,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now()),
+              owedAmount: 10,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
 
-      return Column(
-        children: [
-          _buildPersonalBalanceSection(),
-          _buildActionButtonsPersonal(),
-          _buildPersonalFineDetailsSection([dummyObject], width),
-        ],
-      );
-    }
-    return Text('Kommer snart!');
+            return Column(
+              children: [
+                _buildPersonalBalanceSection(),
+                _buildActionButtonsPersonal(data),
+                _buildPersonalFineDetailsSection([dummyObject], width),
+              ],
+            );
+          }
+        });
   }
 
   CupertinoNavigationBar _buildNavigationBar() {
@@ -260,7 +283,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     );
   }
 
-  Widget _buildActionButtonsPersonal() {
+  Widget _buildActionButtonsPersonal(FineBoxDetails data) {
     return Center(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -272,9 +295,12 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
               final result = await showCupertinoModalBottomSheet(
                 expand: true,
                 context: context,
-                builder: (context) => DepositModal(),
+                builder: (context) => DepositModal(
+                  fineBoxId: data.id,
+                ),
               );
-              if (result == true) {
+
+              if (result != null) {
                 _refreshFineBox();
               }
             }),
@@ -284,7 +310,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     );
   }
 
-  Widget _buildActionButtonsOverview() {
+  Widget _buildActionButtonsOverview(FineBoxDetails data) {
     return Center(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -308,9 +334,10 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
               final result = await showCupertinoModalBottomSheet(
                 expand: true,
                 context: context,
-                builder: (context) => DepositModal(),
+                builder: (context) => DepositModal(fineBoxId: 1),
               );
-              if (result == true) {
+
+              if (result != null) {
                 _refreshFineBox();
               }
             }),
@@ -404,6 +431,78 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                         cells: [
                           DataCell(Text(fineDetail.fineTypeDetails.title)),
                           DataCell(Text('${fineDetail.owedAmount},-')),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildActionButtonFineTypes(List<FineTypeDetails> fineTypeDetails) {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Button(
+                buttonText: 'Opret bødetype',
+                onPressed: () async {
+                  final result = await showCupertinoModalBottomSheet(
+                    expand: true,
+                    context: context,
+                    builder: (context) => CreateFineTypeModal(
+                        fineTypeDetailsList: fineTypeDetails),
+                  );
+
+                  if (result == true) {
+                    _refreshFineTypes();
+                  }
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFineTypesSection(
+      List<FineTypeDetails> fineTypeDetails, double width) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: EdgeInsets.fromLTRB(25, 20, 25, 20),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+      ),
+      child: fineTypeDetails.isEmpty
+          ? Center(child: Text('Ingen bødertyper endnu.'))
+          : Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Holdets bødetyper',
+                      style: TextStyle(
+                          color: CupertinoColors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                ),
+                FractionallySizedBox(
+                  widthFactor: 1,
+                  child: DataTable(
+                    horizontalMargin: 0,
+                    columns: [
+                      DataColumn(
+                          label:
+                              SizedBox(width: width * .4, child: Text('Type'))),
+                      DataColumn(label: SizedBox(child: Text('Standardbeløb'))),
+                    ],
+                    rows: fineTypeDetails.map((fineTypeDetail) {
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(fineTypeDetail.title)),
+                          DataCell(Text('${fineTypeDetail.defaultAmount},-')),
                         ],
                       );
                     }).toList(),

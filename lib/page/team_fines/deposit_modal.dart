@@ -1,6 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:klubhuset/component/button/mobile_pay_button.dart';
+import 'package:klubhuset/repository/fines_repository.dart';
 
 class DepositModal extends StatefulWidget {
+  final int fineBoxId;
+
+  DepositModal({required this.fineBoxId});
+
   @override
   State<DepositModal> createState() => _DepositModalState();
 }
@@ -38,11 +44,11 @@ class _DepositModalState extends State<DepositModal> {
         middle: Text('Indbetal'),
         trailing: GestureDetector(
             onTap: () async {
-              // var werePlayerFinesCreated = await addFines(context);
+              var depositedAmount = await depositAmountToFineBox();
 
-              // if (werePlayerFinesCreated && context.mounted) {
-              //   Navigator.pop(context, werePlayerFinesCreated);
-              // }
+              if (depositedAmount != null && context.mounted) {
+                Navigator.pop(context, depositedAmount);
+              }
             },
             child: Text('Gem',
                 style: TextStyle(
@@ -103,22 +109,13 @@ class _DepositModalState extends State<DepositModal> {
               ),
               Container(
                   margin: const EdgeInsets.fromLTRB(20, 5, 20, 20),
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemBackground,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
+                  padding: EdgeInsets.only(top: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Column(
                         children: [
-                          Text(
-                            'Gå til MobilePay',
-                            style: TextStyle(
-                                fontSize: 18,
-                                decoration: TextDecoration.underline),
-                          ),
+                          MobilePayButton(),
                         ],
                       )
                     ],
@@ -128,5 +125,35 @@ class _DepositModalState extends State<DepositModal> {
         ),
       ),
     );
+  }
+
+  Future<String?> depositAmountToFineBox() async {
+    var depositedAmount = _depositController.text;
+
+    if (depositedAmount.isEmpty || depositedAmount == '0') {
+      // Show CupertinoDialog if player depositedAmount is empty or zero
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: Text('Fejl'),
+          content: Text('Indtast venligst et beløb større end 0 kr.'),
+          actions: <CupertinoDialogAction>[
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Ok'),
+            ),
+          ],
+        ),
+      );
+
+      return null;
+    }
+
+    await FinesRepository.depositAmountToFineBox(
+        widget.fineBoxId, depositedAmount);
+
+    return depositedAmount;
   }
 }
