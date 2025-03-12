@@ -152,7 +152,7 @@ class _DepositModalState extends State<DepositModal> {
     }
 
     await FinesRepository.depositAmountToFineBox(
-        widget.fineBoxId, depositedAmount);
+        widget.fineBoxId, depositedAmount, []);
 
     return depositedAmount;
   }
