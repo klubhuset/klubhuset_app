@@ -21,8 +21,10 @@ class FineBoxDetails {
       id: json['id'],
       currentAmount: json['currentAmount'] + .0, // Convert to double
       totalOwedAmount: json['totalOwedAmount'] + .0, // Convert to double
-      playerFineDetails: List<PlayerFineDetails>.from(
-          json['playerFineDetails'].map((x) => PlayerFineDetails.fromJson(x))),
+      playerFineDetails: json['playerFineDetails'] != null
+          ? List<PlayerFineDetails>.from(json['playerFineDetails']
+              .map((x) => PlayerFineDetails.fromJson(x)))
+          : [],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );

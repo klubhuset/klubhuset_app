@@ -66,13 +66,15 @@ class FinesRepository {
   }
 
   static Future<bool> depositAmountToFineBox(
-      int fineBoxId, String amountToDeposit) async {
+      int fineBoxId, String amountToDeposit, List<int> playerFineIds) async {
     await dotenv.load(); // Initialize dotenv
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/fine_box/deposit');
 
     var depositAmountToFineBoxCommand = DepositAmountToFineBoxCommand(
-        fineBoxId: fineBoxId.toString(), amountToDeposit: amountToDeposit);
+        fineBoxId: fineBoxId.toString(),
+        amountToDeposit: amountToDeposit,
+        playerFineIds: playerFineIds.map((x) => x.toString()).toList());
 
     var response =
         await http.post(url, body: depositAmountToFineBoxCommand.toJson());

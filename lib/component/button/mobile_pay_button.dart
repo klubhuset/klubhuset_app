@@ -9,6 +9,7 @@ class MobilePayButton extends StatelessWidget {
         buttonText: 'Gå til MobilePay Box',
         onPressed: () {
           UrlOpener.openMobilePay();
-        });
+        },
+        outlined: true);
   }
 }

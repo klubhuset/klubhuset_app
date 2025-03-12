@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:klubhuset/component/button/button.dart';
+import 'package:klubhuset/component/button/mobile_pay_button.dart';
 import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/helpers/url_opener.dart';
 import 'package:klubhuset/model/fine_box_details.dart';
 import 'package:klubhuset/model/fine_type_details.dart';
 import 'package:klubhuset/model/player_details.dart';
@@ -10,6 +10,7 @@ import 'package:klubhuset/model/player_fine_details.dart';
 import 'package:klubhuset/page/team_fines/assign_fines_modal.dart';
 import 'package:klubhuset/page/team_fines/create_fine_type_modal.dart';
 import 'package:klubhuset/page/team_fines/deposit_modal.dart';
+import 'package:klubhuset/page/team_fines/deposit_personal_modal.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -23,6 +24,7 @@ class TeamFinesPage extends StatefulWidget {
 class _TeamFinesPageState extends State<TeamFinesPage> {
   late Future<FineBoxDetails> fineBoxDetails;
   late Future<List<FineTypeDetails>> fineTypeDetails;
+  late Future<List<PlayerFineDetails>> playerFineDetails;
 
   TeamOwnerFinesSegments _selectedSegment = TeamOwnerFinesSegments.overview;
 
@@ -136,32 +138,21 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                   );
                 });
           } else {
-            // Personal section
-            PlayerFineDetails dummyObject = PlayerFineDetails(
-              id: 1,
-              playerDetails: PlayerDetails(
-                  id: 1,
-                  name: 'John Doe',
-                  email: 'johndoe@example.com',
-                  isTeamOwner: true,
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now()),
-              fineTypeDetails: FineTypeDetails(
-                  id: 1,
-                  title: 'Dummy Fine',
-                  defaultAmount: 100,
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now()),
-              owedAmount: 10,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            );
+            // TODO: This should be changed to the logged in user instead
+            var playerFineDetails = data.playerFineDetails
+                .where((element) => element.playerDetails.isTeamOwner)
+                .first;
+            PlayerDetails playerDetails = playerFineDetails.playerDetails;
 
             return Column(
               children: [
-                _buildPersonalBalanceSection(),
-                _buildActionButtonsPersonal(data),
-                _buildPersonalFineDetailsSection([dummyObject], width),
+                _buildPersonalBalanceSection(playerFineDetails),
+                _buildActionButtonsPersonal(
+                  data,
+                  playerFineDetails,
+                  playerDetails,
+                ),
+                _buildPersonalFineDetailsSection(playerFineDetails, width),
               ],
             );
           }
@@ -205,7 +196,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     );
   }
 
-  Widget _buildPersonalBalanceSection() {
+  Widget _buildPersonalBalanceSection(PlayerFineDetails playerFineDetails) {
     return Center(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -218,19 +209,22 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildPersonalBalanceText(),
+            _buildPersonalBalanceText(playerFineDetails),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPersonalBalanceText() {
+  Widget _buildPersonalBalanceText(PlayerFineDetails playerFineDetails) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '120',
+          playerFineDetails.fineDetailsList
+              .where((x) => !x.hasBeenPaid)
+              .fold(0, (sum, fineDetail) => sum + fineDetail.owedAmount)
+              .toString(),
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
         Text(
@@ -283,7 +277,8 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     );
   }
 
-  Widget _buildActionButtonsPersonal(FineBoxDetails data) {
+  Widget _buildActionButtonsPersonal(FineBoxDetails data,
+      PlayerFineDetails playerFineDetails, PlayerDetails playerDetails) {
     return Center(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -295,8 +290,10 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
               final result = await showCupertinoModalBottomSheet(
                 expand: true,
                 context: context,
-                builder: (context) => DepositModal(
+                builder: (context) => DepositPersonalModal(
                   fineBoxId: data.id,
+                  playerDetails: playerDetails,
+                  playerFineDetails: playerFineDetails,
                 ),
               );
 
@@ -370,41 +367,21 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                         fontWeight: FontWeight.bold)),
               ),
               SizedBox(height: 20),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  UrlOpener.openMobilePay();
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemIndigo,
-                    borderRadius: BorderRadius.circular(50.0),
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
-                  child: Text(
-                    'Gå til MobilePay Box',
-                    style: TextStyle(
-                        color: CupertinoColors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-                ),
-              ),
+              MobilePayButton(),
             ],
           ),
         ));
   }
 
   Widget _buildPersonalFineDetailsSection(
-      List<PlayerFineDetails> playerFineDetails, double width) {
+      PlayerFineDetails playerFineDetails, double width) {
     return Container(
       margin: const EdgeInsets.only(top: 20, bottom: 20),
       padding: EdgeInsets.fromLTRB(25, 20, 25, 20),
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
       ),
-      child: playerFineDetails.isEmpty
+      child: playerFineDetails.fineDetailsList.isEmpty
           ? Center(child: Text('Ingen bøder tildelt endnu.'))
           : Column(
               children: [
@@ -425,12 +402,17 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                           label: SizedBox(
                               width: width * .4, child: Text('Bødetype'))),
                       DataColumn(label: SizedBox(child: Text('Beløb'))),
+                      DataColumn(label: SizedBox(child: Text('Betalt'))),
                     ],
-                    rows: playerFineDetails.map((fineDetail) {
+                    rows: playerFineDetails.fineDetailsList.map((fineDetail) {
                       return DataRow(
                         cells: [
                           DataCell(Text(fineDetail.fineTypeDetails.title)),
                           DataCell(Text('${fineDetail.owedAmount},-')),
+                          DataCell(fineDetail.hasBeenPaid
+                              ? Icon(CupertinoIcons.checkmark,
+                                  color: CupertinoColors.black, size: 16)
+                              : Text('')),
                         ],
                       );
                     }).toList(),
@@ -515,46 +497,55 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
 
   Widget _buildPlayerFineDetailsSection(
       List<PlayerFineDetails> playerFineDetails, double width) {
+    var fineDetailsList = playerFineDetails
+        .map((e) => e.fineDetailsList)
+        .expand((e) => e)
+        .toList();
+
     return Container(
       margin: const EdgeInsets.only(top: 20, bottom: 20),
       padding: EdgeInsets.fromLTRB(25, 20, 25, 20),
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
       ),
-      child: playerFineDetails.isEmpty
+      child: playerFineDetails.isEmpty && fineDetailsList.isEmpty
           ? Center(child: Text('Ingen bøder tildelt endnu.'))
-          : Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Holdets bøder',
-                      style: TextStyle(
-                          color: CupertinoColors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold)),
+          : Column(children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Holdets bødehistorik',
+                    style: TextStyle(
+                        color: CupertinoColors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+              ),
+              FractionallySizedBox(
+                widthFactor: 1,
+                child: DataTable(
+                  horizontalMargin: 0,
+                  columns: [
+                    DataColumn(
+                        label: SizedBox(
+                            width: width * .4, child: Text('Spiller'))),
+                    DataColumn(
+                        label: SizedBox(
+                            child: Text('Skyldigt beløb',
+                                textAlign: TextAlign.right))),
+                  ],
+                  rows: playerFineDetails.map((playerFine) {
+                    var totalOwedAmount = playerFine.fineDetailsList.fold(
+                        0, (sum, fineDetail) => sum + fineDetail.owedAmount);
+
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(playerFine.playerDetails.name)),
+                        DataCell(Text('$totalOwedAmount,-')),
+                      ],
+                    );
+                  }).toList(),
                 ),
-                FractionallySizedBox(
-                  widthFactor: 1,
-                  child: DataTable(
-                    horizontalMargin: 0,
-                    columns: [
-                      DataColumn(
-                          label: SizedBox(
-                              width: width * .4, child: Text('Spiller'))),
-                      DataColumn(label: SizedBox(child: Text('Beløb'))),
-                    ],
-                    rows: playerFineDetails.map((fineDetail) {
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(fineDetail.playerDetails.name)),
-                          DataCell(Text('${fineDetail.owedAmount},-')),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ]),
     );
   }
 
