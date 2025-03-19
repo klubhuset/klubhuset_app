@@ -157,7 +157,7 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
                 decoration: BoxDecoration(
                   color: CupertinoColors.systemBackground,
                   borderRadius: BorderRadius.circular(12.0),
@@ -168,10 +168,6 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomCheckbox(
-                          value: selectAllFines,
-                          onChanged: toggleSelectAll,
-                        ),
                         SizedBox(
                           width: 200,
                           child: Text(
@@ -187,6 +183,10 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 14),
                           ),
+                        ),
+                        CustomCheckbox(
+                          value: selectAllFines,
+                          onChanged: toggleSelectAll,
                         ),
                       ],
                     ),
@@ -210,11 +210,6 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              CustomCheckbox(
-                                value: isSelected,
-                                onChanged: (value) =>
-                                    toggleRowSelection(index, value),
-                              ),
                               SizedBox(
                                 width: 200,
                                 child: Text(
@@ -228,6 +223,11 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
                                   '${playerFineDetails.owedAmount} kr',
                                   style: TextStyle(fontSize: 14),
                                 ),
+                              ),
+                              CustomCheckbox(
+                                value: isSelected,
+                                onChanged: (value) =>
+                                    toggleRowSelection(index, value),
                               ),
                             ],
                           );
@@ -264,7 +264,7 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
         context: context,
         builder: (context) => CupertinoAlertDialog(
           title: Text('Fejl'),
-          content: Text('Indtast venligst et beløb større end 0 kr.'),
+          content: Text('Vælg venligst en bøde at indbetale.'),
           actions: <CupertinoDialogAction>[
             CupertinoDialogAction(
               onPressed: () {

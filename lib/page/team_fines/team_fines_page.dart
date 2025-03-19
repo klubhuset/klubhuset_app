@@ -287,6 +287,31 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
           children: [
             getButtonItem('Indbetal', CupertinoIcons.arrow_up_square,
                 onTap: () async {
+              var hasPlayerPaidAllFines = playerFineDetails.fineDetailsList
+                  .where((x) => !x.hasBeenPaid)
+                  .isEmpty;
+
+              if (hasPlayerPaidAllFines) {
+                // Show CupertinoDialog if player has no fines to pay
+                showCupertinoDialog(
+                  context: context,
+                  builder: (context) => CupertinoAlertDialog(
+                    title: Text('Info'),
+                    content: Text('Du mangler ikke at indbetale nogle bøder.'),
+                    actions: <CupertinoDialogAction>[
+                      CupertinoDialogAction(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Ok'),
+                      ),
+                    ],
+                  ),
+                );
+
+                return null;
+              }
+
               final result = await showCupertinoModalBottomSheet(
                 expand: true,
                 context: context,
@@ -513,7 +538,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
           : Column(children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Holdets bødehistorik',
+                child: Text('Bødeoverblik',
                     style: TextStyle(
                         color: CupertinoColors.black,
                         fontSize: 18,
@@ -532,17 +557,34 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                             child: Text('Skyldigt beløb',
                                 textAlign: TextAlign.right))),
                   ],
-                  rows: playerFineDetails.map((playerFine) {
-                    var totalOwedAmount = playerFine.fineDetailsList.fold(
-                        0, (sum, fineDetail) => sum + fineDetail.owedAmount);
+                  rows: playerFineDetails
+                      .map((playerFine) => playerFine.playerDetails.id)
+                      .toSet()
+                      .map((playerId) {
+                        var playerFine = playerFineDetails.firstWhere(
+                            (playerFine) =>
+                                playerFine.playerDetails.id == playerId);
+                        var totalOwedAmount = playerFine.fineDetailsList
+                            .where((x) => !x.hasBeenPaid)
+                            .fold(
+                                0,
+                                (sum, fineDetail) =>
+                                    sum + fineDetail.owedAmount);
 
-                    return DataRow(
-                      cells: [
-                        DataCell(Text(playerFine.playerDetails.name)),
-                        DataCell(Text('$totalOwedAmount,-')),
-                      ],
-                    );
-                  }).toList(),
+                        return {
+                          'playerName': playerFine.playerDetails.name,
+                          'totalOwedAmount': totalOwedAmount,
+                        };
+                      })
+                      .where(
+                          (x) => int.parse(x['totalOwedAmount'].toString()) > 0)
+                      .map((x) => DataRow(
+                            cells: [
+                              DataCell(Text(x['playerName'].toString())),
+                              DataCell(Text('${x['totalOwedAmount']},-')),
+                            ],
+                          ))
+                      .toList(),
                 ),
               ),
             ]),

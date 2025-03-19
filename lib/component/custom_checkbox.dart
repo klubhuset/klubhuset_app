@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class CustomCheckbox extends StatelessWidget {
   final bool value;
@@ -21,15 +20,15 @@ class CustomCheckbox extends StatelessWidget {
         }
       },
       child: Container(
-        width: 18,
-        height: 18,
+        width: 22,
+        height: 22,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
+          shape: BoxShape.circle,
           border: Border.all(
-            color: CupertinoColors.systemGrey,
+            color: CupertinoColors.black,
             width: 2,
           ),
-          color: value ? CupertinoColors.activeBlue : CupertinoColors.white,
+          color: value == true ? CupertinoColors.black : CupertinoColors.white,
         ),
         child: value
             ? Icon(
@@ -42,3 +41,44 @@ class CustomCheckbox extends StatelessWidget {
     );
   }
 }
+
+/*
+                                                      Container(
+                                                        width: 22,
+                                                        height: 22,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                            color:
+                                                                CupertinoColors
+                                                                    .black,
+                                                            width: 2,
+                                                          ),
+                                                          color: selectedPlayers[
+                                                                          fine[
+                                                                              'id']]![
+                                                                      player
+                                                                          .id] ==
+                                                                  true
+                                                              ? CupertinoColors
+                                                                  .black
+                                                              : CupertinoColors
+                                                                  .white,
+                                                        ),
+                                                        child: selectedPlayers[fine[
+                                                                        'id']]![
+                                                                    player
+                                                                        .id] ==
+                                                                true
+                                                            ? Icon(
+                                                                CupertinoIcons
+                                                                    .checkmark,
+                                                                color:
+                                                                    CupertinoColors
+                                                                        .white,
+                                                                size: 16)
+                                                            : null,
+                                                      ),
+ */

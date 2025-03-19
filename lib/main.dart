@@ -7,8 +7,6 @@ import 'package:provider/provider.dart';
 
 String _appTitle = 'Klubhuset';
 
-// TODO 2 (CVHN): Add caching to the app
-
 void main() async {
   runApp(
     MultiProvider(
@@ -23,11 +21,8 @@ void main() async {
 class KlubhusetApp extends StatelessWidget {
   const KlubhusetApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // This app is designed only to work vertically, so we limit
-    // orientations to portrait up and down.
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
@@ -42,9 +37,30 @@ class KlubhusetApp extends StatelessWidget {
   }
 }
 
-// Home page class
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   const MainPage({super.key});
+
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  int _selectedIndex = 0;
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
+
+  void _onTabTapped(int index) {
+    if (_selectedIndex == index) {
+      // Hvis brugeren trykker på den valgte fane, popper vi til root
+      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,35 +69,36 @@ class MainPage extends StatelessWidget {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.home),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.profile_circled),
+            label: 'Profile',
           ),
         ],
+        onTap: _onTabTapped,
       ),
       tabBuilder: (BuildContext context, int index) {
-        switch (index) {
-          case 0:
-            return CupertinoTabView(builder: (context) {
+        return CupertinoTabView(
+          navigatorKey:
+              _navigatorKeys[index], // Brug en unik navigator til hver tab
+          builder: (context) {
+            if (index == 0) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  leading: Text('Boldklubben',
+                  middle: Text('Boldklubben',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 20)),
                 ),
                 child: HomeTab(),
               );
-            });
-
-          case 1:
-            return CupertinoTabView(builder: (context) {
+            } else {
               return CupertinoPageScaffold(
                 child: ProfileTab(),
               );
-            });
-        }
-
-        return Container();
+            }
+          },
+        );
       },
     );
   }
