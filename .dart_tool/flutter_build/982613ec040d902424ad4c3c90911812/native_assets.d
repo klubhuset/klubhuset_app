@@ -1,1 +1,0 @@
- /Users/holstchayder/Documents/GitHub/klubhuset/.dart_tool/flutter_build/982613ec040d902424ad4c3c90911812/native_assets.yaml: 
