@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:klubhuset/page/login/login_page.dart';
+import 'package:klubhuset/services/auth_service.dart';
 import 'package:klubhuset/state/player_votes_state.dart';
 import 'package:klubhuset/tab/home_tab.dart';
 import 'package:klubhuset/tab/profile_tab.dart';
@@ -12,10 +14,25 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => PlayerVotesState()),
+        ChangeNotifierProvider(create: (context) => AuthService()),
       ],
       child: const KlubhusetApp(),
     ),
   );
+}
+
+class AppRoutes {
+  static const String login = '/login';
+  static const String home = '/home';
+  static const String register = '/register';
+
+  static Map<String, WidgetBuilder> get routes {
+    return {
+      login: (context) => const LoginScreen(),
+      home: (context) => const MainPage(),
+      register: (context) => const MainPage(),
+    };
+  }
 }
 
 class KlubhusetApp extends StatelessWidget {
@@ -23,6 +40,8 @@ class KlubhusetApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
@@ -32,7 +51,10 @@ class KlubhusetApp extends StatelessWidget {
           brightness: Brightness.light,
           primaryColor: CupertinoColors.systemIndigo,
           scaffoldBackgroundColor: CupertinoColors.systemBackground),
-      home: const MainPage(),
+      home: authService.currentUser == null
+          ? const LoginScreen()
+          : const MainPage(),
+      routes: AppRoutes.routes,
     );
   }
 }
@@ -41,7 +63,7 @@ class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
   @override
-  _MainPageState createState() => _MainPageState();
+  State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
@@ -80,8 +102,7 @@ class _MainPageState extends State<MainPage> {
       ),
       tabBuilder: (BuildContext context, int index) {
         return CupertinoTabView(
-          navigatorKey:
-              _navigatorKeys[index], // Brug en unik navigator til hver tab
+          navigatorKey: _navigatorKeys[index],
           builder: (context) {
             if (index == 0) {
               return CupertinoPageScaffold(

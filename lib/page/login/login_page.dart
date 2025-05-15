@@ -1,21 +1,52 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/button/button.dart';
+import 'package:flutter/material.dart';
+import 'package:klubhuset/component/button/full_width_button.dart';
+import 'package:klubhuset/component/loading_indicator.dart';
+import 'package:klubhuset/main.dart';
+import 'package:klubhuset/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+  String? _errorMessage;
 
-  @override
-  void initState() {
-    super.initState();
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
 
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final success = await authService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (success) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        setState(() {
+          _errorMessage = 'Ugyldig email eller adgangskode.';
+        });
+      }
+    }
   }
 
   @override
@@ -27,47 +58,178 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        height: double.infinity,
-        child: CupertinoPageScaffold(
-          backgroundColor: CupertinoColors.systemGrey6,
-          child: SafeArea(
-            child: Center(
-              child: Form(
-                child: Column(
-                  children: [
-                    CupertinoTextFormFieldRow(
-                      placeholder: 'E-mail',
-                      padding: const EdgeInsets.all(16),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        return null;
-                      },
-                      controller: _emailController,
+    final theme = Theme.of(context);
+
+    return CupertinoPageScaffold(
+        backgroundColor: CupertinoColors.systemGrey6,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(30, 50, 30, 30),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Icon(
+                    Icons.sports_soccer,
+                    size: 80,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Klubhuset',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineSmall
+                        ?.copyWith(color: theme.colorScheme.primary),
+                  ),
+                  const SizedBox(height: 40),
+                  Text('Log ind',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
+                      )),
+                  const SizedBox(height: 5),
+                  RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 16),
+                      children: [
+                        TextSpan(
+                          text: 'eller ',
+                          style: TextStyle(color: CupertinoColors.systemGrey),
+                        ),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, AppRoutes.register);
+                            },
+                            child: Text(
+                              'Tilmeld dig her',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    CupertinoTextFormFieldRow(
-                      placeholder: 'Password',
-                      padding: const EdgeInsets.all(16),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
-                      controller: _passwordController,
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Email felt med validator og padding
+                  FormField<String>(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Indtast venligst din email';
+                      }
+                      if (!value.contains('@') || !value.contains('.')) {
+                        return 'Indtast venligst en gyldig email';
+                      }
+                      return null;
+                    },
+                    builder: (state) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CupertinoTextField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12.0, horizontal: 12.0),
+                            placeholder: 'E-mail',
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.black, width: 1.5),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            onChanged: (value) {
+                              state.didChange(value);
+                            },
+                          ),
+                          if (state.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5, left: 8),
+                              child: Text(
+                                state.errorText!,
+                                style: TextStyle(
+                                  color: CupertinoColors.systemRed,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Password felt med validator og padding
+                  FormField<String>(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Indtast venligst din adgangskode';
+                      }
+                      return null;
+                    },
+                    builder: (state) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CupertinoTextField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12.0, horizontal: 12.0),
+                            placeholder: 'Adgangskode',
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.black, width: 1.5),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            onChanged: (value) {
+                              state.didChange(value);
+                            },
+                          ),
+                          if (state.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5, left: 8),
+                              child: Text(
+                                state.errorText!,
+                                style: TextStyle(
+                                  color: CupertinoColors.systemRed,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Text(
+                        _errorMessage!,
+                        style: TextStyle(
+                            color: theme.colorScheme.error, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    Button(
-                        buttonText: 'Login',
-                        onPressed: () {
-                          // Handle login logic here
-                        }),
-                  ],
-                ),
+
+                  _isLoading
+                      ? const LoadingIndicator()
+                      : FullWidthButton(
+                          buttonText: 'Login',
+                          onPressed: _login,
+                        ),
+                ],
               ),
             ),
           ),
