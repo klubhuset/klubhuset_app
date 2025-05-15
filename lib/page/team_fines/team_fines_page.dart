@@ -258,7 +258,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
         _buildBalanceColumn(
             data.currentAmount + data.totalOwedAmount, 'Balance efter bøder'),
         verticalDividerSection(),
-        _buildBalanceColumn(data.totalOwedAmount, 'Bøder'),
+        _buildBalanceColumn(data.totalOwedAmount, 'Ubetalte bøder'),
       ],
     );
   }

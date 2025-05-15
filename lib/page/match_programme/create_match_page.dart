@@ -65,10 +65,10 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
                     CupertinoFormRow(
                       prefix: Text('Navn'),
                       child: CupertinoTextFormFieldRow(
-                        placeholder: 'F.eks. Skjold vs Fremad',
+                        placeholder: 'F.eks. Skjold - Fremad',
                         validator: (String? value) =>
                             validateNameOfMatchInput(value),
-                        keyboardType: TextInputType.name,
+                        keyboardType: TextInputType.text,
                         controller: _nameController,
                         maxLength: 255,
                       ),
