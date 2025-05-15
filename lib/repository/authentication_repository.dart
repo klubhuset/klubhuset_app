@@ -4,11 +4,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 class AuthenticationRepository {
-  final String baseUrl;
+  AuthenticationRepository();
 
-  AuthenticationRepository({required this.baseUrl});
-
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  static Future<Map<String, dynamic>> login(
+      String email, String password) async {
     final url = Uri.parse('${dotenv.env['API_BASE_URL']}/api/login');
     try {
       final response = await http.post(
@@ -33,7 +32,7 @@ class AuthenticationRepository {
     }
   }
 
-  Future<Map<String, dynamic>> register(
+  static Future<Map<String, dynamic>> register(
       String name, String email, String password, String role) async {
     final url = Uri.parse('${dotenv.env['API_BASE_URL']}/api/register');
     try {
@@ -64,7 +63,7 @@ class AuthenticationRepository {
     }
   }
 
-  Future<bool> logout() async {
+  static Future<bool> logout() async {
     // Hvis du bruger token-baseret auth kan du kalde en API endpoint her til at invalidere token
     // Ellers bare return true for at "rydde" lokalt
     return true;

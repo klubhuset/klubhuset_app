@@ -41,17 +41,13 @@ String userRoleToString(UserRole role) {
 }
 
 class AuthService with ChangeNotifier {
-  final AuthenticationRepository _authenticationRepository;
   User? _currentUser;
-
-  AuthService({required AuthenticationRepository authenticationRepository})
-      : _authenticationRepository = authenticationRepository;
 
   User? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
 
   Future<bool> login(String email, String password) async {
-    final result = await _authenticationRepository.login(email, password);
+    final result = await AuthenticationRepository.login(email, password);
 
     if (result['success'] == true) {
       _currentUser = User.fromJson(result['data']);
@@ -67,7 +63,7 @@ class AuthService with ChangeNotifier {
 
   Future<Map<String, dynamic>> register(
       String name, String email, String password, UserRole role) async {
-    final result = await _authenticationRepository.register(
+    final result = await AuthenticationRepository.register(
       name,
       email,
       password,
@@ -85,7 +81,7 @@ class AuthService with ChangeNotifier {
   }
 
   Future<bool> logout() async {
-    final success = await _authenticationRepository.logout();
+    final success = await AuthenticationRepository.logout();
     if (success) {
       _currentUser = null;
       notifyListeners();
