@@ -1,56 +1,31 @@
 import 'package:flutter/cupertino.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/repository/authentication_repository.dart';
 
-// Bruger model (uændret)
-class User {
-  final String id;
-  final String email;
-  final String name;
-  final UserRole role;
-  String? teamId;
-
-  User({
-    required this.id,
-    required this.email,
-    required this.name,
-    required this.role,
-    this.teamId,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'].toString(),
-      email: json['email'],
-      name: json['name'],
-      role:
-          json['role'] == 'teamLeader' ? UserRole.teamLeader : UserRole.player,
-      teamId: json['teamId'],
-    );
-  }
-}
-
-enum UserRole { player, teamLeader }
+enum UserRole { player, teamOwner, admin }
 
 String userRoleToString(UserRole role) {
   switch (role) {
     case UserRole.player:
-      return 'player';
-    case UserRole.teamLeader:
-      return 'teamLeader';
+      return 'Player';
+    case UserRole.teamOwner:
+      return 'Team Owner';
+    case UserRole.admin:
+      return 'Admin';
   }
 }
 
 class AuthService with ChangeNotifier {
-  User? _currentUser;
+  UserDetails? _currentUser;
 
-  User? get currentUser => _currentUser;
+  UserDetails? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
 
   Future<bool> login(String email, String password) async {
     final result = await AuthenticationRepository.login(email, password);
 
     if (result['success'] == true) {
-      _currentUser = User.fromJson(result['data']);
+      _currentUser = UserDetails.fromJson(result['data']);
       notifyListeners();
       return true;
     } else {
@@ -71,7 +46,7 @@ class AuthService with ChangeNotifier {
     );
 
     if (result['success'] == true) {
-      _currentUser = User.fromJson(result['data']);
+      _currentUser = UserDetails.fromJson(result['data']);
       notifyListeners();
     } else {
       debugPrint('Registreringsfejl: ${result['message']}');

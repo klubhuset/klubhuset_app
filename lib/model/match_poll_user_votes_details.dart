@@ -1,24 +1,24 @@
-class MatchPollPlayerVotesDetails {
+class MatchPollUserVotesDetails {
   final int id;
   final int matchPollId;
-  final int playerId;
+  final int userId;
   final int numberOfVotes;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  MatchPollPlayerVotesDetails(
+  MatchPollUserVotesDetails(
       {required this.id,
       required this.matchPollId,
-      required this.playerId,
+      required this.userId,
       required this.numberOfVotes,
       required this.createdAt,
       required this.updatedAt});
 
-  factory MatchPollPlayerVotesDetails.fromJson(Map<String, dynamic> json) {
-    return MatchPollPlayerVotesDetails(
+  factory MatchPollUserVotesDetails.fromJson(Map<String, dynamic> json) {
+    return MatchPollUserVotesDetails(
       id: json['id'],
       matchPollId: json['matchPollId'],
-      playerId: json['playerId'],
+      userId: json['userId'],
       numberOfVotes: json['numberOfVotes'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),

@@ -4,11 +4,11 @@ import 'package:klubhuset/component/match_poll_row_item.dart';
 import 'package:klubhuset/helpers/date_helper.dart';
 import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
-import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/page/match_polls/create_match_poll_page.dart';
 import 'package:klubhuset/page/team_fines/team_fines_page.dart';
 import 'package:klubhuset/repository/match_repository.dart';
-import 'package:klubhuset/repository/players_repository.dart';
+import 'package:klubhuset/repository/users_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum MatchDetailsSegments { info, statistics, manOfTheMatch, fines }
@@ -38,7 +38,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
 
   Future<Map<String, dynamic>> _fetchMatchAndSquad() async {
     // Fetching both matchPolls and squad data
-    final squad = await PlayersRepository.getSquad();
+    final squad = await UsersRepository.getSquad();
     final matchDetails = await MatchRepository.getMatch(widget.matchId);
 
     if (matchDetails.matchPollDetails != null) {
@@ -84,7 +84,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                 noDataFoundMessage: 'Ingen kamp fundet.',
                 onSuccess: (context, data) {
                   final matchDetails = data['matchDetails'] as MatchDetails;
-                  final squad = data['squad'] as List<PlayerDetails>;
+                  final squad = data['squad'] as List<UserDetails>;
 
                   return Column(
                     children: [
@@ -211,7 +211,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
   }
 
   Widget getMatchDetailSegment(
-      MatchDetails matchDetails, List<PlayerDetails> squad) {
+      MatchDetails matchDetails, List<UserDetails> squad) {
     if (_selectedSegment == MatchDetailsSegments.info) {
       return Container(
           margin: const EdgeInsets.all(20.0),
@@ -259,7 +259,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_isManOfTheMatchVoted &&
-                  matchPollDetails!.matchPollPlayerVotesDetails.isNotEmpty) ...[
+                  matchPollDetails!.matchPollUserVotesDetails.isNotEmpty) ...[
                 // Votes for MOTM
                 CupertinoListSection(
                     header: const Text('Stemmer'),
@@ -274,7 +274,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                   padding: EdgeInsets.zero,
                   onPressed: () async {
                     final data = await matchAndSquadData;
-                    final squad = data['squad'] as List<PlayerDetails>;
+                    final squad = data['squad'] as List<UserDetails>;
                     final matchDetails = data['matchDetails'] as MatchDetails;
 
                     if (mounted) {
@@ -317,19 +317,19 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
     return Text('Kommer snart!');
   }
 
-  List<MatchPollRowItem> getMatchPollRowItems(List<PlayerDetails> squad) {
-    var matchPollRowItems = matchPollDetails!.matchPollPlayerVotesDetails
-        .map((matchPollPlayerVotes) => MatchPollRowItem(
+  List<MatchPollRowItem> getMatchPollRowItems(List<UserDetails> squad) {
+    var matchPollRowItems = matchPollDetails!.matchPollUserVotesDetails
+        .map((matchPollUserVotes) => MatchPollRowItem(
             disabled: true,
-            playerId: matchPollPlayerVotes.playerId,
-            playerName: squad
+            userId: matchPollUserVotes.userId,
+            userName: squad
                 .firstWhere(
-                    (element) => element.id == matchPollPlayerVotes.playerId)
+                    (element) => element.id == matchPollUserVotes.userId)
                 .name,
-            votes: matchPollPlayerVotes.numberOfVotes,
-            isPlayerPlayerOfTheMatch:
+            votes: matchPollUserVotes.numberOfVotes,
+            isUserPlayerOfTheMatch:
                 matchPollDetails!.playerOfTheMatchDetails.id ==
-                    matchPollPlayerVotes.playerId))
+                    matchPollUserVotes.userId))
         .toList();
 
     matchPollRowItems.sort((a, b) => b.votes.compareTo(a.votes));

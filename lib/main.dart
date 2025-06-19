@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:klubhuset/page/login/login_page.dart';
 import 'package:klubhuset/services/auth_service.dart';
-import 'package:klubhuset/state/player_votes_state.dart';
+import 'package:klubhuset/state/user_votes_state.dart';
 import 'package:klubhuset/tab/home_tab.dart';
 import 'package:klubhuset/tab/profile_tab.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +13,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => PlayerVotesState()),
+        ChangeNotifierProvider(create: (context) => UserVotesState()),
         ChangeNotifierProvider(create: (context) => AuthService()),
       ],
       child: const KlubhusetApp(),
@@ -54,6 +54,7 @@ class KlubhusetApp extends StatelessWidget {
       home: authService.currentUser == null
           ? const LoginScreen()
           : const MainPage(),
+      // home: const MainPage(),
       routes: AppRoutes.routes,
     );
   }

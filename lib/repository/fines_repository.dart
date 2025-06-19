@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:klubhuset/model/create_fine_type_command.dart';
-import 'package:klubhuset/model/create_player_fine_command.dart';
-import 'package:klubhuset/model/create_player_fines_command.dart';
+import 'package:klubhuset/model/create_user_fine_command.dart';
+import 'package:klubhuset/model/create_user_fines_command.dart';
 import 'package:klubhuset/model/deposit_amount_to_fine_box_command.dart';
 import 'package:klubhuset/model/fine_box_details.dart';
 import 'package:klubhuset/model/fine_type_details.dart';
@@ -43,20 +43,18 @@ class FinesRepository {
     return FineBoxDetails.fromJson(json);
   }
 
-  static Future<List<int>> addFineForPlayers(
-      List<CreatePlayerFineCommand> createPlayerFineCommands) async {
+  static Future<List<int>> addFineForUsers(
+      List<CreateUserFineCommand> createUserFineCommands) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/players');
+    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/users');
 
-    var createPlayerFinesCommand =
-        CreatePlayerFinesCommand(createPlayerFineCommands);
+    var createUserFinesCommand = CreateUserFinesCommand(createUserFineCommands);
 
-    var response =
-        await http.post(url, body: createPlayerFinesCommand.toJson());
+    var response = await http.post(url, body: createUserFinesCommand.toJson());
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to add fine for player');
+      throw Exception('Failed to add fine for user');
     }
 
     Map<String, dynamic> responseBody = jsonDecode(response.body);
@@ -66,7 +64,7 @@ class FinesRepository {
   }
 
   static Future<bool> depositAmountToFineBox(
-      int fineBoxId, String amountToDeposit, List<int> playerFineIds) async {
+      int fineBoxId, String amountToDeposit, List<int> userFineIds) async {
     await dotenv.load(); // Initialize dotenv
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/fine_box/deposit');
@@ -74,7 +72,7 @@ class FinesRepository {
     var depositAmountToFineBoxCommand = DepositAmountToFineBoxCommand(
         fineBoxId: fineBoxId.toString(),
         amountToDeposit: amountToDeposit,
-        playerFineIds: playerFineIds.map((x) => x.toString()).toList());
+        userFineIds: userFineIds.map((x) => x.toString()).toList());
 
     var response =
         await http.post(url, body: depositAmountToFineBoxCommand.toJson());

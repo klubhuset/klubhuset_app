@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/model/player_details.dart';
-import 'package:klubhuset/repository/players_repository.dart';
+import 'package:klubhuset/model/user_details.dart';
+import 'package:klubhuset/repository/users_repository.dart';
 
-class AddPlayerToSquadPage extends StatefulWidget {
-  final List<PlayerDetails> squad;
+class AddUserToTeamPage extends StatefulWidget {
+  final List<UserDetails> squad;
 
-  AddPlayerToSquadPage({required this.squad});
+  AddUserToTeamPage({required this.squad});
 
   @override
-  State<AddPlayerToSquadPage> createState() => _AddPlayerToSquadPageState();
+  State<AddUserToTeamPage> createState() => _AddUserToTeamPageState();
 }
 
-class _AddPlayerToSquadPageState extends State<AddPlayerToSquadPage> {
+class _AddUserToTeamPageState extends State<AddUserToTeamPage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
 
@@ -160,7 +160,7 @@ class _AddPlayerToSquadPageState extends State<AddPlayerToSquadPage> {
       return false;
     }
 
-    await PlayersRepository.createPlayer(
+    await UsersRepository.createPlayer(
       playerName,
       playerEmail,
     );

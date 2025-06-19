@@ -1,10 +1,10 @@
-import 'package:klubhuset/model/player_fine_details.dart';
+import 'package:klubhuset/model/user_fine_details.dart';
 
 class FineBoxDetails {
   final int id;
   final double currentAmount;
   final double totalOwedAmount;
-  final List<PlayerFineDetails> playerFineDetails;
+  final List<UserFineDetails> userFineDetails;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -12,7 +12,7 @@ class FineBoxDetails {
       {required this.id,
       required this.currentAmount,
       required this.totalOwedAmount,
-      required this.playerFineDetails,
+      required this.userFineDetails,
       required this.createdAt,
       required this.updatedAt});
 
@@ -21,9 +21,9 @@ class FineBoxDetails {
       id: json['id'],
       currentAmount: json['currentAmount'] + .0, // Convert to double
       totalOwedAmount: json['totalOwedAmount'] + .0, // Convert to double
-      playerFineDetails: json['playerFineDetails'] != null
-          ? List<PlayerFineDetails>.from(json['playerFineDetails']
-              .map((x) => PlayerFineDetails.fromJson(x)))
+      userFineDetails: json['userFineDetails'] != null
+          ? List<UserFineDetails>.from(
+              json['userFineDetails'].map((x) => UserFineDetails.fromJson(x)))
           : [],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),

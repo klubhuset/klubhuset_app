@@ -37,7 +37,7 @@ class _CreateFineTypeModalState extends State<CreateFineTypeModal> {
           leading: GestureDetector(
               onTap: () {
                 Navigator.pop(context,
-                    false); // Return false to indicate no player was added
+                    false); // Return false to indicate no user was added
               },
               child: Icon(
                 semanticLabel: 'Annullér',
@@ -113,7 +113,7 @@ class _CreateFineTypeModalState extends State<CreateFineTypeModal> {
         widget.fineTypeDetailsList.any((x) => x.title == fineTypeTitle);
 
     if (fineTypeTitle.isEmpty || fineTypeDefaultAmount.isEmpty) {
-      // Show CupertinoDialog if player title or default amount is empty
+      // Show CupertinoDialog if user title or default amount is empty
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(

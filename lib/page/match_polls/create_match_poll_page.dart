@@ -2,14 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/match_poll_row_item.dart';
 import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
-import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/repository/match_polls_repository.dart';
-import 'package:klubhuset/model/player_vote.dart';
-import 'package:klubhuset/state/player_votes_state.dart';
+import 'package:klubhuset/model/user_vote.dart';
+import 'package:klubhuset/state/user_votes_state.dart';
 import 'package:provider/provider.dart';
 
 class CreateMatchPollPage extends StatefulWidget {
-  final List<PlayerDetails> squad;
+  final List<UserDetails> squad;
   final List<MatchDetails> matches;
   final List<MatchPollDetails> matchPolls;
 
@@ -37,7 +37,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
 
   @override
   Widget build(BuildContext context) {
-    var playerVotes = context.watch<PlayerVotesState>().playerVotes;
+    var userVotes = context.watch<UserVotesState>().userVotes;
 
     var matchesToBeSelected = widget.matches.map((x) => x.name).toList();
 
@@ -47,7 +47,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
           leading: GestureDetector(
               onTap: () {
                 Navigator.pop(context,
-                    false); // Return false to indicate no player was added
+                    false); // Return false to indicate no user was added
               },
               child: Icon(
                 semanticLabel: 'Annullér',
@@ -58,7 +58,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
             padding: EdgeInsets.zero,
             onPressed: () async {
               var createdMatchPollDetails =
-                  await createMatchPoll(context, playerVotes);
+                  await createMatchPoll(context, userVotes);
 
               if (createdMatchPollDetails != null && context.mounted) {
                 Navigator.pop(context, createdMatchPollDetails);
@@ -160,7 +160,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   }
 
   Future<MatchPollDetails?> createMatchPoll(
-      BuildContext context, List<PlayerVote> playerVotes) async {
+      BuildContext context, List<UserVote> userVotes) async {
     int matchId = widget.matches[selectedMatchIndex].id;
     bool doesMatchPollAlreadyExistsForMatch =
         widget.matchPolls.any((x) => x.matchId == matchId);
@@ -187,7 +187,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
       return null;
     }
 
-    if (playerVotes.isEmpty) {
+    if (userVotes.isEmpty) {
       // Show CupertinoDialog if there is no votes
       showCupertinoDialog(
         context: context,
@@ -209,10 +209,9 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     }
 
     int matchPollId =
-        await MatchPollsRepository.createMatchPoll(matchId, playerVotes);
+        await MatchPollsRepository.createMatchPoll(matchId, userVotes);
 
-    Provider.of<PlayerVotesState>(context, listen: false)
-        .removeAllPlayerVotes();
+    Provider.of<UserVotesState>(context, listen: false).removeAllUserVotes();
 
     return await MatchPollsRepository.getMatchPoll(matchPollId);
   }
@@ -220,9 +219,9 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   List<MatchPollRowItem> getMatchPollRowItems() {
     List<MatchPollRowItem> matchPollRowItems = [];
 
-    for (var player in widget.squad) {
+    for (var user in widget.squad) {
       var matchPollItem =
-          MatchPollRowItem(playerId: player.id, playerName: player.name);
+          MatchPollRowItem(userId: user.id, userName: user.name);
 
       matchPollRowItems.add(matchPollItem);
     }

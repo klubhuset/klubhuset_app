@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:klubhuset/component/button/mobile_pay_button.dart';
 import 'package:klubhuset/component/custom_checkbox.dart';
 import 'package:klubhuset/model/fine_details.dart';
-import 'package:klubhuset/model/player_details.dart';
-import 'package:klubhuset/model/player_fine_details.dart';
+import 'package:klubhuset/model/user_details.dart';
+import 'package:klubhuset/model/user_fine_details.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
 
 class DepositPersonalModal extends StatefulWidget {
   final int fineBoxId;
-  final PlayerDetails playerDetails;
-  final PlayerFineDetails playerFineDetails;
+  final UserDetails userDetails;
+  final UserFineDetails userFineDetails;
 
   DepositPersonalModal(
       {required this.fineBoxId,
-      required this.playerDetails,
-      required this.playerFineDetails});
+      required this.userDetails,
+      required this.userFineDetails});
 
   @override
   State<DepositPersonalModal> createState() => _DepositPersonalModalState();
@@ -31,7 +31,7 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
   void initState() {
     super.initState();
 
-    fineDetailsListNotPaid = widget.playerFineDetails.fineDetailsList
+    fineDetailsListNotPaid = widget.userFineDetails.fineDetailsList
         .where((x) => !x.hasBeenPaid)
         .toList();
   }
@@ -80,8 +80,8 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
       navigationBar: CupertinoNavigationBar(
         leading: GestureDetector(
             onTap: () {
-              Navigator.pop(context,
-                  false); // Return false to indicate no player was added
+              Navigator.pop(
+                  context, false); // Return false to indicate no user was added
             },
             child: Icon(
               semanticLabel: 'Annullér',
@@ -204,7 +204,7 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
                             AlwaysScrollableScrollPhysics(), // Tillader scroll
                         itemCount: fineDetailsListNotPaid.length,
                         itemBuilder: (context, index) {
-                          var playerFineDetails = fineDetailsListNotPaid[index];
+                          var userFineDetails = fineDetailsListNotPaid[index];
                           bool isSelected = selectedIndexes.contains(index);
 
                           return Row(
@@ -213,14 +213,14 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
                               SizedBox(
                                 width: 200,
                                 child: Text(
-                                  playerFineDetails.fineTypeDetails.title,
+                                  userFineDetails.fineTypeDetails.title,
                                   style: TextStyle(fontSize: 14),
                                 ),
                               ),
                               SizedBox(
                                 width: 80,
                                 child: Text(
-                                  '${playerFineDetails.owedAmount} kr',
+                                  '${userFineDetails.owedAmount} kr',
                                   style: TextStyle(fontSize: 14),
                                 ),
                               ),
@@ -259,7 +259,7 @@ class _DepositPersonalModalState extends State<DepositPersonalModal> {
 
   Future<String?> depositAmountToFineBox() async {
     if (selectedAmountToDeposit == 0) {
-      // Show CupertinoDialog if player depositedAmount is empty or zero
+      // Show CupertinoDialog if user depositedAmount is empty or zero
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(

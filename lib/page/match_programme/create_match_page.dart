@@ -34,7 +34,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
           leading: GestureDetector(
               onTap: () {
                 Navigator.pop(context,
-                    false); // Return false to indicate no player was added
+                    false); // Return false to indicate no user was added
               },
               child: Icon(
                 semanticLabel: 'Annullér',
@@ -113,7 +113,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
     var matchName = _nameController.text;
 
     if (matchName.isEmpty) {
-      // Show CupertinoDialog if player name or email is empty
+      // Show CupertinoDialog if user name or email is empty
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
@@ -136,7 +136,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
     var doesMatchAlreadyExist = widget.matches.any((x) => x.name == matchName);
 
     if (doesMatchAlreadyExist) {
-      // Show CupertinoDialog if player already exists
+      // Show CupertinoDialog if user already exists
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(

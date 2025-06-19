@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/model/create_player_fine_command.dart';
-import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/model/create_user_fine_command.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
-import 'package:klubhuset/repository/players_repository.dart';
+import 'package:klubhuset/repository/users_repository.dart';
 
 class AssignFinesModal extends StatefulWidget {
   @override
@@ -15,8 +15,8 @@ class AssignFinesModal extends StatefulWidget {
 class _AssignFinesModalState extends State<AssignFinesModal> {
   late Future<Map<String, dynamic>> fineTypesAndSquadData;
   List<Map<String, dynamic>> fineTypesExpanded = [];
-  Map<int, Map<int, bool>> selectedPlayers = {};
-  Map<String, String> playerFinePrices = {};
+  Map<int, Map<int, bool>> selectedUsers = {};
+  Map<String, String> userFinePrices = {};
 
   @override
   void initState() {
@@ -26,11 +26,11 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
 
   Future<Map<String, dynamic>> _fetchFineTypesAndSquad() async {
     // Fetching both matchPolls and squad data
-    final squad = await PlayersRepository.getSquad();
+    final squad = await UsersRepository.getSquad();
     final fineTypeDetailsList = await FinesRepository.getFineTypes();
 
     fineTypesExpanded = (fineTypeDetailsList as List<dynamic>).map((fine) {
-      selectedPlayers[fine.id] = {};
+      selectedUsers[fine.id] = {};
 
       return {
         'id': fine.id,
@@ -54,8 +54,8 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
       navigationBar: CupertinoNavigationBar(
         leading: GestureDetector(
             onTap: () {
-              Navigator.pop(context,
-                  false); // Return false to indicate no player was added
+              Navigator.pop(
+                  context, false); // Return false to indicate no user was added
             },
             child: Icon(
               semanticLabel: 'Annullér',
@@ -64,10 +64,10 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
         middle: Text('Tildel bøder'),
         trailing: GestureDetector(
             onTap: () async {
-              var werePlayerFinesCreated = await addFines(context);
+              var wereUserFinesCreated = await addFines(context);
 
-              if (werePlayerFinesCreated && context.mounted) {
-                Navigator.pop(context, werePlayerFinesCreated);
+              if (wereUserFinesCreated && context.mounted) {
+                Navigator.pop(context, wereUserFinesCreated);
               }
             },
             child: Text('Opret',
@@ -81,7 +81,7 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
               future: fineTypesAndSquadData,
               noDataFoundMessage: 'Ingen bødetyper fundet.',
               onSuccess: (context, data) {
-                var squad = data['squad'] as List<PlayerDetails>;
+                var squad = data['squad'] as List<UserDetails>;
 
                 return CupertinoListSection.insetGrouped(
                   dividerMargin: 0,
@@ -158,18 +158,16 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
                                       top: 8, left: 16, right: 16, bottom: 12),
                                   padding: EdgeInsets.all(10),
                                   child: Column(
-                                    children: squad.map((player) {
+                                    children: squad.map((user) {
                                       return Builder(
                                         builder: (context) {
                                           return GestureDetector(
                                             onTap: () {
                                               setState(() {
-                                                selectedPlayers[fine['id']]![
-                                                        player.id] =
-                                                    !(selectedPlayers[
-                                                                fine['id']]![
-                                                            player.id] ??
-                                                        false);
+                                                selectedUsers[fine['id']]![
+                                                    user.id] = !(selectedUsers[
+                                                        fine['id']]![user.id] ??
+                                                    false);
                                               });
                                             },
                                             child: Padding(
@@ -182,7 +180,7 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
                                                     children: [
                                                       Expanded(
                                                         child: Text(
-                                                          player.name,
+                                                          user.name,
                                                           style: TextStyle(
                                                               fontSize: 16),
                                                         ),
@@ -200,21 +198,19 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
                                                                     .black,
                                                             width: 2,
                                                           ),
-                                                          color: selectedPlayers[
-                                                                          fine[
-                                                                              'id']]![
-                                                                      player
-                                                                          .id] ==
+                                                          color: selectedUsers[
+                                                                      fine[
+                                                                          'id']]![user
+                                                                      .id] ==
                                                                   true
                                                               ? CupertinoColors
                                                                   .black
                                                               : CupertinoColors
                                                                   .white,
                                                         ),
-                                                        child: selectedPlayers[fine[
+                                                        child: selectedUsers[fine[
                                                                         'id']]![
-                                                                    player
-                                                                        .id] ==
+                                                                    user.id] ==
                                                                 true
                                                             ? Icon(
                                                                 CupertinoIcons
@@ -227,7 +223,7 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
                                                       ),
                                                     ],
                                                   ),
-                                                  if (player.id !=
+                                                  if (user.id !=
                                                       squad
                                                           .map((x) => x.id)
                                                           .last)
@@ -271,25 +267,25 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
   }
 
   Future<bool> addFines(BuildContext context) async {
-    List<CreatePlayerFineCommand> createPlayerFineCommands = [];
+    List<CreateUserFineCommand> createUserFineCommand = [];
 
     for (var fine in fineTypesExpanded) {
-      var selectedPlayersIds = selectedPlayers[fine['id']]!
+      var selectedUsersIds = selectedUsers[fine['id']]!
           .entries
           .where((entry) => entry.value)
           .map((entry) => entry.key)
           .toList();
 
-      for (var playerId in selectedPlayersIds) {
-        createPlayerFineCommands.add(CreatePlayerFineCommand(
-            playerId: playerId.toString(),
+      for (var userId in selectedUsersIds) {
+        createUserFineCommand.add(CreateUserFineCommand(
+            userId: userId.toString(),
             fineTypeId: fine['id'].toString(),
             owedAmount: fine['price'].toString()));
       }
     }
 
-    if (createPlayerFineCommands.isEmpty) {
-      // Show CupertinoDialog no players has been selected
+    if (createUserFineCommand.isEmpty) {
+      // Show CupertinoDialog no users has been selected
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
@@ -310,7 +306,7 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
       return false;
     }
 
-    await FinesRepository.addFineForPlayers(createPlayerFineCommands);
+    await FinesRepository.addFineForUsers(createUserFineCommand);
 
     return true;
   }

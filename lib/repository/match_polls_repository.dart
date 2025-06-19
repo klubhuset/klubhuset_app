@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:klubhuset/model/create_match_poll_command.dart';
-import 'package:klubhuset/model/create_match_poll_player_command.dart';
+import 'package:klubhuset/model/create_match_poll_user_command.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:klubhuset/model/player_vote.dart';
+import 'package:klubhuset/model/user_vote.dart';
 
 class MatchPollsRepository {
   static Future<List<MatchPollDetails>> getMatchPolls() async {
@@ -40,21 +40,21 @@ class MatchPollsRepository {
   }
 
   static Future<int> createMatchPoll(
-      int matchId, List<PlayerVote> playerVotes) async {
+      int matchId, List<UserVote> userVotes) async {
     await dotenv.load(); // Initialize dotenv
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/matchpoll');
 
-    List<CreateMatchPollPlayerVoteCommand> createMatchPollPlayerVoteCommands =
-        playerVotes
-            .map((playerVote) => CreateMatchPollPlayerVoteCommand(
-                  playerId: playerVote.playerId.toString(),
-                  playerVotes: playerVote.votes.toString(),
+    List<CreateMatchPollUserVoteCommand> createMatchPollUserVoteCommands =
+        userVotes
+            .map((userVote) => CreateMatchPollUserVoteCommand(
+                  userId: userVote.userId.toString(),
+                  userVotes: userVote.votes.toString(),
                 ))
             .toList();
 
     CreateMatchPollCommand createMatchPollCommand = CreateMatchPollCommand(
-        matchId.toString(), createMatchPollPlayerVoteCommands);
+        matchId.toString(), createMatchPollUserVoteCommands);
 
     var response = await http.post(url, body: createMatchPollCommand.toJson());
 

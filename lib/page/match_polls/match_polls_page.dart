@@ -3,10 +3,10 @@ import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/helpers/date_helper.dart';
 import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
-import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/repository/match_polls_repository.dart';
 import 'package:klubhuset/repository/match_repository.dart';
-import 'package:klubhuset/repository/players_repository.dart';
+import 'package:klubhuset/repository/users_repository.dart';
 import 'package:klubhuset/page/match_polls/create_match_poll_page.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -28,7 +28,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
 
   Future<Map<String, dynamic>> _fetchMatchPollsData() async {
     // Fetching both matchPolls and squad data
-    final squad = await PlayersRepository.getSquad();
+    final squad = await UsersRepository.getSquad();
     final matches = await MatchRepository.getMatches();
     final matchPolls = await MatchPollsRepository.getMatchPolls();
 
@@ -37,11 +37,11 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
       'squad': squad,
       'matches': matches,
       'matchPolls': matchPolls.map((poll) {
-        final player = squad.firstWhere(
-            (player) => player.id == poll.playerOfTheMatchDetails.id);
+        final user = squad
+            .firstWhere((user) => user.id == poll.playerOfTheMatchDetails.id);
         return {
           'matchPoll': poll,
-          'player': player,
+          'user': user,
         };
       }).toList(),
     };
@@ -77,7 +77,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
               padding: EdgeInsets.zero,
               onPressed: () async {
                 final data = await matchPollsData;
-                final squad = data['squad'] as List<PlayerDetails>;
+                final squad = data['squad'] as List<UserDetails>;
                 final matches = data['matches'] as List<MatchDetails>;
                 final matchPolls = (data['matchPolls']
                         as List<Map<String, dynamic>>)
@@ -139,7 +139,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
                         final dataToBeUsed = matchPolls[index];
                         final matchPoll =
                             dataToBeUsed['matchPoll'] as MatchPollDetails;
-                        final player = dataToBeUsed['player'] as PlayerDetails;
+                        final user = dataToBeUsed['user'] as UserDetails;
                         final match = (data['matches'] as List<MatchDetails>)
                             .firstWhere(
                                 (match) => match.id == matchPoll.matchId);
@@ -147,7 +147,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
                         return CupertinoListTile(
                           padding: EdgeInsets.only(
                               top: 20.0, bottom: 20.0, left: 20, right: 20),
-                          title: Text(player.name),
+                          title: Text(user.name),
                           subtitle: Text(
                             '${match.name} - d. ${DateHelper.getFormattedDate(matchPoll.createdAt)}',
                           ),

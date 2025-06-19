@@ -1,21 +1,21 @@
 import 'package:klubhuset/model/fine_details.dart';
-import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/model/user_details.dart';
 
-class PlayerFineDetails {
+class UserFineDetails {
   final int id;
-  final PlayerDetails playerDetails;
+  final UserDetails userDetails;
   final List<FineDetails> fineDetailsList;
 
-  PlayerFineDetails({
+  UserFineDetails({
     required this.id,
-    required this.playerDetails,
+    required this.userDetails,
     required this.fineDetailsList,
   });
 
-  factory PlayerFineDetails.fromJson(Map<String, dynamic> json) {
-    return PlayerFineDetails(
+  factory UserFineDetails.fromJson(Map<String, dynamic> json) {
+    return UserFineDetails(
       id: json['id'],
-      playerDetails: PlayerDetails.fromJson(json['playerDetails']),
+      userDetails: UserDetails.fromJson(json['userDetails']),
       fineDetailsList: json['fineDetailsList'] != null
           ? List<FineDetails>.from(
               json['fineDetailsList'].map((x) => FineDetails.fromJson(x)))

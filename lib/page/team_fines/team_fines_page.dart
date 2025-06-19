@@ -5,8 +5,8 @@ import 'package:klubhuset/component/button/mobile_pay_button.dart';
 import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/model/fine_box_details.dart';
 import 'package:klubhuset/model/fine_type_details.dart';
-import 'package:klubhuset/model/player_details.dart';
-import 'package:klubhuset/model/player_fine_details.dart';
+import 'package:klubhuset/model/user_details.dart';
+import 'package:klubhuset/model/user_fine_details.dart';
 import 'package:klubhuset/page/team_fines/assign_fines_modal.dart';
 import 'package:klubhuset/page/team_fines/create_fine_type_modal.dart';
 import 'package:klubhuset/page/team_fines/deposit_modal.dart';
@@ -24,7 +24,7 @@ class TeamFinesPage extends StatefulWidget {
 class _TeamFinesPageState extends State<TeamFinesPage> {
   late Future<FineBoxDetails> fineBoxDetails;
   late Future<List<FineTypeDetails>> fineTypeDetails;
-  late Future<List<PlayerFineDetails>> playerFineDetails;
+  late Future<List<UserFineDetails>> userFineDetails;
 
   TeamOwnerFinesSegments _selectedSegment = TeamOwnerFinesSegments.overview;
 
@@ -113,7 +113,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     return FutureHandler<FineBoxDetails>(
         future: fineBoxDetails,
         onSuccess: (context, data) {
-          var playerFineDetails = data.playerFineDetails;
+          var userFineDetails = data.userFineDetails;
 
           if (_selectedSegment == TeamOwnerFinesSegments.overview) {
             // Overview section
@@ -122,7 +122,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                 _buildOverallBalanceSection(data),
                 _buildActionButtonsOverview(data),
                 _buildMobilePaySection(),
-                _buildPlayerFineDetailsSection(playerFineDetails, width),
+                _buildUserFineDetailsSection(userFineDetails, width),
               ],
             );
           } else if (_selectedSegment == TeamOwnerFinesSegments.fineTypes) {
@@ -139,20 +139,20 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                 });
           } else {
             // TODO: This should be changed to the logged in user instead
-            var playerFineDetails = data.playerFineDetails
-                .where((element) => element.playerDetails.isTeamOwner)
+            var userFineDetails = data.userFineDetails
+                .where((element) => element.userDetails.isTeamOwner)
                 .first;
-            PlayerDetails playerDetails = playerFineDetails.playerDetails;
+            UserDetails userDetails = userFineDetails.userDetails;
 
             return Column(
               children: [
-                _buildPersonalBalanceSection(playerFineDetails),
+                _buildPersonalBalanceSection(userFineDetails),
                 _buildActionButtonsPersonal(
                   data,
-                  playerFineDetails,
-                  playerDetails,
+                  userFineDetails,
+                  userDetails,
                 ),
-                _buildPersonalFineDetailsSection(playerFineDetails, width),
+                _buildPersonalFineDetailsSection(userFineDetails, width),
               ],
             );
           }
@@ -196,7 +196,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     );
   }
 
-  Widget _buildPersonalBalanceSection(PlayerFineDetails playerFineDetails) {
+  Widget _buildPersonalBalanceSection(UserFineDetails userFineDetails) {
     return Center(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -209,19 +209,19 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildPersonalBalanceText(playerFineDetails),
+            _buildPersonalBalanceText(userFineDetails),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPersonalBalanceText(PlayerFineDetails playerFineDetails) {
+  Widget _buildPersonalBalanceText(UserFineDetails userFineDetails) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          playerFineDetails.fineDetailsList
+          userFineDetails.fineDetailsList
               .where((x) => !x.hasBeenPaid)
               .fold(0, (sum, fineDetail) => sum + fineDetail.owedAmount)
               .toString(),
@@ -278,7 +278,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
   }
 
   Widget _buildActionButtonsPersonal(FineBoxDetails data,
-      PlayerFineDetails playerFineDetails, PlayerDetails playerDetails) {
+      UserFineDetails userFineDetails, UserDetails userDetails) {
     return Center(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -287,12 +287,12 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
           children: [
             getButtonItem('Indbetal', CupertinoIcons.arrow_up_square,
                 onTap: () async {
-              var hasPlayerPaidAllFines = playerFineDetails.fineDetailsList
+              var hasUserPaidAllFines = userFineDetails.fineDetailsList
                   .where((x) => !x.hasBeenPaid)
                   .isEmpty;
 
-              if (hasPlayerPaidAllFines) {
-                // Show CupertinoDialog if player has no fines to pay
+              if (hasUserPaidAllFines) {
+                // Show CupertinoDialog if user has no fines to pay
                 showCupertinoDialog(
                   context: context,
                   builder: (context) => CupertinoAlertDialog(
@@ -317,8 +317,8 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                 context: context,
                 builder: (context) => DepositPersonalModal(
                   fineBoxId: data.id,
-                  playerDetails: playerDetails,
-                  playerFineDetails: playerFineDetails,
+                  userDetails: userDetails,
+                  userFineDetails: userFineDetails,
                 ),
               );
 
@@ -399,14 +399,14 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
   }
 
   Widget _buildPersonalFineDetailsSection(
-      PlayerFineDetails playerFineDetails, double width) {
+      UserFineDetails userFineDetails, double width) {
     return Container(
       margin: const EdgeInsets.only(top: 20, bottom: 20),
       padding: EdgeInsets.fromLTRB(25, 20, 25, 20),
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
       ),
-      child: playerFineDetails.fineDetailsList.isEmpty
+      child: userFineDetails.fineDetailsList.isEmpty
           ? Center(child: Text('Ingen bøder tildelt endnu.'))
           : Column(
               children: [
@@ -429,7 +429,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                       DataColumn(label: SizedBox(child: Text('Beløb'))),
                       DataColumn(label: SizedBox(child: Text('Betalt'))),
                     ],
-                    rows: playerFineDetails.fineDetailsList.map((fineDetail) {
+                    rows: userFineDetails.fineDetailsList.map((fineDetail) {
                       return DataRow(
                         cells: [
                           DataCell(Text(fineDetail.fineTypeDetails.title)),
@@ -520,12 +520,10 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     );
   }
 
-  Widget _buildPlayerFineDetailsSection(
-      List<PlayerFineDetails> playerFineDetails, double width) {
-    var fineDetailsList = playerFineDetails
-        .map((e) => e.fineDetailsList)
-        .expand((e) => e)
-        .toList();
+  Widget _buildUserFineDetailsSection(
+      List<UserFineDetails> userFineDetails, double width) {
+    var fineDetailsList =
+        userFineDetails.map((e) => e.fineDetailsList).expand((e) => e).toList();
 
     return Container(
       margin: const EdgeInsets.only(top: 20, bottom: 20),
@@ -533,7 +531,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
       ),
-      child: playerFineDetails.isEmpty && fineDetailsList.isEmpty
+      child: userFineDetails.isEmpty && fineDetailsList.isEmpty
           ? Center(child: Text('Ingen bøder tildelt endnu.'))
           : Column(children: [
               Align(
@@ -557,14 +555,13 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                             child: Text('Skyldigt beløb',
                                 textAlign: TextAlign.right))),
                   ],
-                  rows: playerFineDetails
-                      .map((playerFine) => playerFine.playerDetails.id)
+                  rows: userFineDetails
+                      .map((userFine) => userFine.userDetails.id)
                       .toSet()
-                      .map((playerId) {
-                        var playerFine = playerFineDetails.firstWhere(
-                            (playerFine) =>
-                                playerFine.playerDetails.id == playerId);
-                        var totalOwedAmount = playerFine.fineDetailsList
+                      .map((userId) {
+                        var userFine = userFineDetails.firstWhere(
+                            (userFine) => userFine.userDetails.id == userId);
+                        var totalOwedAmount = userFine.fineDetailsList
                             .where((x) => !x.hasBeenPaid)
                             .fold(
                                 0,
@@ -572,7 +569,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                                     sum + fineDetail.owedAmount);
 
                         return {
-                          'playerName': playerFine.playerDetails.name,
+                          'userName': userFine.userDetails.name,
                           'totalOwedAmount': totalOwedAmount,
                         };
                       })
@@ -580,7 +577,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                           (x) => int.parse(x['totalOwedAmount'].toString()) > 0)
                       .map((x) => DataRow(
                             cells: [
-                              DataCell(Text(x['playerName'].toString())),
+                              DataCell(Text(x['userName'].toString())),
                               DataCell(Text('${x['totalOwedAmount']},-')),
                             ],
                           ))

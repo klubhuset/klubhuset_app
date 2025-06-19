@@ -1,17 +1,17 @@
-class CreatePlayerFineCommand {
-  String playerId;
+class CreateUserFineCommand {
+  String userId;
   String fineTypeId;
   String owedAmount;
 
-  CreatePlayerFineCommand({
-    required this.playerId,
+  CreateUserFineCommand({
+    required this.userId,
     required this.fineTypeId,
     required this.owedAmount,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'playerId': playerId,
+      'userId': userId,
       'fineTypeId': fineTypeId,
       'owedAmount': owedAmount,
     };

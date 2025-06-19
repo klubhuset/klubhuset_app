@@ -1,22 +1,22 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/state/player_votes_state.dart';
-import 'package:klubhuset/model/player_vote.dart';
+import 'package:klubhuset/state/user_votes_state.dart';
+import 'package:klubhuset/model/user_vote.dart';
 import 'package:provider/provider.dart';
 
 class MatchPollRowItem extends StatefulWidget {
   final bool disabled;
-  final int playerId;
-  final String playerName;
+  final int userId;
+  final String userName;
   final int votes;
-  final bool isPlayerPlayerOfTheMatch;
+  final bool isUserPlayerOfTheMatch;
 
   const MatchPollRowItem(
       {super.key,
       this.disabled = false,
-      required this.playerId,
-      required this.playerName,
+      required this.userId,
+      required this.userName,
       this.votes = 0,
-      this.isPlayerPlayerOfTheMatch = false});
+      this.isUserPlayerOfTheMatch = false});
 
   @override
   State<MatchPollRowItem> createState() => _MatchPollRowItemState();
@@ -31,7 +31,7 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
     _textController = TextEditingController(text: widget.votes.toString());
 
     // Start listening to changes.
-    _textController.addListener(createUpdatePlayerVote);
+    _textController.addListener(createUpdateUserVote);
   }
 
   @override
@@ -44,8 +44,8 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
   Widget build(BuildContext context) {
     return CupertinoListTile(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0, left: 20, right: 20),
-        title: Text(widget.playerName),
-        subtitle: widget.isPlayerPlayerOfTheMatch == true
+        title: Text(widget.userName),
+        subtitle: widget.isUserPlayerOfTheMatch == true
             ? Text('Kampens spiller')
             : null,
         trailing: SizedBox(
@@ -74,15 +74,13 @@ class _MatchPollRowItemState extends State<MatchPollRowItem> {
         ));
   }
 
-  void createUpdatePlayerVote() {
+  void createUpdateUserVote() {
     if (_textController.text.isNotEmpty) {
       int votes = int.parse(_textController.text);
 
-      PlayerVote playerVote =
-          PlayerVote(playerId: widget.playerId, votes: votes);
+      UserVote userVote = UserVote(userId: widget.userId, votes: votes);
 
-      Provider.of<PlayerVotesState>(context, listen: false)
-          .addPlayerVote(playerVote);
+      Provider.of<UserVotesState>(context, listen: false).addUserVote(userVote);
     }
   }
 }

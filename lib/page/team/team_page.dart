@@ -1,27 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/repository/players_repository.dart';
-import 'package:klubhuset/page/squad/add_player_to_squad_page.dart';
-import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/repository/users_repository.dart';
+import 'package:klubhuset/page/team/add_user_to_team_page.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class SquadPage extends StatefulWidget {
+class TeamPage extends StatefulWidget {
   @override
-  State<SquadPage> createState() => _SquadPageState();
+  State<TeamPage> createState() => _TeamPageState();
 }
 
-class _SquadPageState extends State<SquadPage> {
-  late Future<List<PlayerDetails>> squad;
+class _TeamPageState extends State<TeamPage> {
+  late Future<List<UserDetails>> squad;
 
   @override
   void initState() {
     super.initState();
-    squad = PlayersRepository.getSquad();
+    squad = UsersRepository.getSquad();
   }
 
   Future<void> _refreshSquad() async {
     setState(() {
-      squad = PlayersRepository.getSquad();
+      squad = UsersRepository.getSquad();
     });
   }
 
@@ -54,7 +54,7 @@ class _SquadPageState extends State<SquadPage> {
                   final result = await showCupertinoModalBottomSheet(
                     expand: true,
                     context: context,
-                    builder: (context) => AddPlayerToSquadPage(
+                    builder: (context) => AddUserToTeamPage(
                       squad: squadData,
                     ),
                   );
@@ -71,7 +71,7 @@ class _SquadPageState extends State<SquadPage> {
             ),
           ),
           child: SafeArea(
-            child: FutureHandler<List<PlayerDetails>>(
+            child: FutureHandler<List<UserDetails>>(
               future: squad,
               noDataFoundMessage: 'Ingen spillere fundet.',
               onSuccess: (context, data) {

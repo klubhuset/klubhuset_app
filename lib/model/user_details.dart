@@ -1,4 +1,4 @@
-class PlayerDetails {
+class UserDetails {
   final int id;
   final String name;
   final String email;
@@ -6,7 +6,7 @@ class PlayerDetails {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  PlayerDetails(
+  UserDetails(
       {required this.id,
       required this.name,
       required this.email,
@@ -14,8 +14,8 @@ class PlayerDetails {
       required this.createdAt,
       required this.updatedAt});
 
-  factory PlayerDetails.fromJson(Map<String, dynamic> json) {
-    return PlayerDetails(
+  factory UserDetails.fromJson(Map<String, dynamic> json) {
+    return UserDetails(
       id: json['id'],
       name: json['name'],
       email: json['email'],

@@ -1,12 +1,12 @@
-import 'package:klubhuset/model/match_poll_player_votes_details.dart';
-import 'package:klubhuset/model/player_details.dart';
+import 'package:klubhuset/model/match_poll_user_votes_details.dart';
+import 'package:klubhuset/model/user_details.dart';
 
 class MatchPollDetails {
   final int id;
   final int matchId;
-  final PlayerDetails playerOfTheMatchDetails;
+  final UserDetails playerOfTheMatchDetails;
   final int playerOfTheMatchVotes;
-  final List<MatchPollPlayerVotesDetails> matchPollPlayerVotesDetails;
+  final List<MatchPollUserVotesDetails> matchPollUserVotesDetails;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,7 +15,7 @@ class MatchPollDetails {
     required this.matchId,
     required this.playerOfTheMatchDetails,
     required this.playerOfTheMatchVotes,
-    required this.matchPollPlayerVotesDetails,
+    required this.matchPollUserVotesDetails,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -25,13 +25,13 @@ class MatchPollDetails {
       id: json['id'],
       matchId: json['matchId'],
       playerOfTheMatchDetails:
-          PlayerDetails.fromJson(json['playerOfTheMatchDetails']),
+          UserDetails.fromJson(json['playerOfTheMatchDetails']),
       playerOfTheMatchVotes: json['playerOfTheMatchVotes'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      matchPollPlayerVotesDetails: List<MatchPollPlayerVotesDetails>.from(
-          json['matchPollPlayerVotesDetails']
-              .map((x) => MatchPollPlayerVotesDetails.fromJson(x))),
+      matchPollUserVotesDetails: List<MatchPollUserVotesDetails>.from(
+          json['matchPollUserVotesDetails']
+              .map((x) => MatchPollUserVotesDetails.fromJson(x))),
     );
   }
 }

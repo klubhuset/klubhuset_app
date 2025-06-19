@@ -3,19 +3,19 @@ import 'dart:convert';
 class DepositAmountToFineBoxCommand {
   final String fineBoxId;
   final String amountToDeposit;
-  final List<String> playerFineIds;
+  final List<String> userFineIds;
 
   DepositAmountToFineBoxCommand({
     required this.fineBoxId,
     required this.amountToDeposit,
-    required this.playerFineIds,
+    required this.userFineIds,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'fineBoxId': fineBoxId,
       'amountToDeposit': amountToDeposit,
-      'playerFineIds': jsonEncode(playerFineIds),
+      'userFineIds': jsonEncode(userFineIds),
     };
   }
 }
