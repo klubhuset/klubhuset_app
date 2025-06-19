@@ -2,6 +2,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final _secureStorage = FlutterSecureStorage();
 
 class AuthenticationRepository {
   AuthenticationRepository();
@@ -18,6 +21,10 @@ class AuthenticationRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
+        // Save the token securely
+        await _secureStorage.write(key: 'token', value: data['token']);
+
         return {'success': true, 'data': data};
       } else {
         final error = json.decode(response.body);
@@ -33,7 +40,7 @@ class AuthenticationRepository {
   }
 
   static Future<Map<String, dynamic>> register(
-      String name, String email, String password, String role) async {
+      String name, String email, String password, int roleId) async {
     final url = Uri.parse('${dotenv.env['API_BASE_URL']}/api/register');
     try {
       final response = await http.post(
@@ -43,7 +50,7 @@ class AuthenticationRepository {
           'name': name,
           'email': email,
           'password': password,
-          'role': role,
+          'roleId': roleId,
         }),
       );
 
@@ -64,8 +71,8 @@ class AuthenticationRepository {
   }
 
   static Future<bool> logout() async {
-    // Hvis du bruger token-baseret auth kan du kalde en API endpoint her til at invalidere token
-    // Ellers bare return true for at "rydde" lokalt
+    await _secureStorage.delete(key: 'token');
+
     return true;
   }
 }
