@@ -21,7 +21,7 @@ class _ProfileTabState extends State<ProfileTab> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    Future<void> _logout() async {
+    Future<void> logout() async {
       final authService = Provider.of<AuthService>(context, listen: false);
       final success = await authService.logout();
 
@@ -61,7 +61,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           ? const LoadingIndicator()
                           : FullWidthButton(
                               buttonText: 'Log ud',
-                              onPressed: _logout,
+                              onPressed: logout,
                             ),
                     ])))));
   }

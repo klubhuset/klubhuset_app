@@ -37,12 +37,12 @@ class AuthService with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> register(
-      String name, String email, String password, UserRole role) async {
+      String name, String email, String password, int roleId) async {
     final result = await AuthenticationRepository.register(
       name,
       email,
       password,
-      userRoleToString(role),
+      roleId,
     );
 
     if (result['success'] == true) {
