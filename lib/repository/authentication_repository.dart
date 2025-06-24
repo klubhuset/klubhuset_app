@@ -2,16 +2,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-final _secureStorage = FlutterSecureStorage();
+import 'package:klubhuset/services/secure_storage_service.dart';
 
 class AuthenticationRepository {
-  AuthenticationRepository();
-
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/api/login');
+    await dotenv.load(); // Initialize dotenv
+
+    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/authentication/login');
     try {
       final response = await http.post(
         url,
@@ -23,25 +21,31 @@ class AuthenticationRepository {
         final data = json.decode(response.body);
 
         // Save the token securely
-        await _secureStorage.write(key: 'token', value: data['token']);
+        await SecureStorageService.setToken(data['token']);
 
         return {'success': true, 'data': data};
       } else {
         final error = json.decode(response.body);
         return {
           'success': false,
-          'message': error['message'] ?? 'Login failed'
+          'message': error['message'] ?? 'Login fejlede'
         };
       }
     } catch (e) {
       if (kDebugMode) print('Login error: $e');
-      return {'success': false, 'message': 'Network error'};
+      return {
+        'success': false,
+        'message': 'Der skete en fejl under login. Prøv igen.'
+      };
     }
   }
 
   static Future<Map<String, dynamic>> register(
       String name, String email, String password, int roleId) async {
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/api/register');
+    await dotenv.load(); // Initialize dotenv
+
+    final url =
+        Uri.parse('${dotenv.env['API_BASE_URL']}/authentication/register');
     try {
       final response = await http.post(
         url,
@@ -61,17 +65,20 @@ class AuthenticationRepository {
         final error = json.decode(response.body);
         return {
           'success': false,
-          'message': error['message'] ?? 'Registration failed'
+          'message': error['message'] ?? 'Registrering fejlede'
         };
       }
     } catch (e) {
       if (kDebugMode) print('Registration error: $e');
-      return {'success': false, 'message': 'Network error'};
+      return {
+        'success': false,
+        'message': 'Der skete en fejl under registering. Prøv igen.'
+      };
     }
   }
 
   static Future<bool> logout() async {
-    await _secureStorage.delete(key: 'token');
+    await SecureStorageService.deleteToken();
 
     return true;
   }

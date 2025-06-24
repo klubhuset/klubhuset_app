@@ -21,8 +21,9 @@ class FullWidthButton extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14.0),
         decoration: BoxDecoration(
-          color:
-              outlined ? CupertinoColors.white : CupertinoColors.systemIndigo,
+          color: outlined
+              ? CupertinoColors.transparent
+              : CupertinoColors.systemIndigo,
           borderRadius: BorderRadius.circular(50.0),
           border: outlined
               ? Border.all(color: CupertinoColors.systemIndigo, width: 2.0)

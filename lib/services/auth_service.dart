@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/repository/authentication_repository.dart';
+import 'package:klubhuset/services/secure_storage_service.dart';
 
 enum UserRole { player, teamOwner, admin }
 
@@ -25,12 +26,27 @@ class AuthService with ChangeNotifier {
     final result = await AuthenticationRepository.login(email, password);
 
     if (result['success'] == true) {
-      _currentUser = UserDetails.fromJson(result['data']);
+      final token = result['data']['token'];
+      await SecureStorageService.setToken(token);
+
+      // TODO: Hent rigtig brugerdata via /me, fx:
+      // final userInfo = await AuthenticationRepository.getCurrentUser();
+      // _currentUser = UserDetails.fromJson(userInfo);
+
+      _currentUser = UserDetails(
+          id: 1,
+          name: 'Testersen',
+          email: email,
+          isTeamOwner: false,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now());
+
       notifyListeners();
+
       return true;
     } else {
       _currentUser = null;
-      debugPrint('Login fejl: ${result['message']}');
+      debugPrint('Login fejlede ${result['message']}');
       notifyListeners();
       return false;
     }
@@ -57,6 +73,7 @@ class AuthService with ChangeNotifier {
 
   Future<bool> logout() async {
     final success = await AuthenticationRepository.logout();
+
     if (success) {
       _currentUser = null;
       notifyListeners();

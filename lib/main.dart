@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:klubhuset/page/login/login_page.dart';
+import 'package:klubhuset/page/login/register.dart';
 import 'package:klubhuset/services/auth_service.dart';
 import 'package:klubhuset/state/user_votes_state.dart';
 import 'package:klubhuset/tab/home_tab.dart';
@@ -30,7 +31,7 @@ class AppRoutes {
     return {
       login: (context) => const LoginScreen(),
       home: (context) => const MainPage(),
-      register: (context) => const MainPage(),
+      register: (context) => const RegisterScreen(),
     };
   }
 }
