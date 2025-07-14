@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:klubhuset/page/match_polls/match_polls_page.dart';
-import 'package:klubhuset/page/match_programme/match_programme.dart';
+import 'package:klubhuset/page/match/match_programme.dart';
 import 'package:klubhuset/page/team/team_page.dart';
 import 'package:klubhuset/page/team_fines/team_fines_page.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';

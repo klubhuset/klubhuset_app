@@ -149,7 +149,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
                               top: 20.0, bottom: 20.0, left: 20, right: 20),
                           title: Text(user.name),
                           subtitle: Text(
-                            '${match.name} - d. ${DateHelper.getFormattedDate(matchPoll.createdAt)}',
+                            '${match.matchName} - d. ${DateHelper.getFormattedDate(matchPoll.createdAt)}',
                           ),
                           additionalInfo: Text(
                             '${matchPoll.playerOfTheMatchVotes} stemmer',

@@ -4,4 +4,12 @@ class DateHelper {
   static String getFormattedDate(DateTime date) {
     return DateFormat('dd-MM-yyyy').format(date);
   }
+
+  static String getFormattedShortDate(DateTime date) {
+    return DateFormat('dd-MM').format(date);
+  }
+
+  static String getFormattedTime(DateTime date) {
+    return DateFormat('HH:mm').format(date);
+  }
 }

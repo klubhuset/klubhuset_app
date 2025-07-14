@@ -41,14 +41,19 @@ class MatchRepository {
     }
   }
 
-  static Future<int> createMatch(String name, DateTime matchDate) async {
+  static Future<int> createMatch(
+    String firstTeam,
+    String secondTeam,
+    DateTime date,
+    String location, {
+    String? notes,
+  }) async {
     await dotenv.load(); // Initialize dotenv
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match');
 
-    // TODO: Add address
     CreateMatchCommand createMatchCommand =
-        CreateMatchCommand(name, '', matchDate);
+        CreateMatchCommand(firstTeam, secondTeam, location, date, notes);
 
     var response = await http.post(url, body: createMatchCommand.toJson());
 

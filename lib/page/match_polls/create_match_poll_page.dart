@@ -39,7 +39,7 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   Widget build(BuildContext context) {
     var userVotes = context.watch<UserVotesState>().userVotes;
 
-    var matchesToBeSelected = widget.matches.map((x) => x.name).toList();
+    var matchesToBeSelected = widget.matches.map((x) => x.matchName).toList();
 
     return CupertinoPageScaffold(
         backgroundColor: CupertinoColors.systemGrey6,

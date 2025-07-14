@@ -1,15 +1,24 @@
 class CreateMatchCommand {
-  String name;
-  String address;
-  DateTime matchDate;
+  final String firstTeam;
+  final String secondTeam;
+  final String location;
+  final DateTime date;
+  final String? notes;
 
-  CreateMatchCommand(this.name, this.address, this.matchDate);
+  CreateMatchCommand(
+    this.firstTeam,
+    this.secondTeam,
+    this.location,
+    this.date,
+    this.notes,
+  );
 
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      'address': address,
-      'matchDate': matchDate.toString(),
+      'firstTeam': firstTeam,
+      'secondTeam': secondTeam,
+      'location': location,
+      'date': date.toString(),
     };
   }
 }

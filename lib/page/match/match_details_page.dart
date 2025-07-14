@@ -103,7 +103,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                               children: [
                                 Text(
                                   // TODO: Display the match name with result
-                                  matchDetails.name,
+                                  matchDetails.matchName,
                                   style: TextStyle(fontSize: 30),
                                 ),
                               ],
@@ -117,30 +117,31 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                         children: [
                           Column(
                             children: [
-                              CupertinoButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                      MaterialWithModalsPageRoute(
-                                          builder: (context) =>
-                                              TeamFinesPage()));
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: CupertinoColors.systemIndigo,
-                                    borderRadius: BorderRadius.circular(50.0),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 30.0),
-                                  child: Text(
-                                    'Gå til Bødekassen',
-                                    style: TextStyle(
-                                      color: CupertinoColors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              _buildActionButtonsOverview()
+                              // CupertinoButton(
+                              //   padding: EdgeInsets.zero,
+                              //   onPressed: () {
+                              //     Navigator.of(context).push(
+                              //         MaterialWithModalsPageRoute(
+                              //             builder: (context) =>
+                              //                 TeamFinesPage()));
+                              //   },
+                              //   child: Container(
+                              //     decoration: BoxDecoration(
+                              //       color: CupertinoColors.systemIndigo,
+                              //       borderRadius: BorderRadius.circular(50.0),
+                              //     ),
+                              //     padding: EdgeInsets.symmetric(
+                              //         vertical: 15.0, horizontal: 30.0),
+                              //     child: Text(
+                              //       'Gå til Bødekassen',
+                              //       style: TextStyle(
+                              //         color: CupertinoColors.white,
+                              //         fontWeight: FontWeight.bold,
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                           )
                         ],
@@ -171,12 +172,6 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                       Widget>{
                                     MatchDetailsSegments.info: Text(
                                       'Info',
-                                      style: TextStyle(
-                                          color: CupertinoColors.black,
-                                          fontSize: 13),
-                                    ),
-                                    MatchDetailsSegments.fines: Text(
-                                      'Tilmelding',
                                       style: TextStyle(
                                           color: CupertinoColors.black,
                                           fontSize: 13),
@@ -219,7 +214,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
             children: [
               Container(
                   width: double.infinity,
-                  padding: EdgeInsets.fromLTRB(20, 40, 20, 40),
+                  padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
                   decoration: BoxDecoration(
                     color: CupertinoColors.systemBackground,
                     borderRadius: BorderRadius.circular(12.0),
@@ -231,16 +226,16 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                         Text('Kampdetaljer',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 30),
-                        Text(
-                            DateHelper.getFormattedDate(matchDetails.matchDate),
+                        SizedBox(height: 10),
+                        Text(DateHelper.getFormattedDate(matchDetails.date),
                             style: TextStyle(fontSize: 15)),
                         SizedBox(height: 5),
-                        Text('13:00', style: TextStyle(fontSize: 15)),
+                        Text(DateHelper.getFormattedTime(matchDetails.date),
+                            style: TextStyle(fontSize: 15)),
                         SizedBox(height: 5),
-                        Text('Lundehusparken', style: TextStyle(fontSize: 15)),
+                        Text(matchDetails.location,
+                            style: TextStyle(fontSize: 15)),
                         SizedBox(height: 5),
-                        Text('Mødetid: 12:30', style: TextStyle(fontSize: 15)),
                       ],
                     ),
                   )),
@@ -315,6 +310,52 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
       );
     }
     return Text('Kommer snart!');
+  }
+
+  Widget _buildActionButtonsOverview() {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            getButtonItem('Tilmelding', CupertinoIcons.arrow_down_square),
+            SizedBox(width: 30),
+            getButtonItem('Bødekassen', CupertinoIcons.money_dollar,
+                onTap: () async {}),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getButtonItem(String buttonText, IconData buttonIcon,
+      {Function()? onTap}) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: onTap,
+        child: Column(
+          children: [
+            Icon(buttonIcon, color: CupertinoColors.black, size: 24),
+            SizedBox(height: 8),
+            Text(
+              buttonText,
+              style: TextStyle(
+                  color: CupertinoColors.black,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   List<MatchPollRowItem> getMatchPollRowItems(List<UserDetails> squad) {
