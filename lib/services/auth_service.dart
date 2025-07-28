@@ -29,17 +29,13 @@ class AuthService with ChangeNotifier {
       final token = result['data']['token'];
       await SecureStorageService.setToken(token);
 
-      // TODO: Hent rigtig brugerdata via /me, fx:
-      // final userInfo = await AuthenticationRepository.getCurrentUser();
-      // _currentUser = UserDetails.fromJson(userInfo);
+      _currentUser = await AuthenticationRepository.getCurrentUser();
 
-      _currentUser = UserDetails(
-          id: 1,
-          name: 'Testersen',
-          email: email,
-          isTeamOwner: false,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now());
+      await SecureStorageService.setUserInfo(
+        id: _currentUser!.id,
+        name: _currentUser!.name,
+        roleId: _currentUser!.roleId,
+      );
 
       notifyListeners();
 

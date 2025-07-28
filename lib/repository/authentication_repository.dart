@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/services/secure_storage_service.dart';
 
 class AuthenticationRepository {
@@ -81,5 +82,34 @@ class AuthenticationRepository {
     await SecureStorageService.deleteToken();
 
     return true;
+  }
+
+  static Future<UserDetails> getCurrentUser() async {
+    final token = await SecureStorageService.getToken();
+    if (token == null) {
+      throw Exception('Token not found. Please login again.');
+    }
+
+    final url =
+        Uri.parse('${dotenv.env['API_BASE_URL']}/authentication/current_user');
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+
+        return UserDetails.fromJson(json);
+      } else {
+        final error = jsonDecode(response.body);
+
+        throw Exception('An error occurred: ${error['message']}');
+      }
+    } catch (e) {
+      if (kDebugMode) print('Get current user error: $e');
+      throw Exception('Failed to fetch current user data.');
+    }
   }
 }

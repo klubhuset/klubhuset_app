@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:klubhuset/model/create_match_comand.dart';
+import 'package:klubhuset/model/register_for_unregister_from_match_command.dart';
 import 'package:klubhuset/model/match_details.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -69,15 +70,98 @@ class MatchRepository {
   static Future<MatchDetails> getMatch(int id) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/$id');
-    var response = await http.get(url);
+    // Get token
+    final token = await _secureStorage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('No token found. User might not be logged in.');
+    }
+
+    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/$id');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
       var json = jsonDecode(response.body)['body'];
 
       return MatchDetails.fromJson(json);
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized. Please log in again.');
     } else {
       throw Exception('Failed to fetch match');
     }
+  }
+
+  static Future<int> registerForMatch(int matchId) async {
+    await dotenv.load(); // Initialize dotenv
+
+    final token = await _secureStorage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('No token found. User might not be logged in.');
+    }
+
+    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/register');
+
+    final command = RegisterForUnregisterFromMatchCommand(
+      matchId: matchId.toString(),
+    );
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(command.toJson()),
+    );
+
+    if (response.statusCode == 401) {
+      throw Exception('Unauthorized. Please log in again.');
+    } else if (response.statusCode != 200) {
+      throw Exception('Failed to register for match');
+    }
+
+    final jsonResponse = jsonDecode(response.body);
+    return jsonResponse['id'];
+  }
+
+  static Future<int> unregisterFromMatch(int matchId) async {
+    await dotenv.load(); // Initialize dotenv
+
+    final token = await _secureStorage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('No token found. User might not be logged in.');
+    }
+
+    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/unregister');
+
+    final command = RegisterForUnregisterFromMatchCommand(
+      matchId: matchId.toString(),
+    );
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(command.toJson()),
+    );
+
+    if (response.statusCode == 401) {
+      throw Exception('Unauthorized. Please log in again.');
+    } else if (response.statusCode != 200) {
+      throw Exception('Failed to unregister from match');
+    }
+
+    final jsonResponse = jsonDecode(response.body);
+    return jsonResponse['id'];
   }
 }

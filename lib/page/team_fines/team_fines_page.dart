@@ -12,6 +12,7 @@ import 'package:klubhuset/page/team_fines/create_fine_type_modal.dart';
 import 'package:klubhuset/page/team_fines/deposit_modal.dart';
 import 'package:klubhuset/page/team_fines/deposit_personal_modal.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
+import 'package:klubhuset/services/secure_storage_service.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum TeamOwnerFinesSegments { overview, fineTypes, personal }
@@ -25,6 +26,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
   late Future<FineBoxDetails> fineBoxDetails;
   late Future<List<FineTypeDetails>> fineTypeDetails;
   late Future<List<UserFineDetails>> userFineDetails;
+  int? currentUserId;
 
   TeamOwnerFinesSegments _selectedSegment = TeamOwnerFinesSegments.overview;
 
@@ -32,8 +34,12 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
   void initState() {
     super.initState();
 
+    // Load fine data
     fineBoxDetails = FinesRepository.getFineBox();
     fineTypeDetails = FinesRepository.getFineTypes();
+
+    // Load logged in user ID
+    _loadCurrentUserId();
   }
 
   Future<void> _refreshFineBox() async {
@@ -46,6 +52,16 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     setState(() {
       fineTypeDetails = FinesRepository.getFineTypes();
     });
+  }
+
+  Future<void> _loadCurrentUserId() async {
+    // Read userId from secure storage
+    final id = await SecureStorageService.getUserId();
+    if (id != null) {
+      setState(() {
+        currentUserId = int.tryParse(id);
+      });
+    }
   }
 
   @override
@@ -140,7 +156,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
           } else {
             // TODO: This should be changed to the logged in user instead
             var userFineDetails = data.userFineDetails
-                .where((element) => element.userDetails.isTeamOwner)
+                .where((element) => element.id == currentUserId)
                 .first;
             UserDetails userDetails = userFineDetails.userDetails;
 

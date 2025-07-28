@@ -6,12 +6,11 @@ import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/page/match_polls/create_match_poll_page.dart';
-import 'package:klubhuset/page/team_fines/team_fines_page.dart';
 import 'package:klubhuset/repository/match_repository.dart';
 import 'package:klubhuset/repository/users_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-enum MatchDetailsSegments { info, statistics, manOfTheMatch, fines }
+enum MatchDetailsSegments { registration, statistics, manOfTheMatch, fines }
 
 class MatchDetailsPage extends StatefulWidget {
   final int matchId;
@@ -27,7 +26,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
   bool _isManOfTheMatchVoted = false;
   MatchPollDetails? matchPollDetails;
 
-  MatchDetailsSegments _selectedSegment = MatchDetailsSegments.info;
+  MatchDetailsSegments _selectedSegment = MatchDetailsSegments.registration;
 
   @override
   void initState() {
@@ -50,6 +49,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
       'squad': squad,
       'matchDetails': matchDetails,
     };
+  }
+
+  Future<void> _refreshMatchAndSquad() async {
+    setState(() {
+      matchAndSquadData = _fetchMatchAndSquad();
+    });
   }
 
   void _setMatchPollDetails(MatchPollDetails? matchPollDetailsToSet) {
@@ -92,7 +97,6 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                         child: Container(
                           margin: const EdgeInsets.all(20.0),
                           padding: const EdgeInsets.all(20.0),
-                          height: 100,
                           decoration: BoxDecoration(
                             color: CupertinoColors.systemBackground,
                             borderRadius: BorderRadius.circular(12.0),
@@ -106,47 +110,30 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                   matchDetails.matchName,
                                   style: TextStyle(fontSize: 30),
                                 ),
+                                SizedBox(height: 30),
+                                Text('Kampdetaljer',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold)),
+                                SizedBox(height: 10),
+                                Text(
+                                    DateHelper.getFormattedDate(
+                                        matchDetails.date),
+                                    style: TextStyle(fontSize: 15)),
+                                SizedBox(height: 5),
+                                Text(
+                                    DateHelper.getFormattedTime(
+                                        matchDetails.date),
+                                    style: TextStyle(fontSize: 15)),
+                                SizedBox(height: 5),
+                                Text(matchDetails.location,
+                                    style: TextStyle(fontSize: 15)),
+                                SizedBox(height: 5),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Column(
-                            children: [
-                              _buildActionButtonsOverview()
-                              // CupertinoButton(
-                              //   padding: EdgeInsets.zero,
-                              //   onPressed: () {
-                              //     Navigator.of(context).push(
-                              //         MaterialWithModalsPageRoute(
-                              //             builder: (context) =>
-                              //                 TeamFinesPage()));
-                              //   },
-                              //   child: Container(
-                              //     decoration: BoxDecoration(
-                              //       color: CupertinoColors.systemIndigo,
-                              //       borderRadius: BorderRadius.circular(50.0),
-                              //     ),
-                              //     padding: EdgeInsets.symmetric(
-                              //         vertical: 15.0, horizontal: 30.0),
-                              //     child: Text(
-                              //       'Gå til Bødekassen',
-                              //       style: TextStyle(
-                              //         color: CupertinoColors.white,
-                              //         fontWeight: FontWeight.bold,
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 40),
                       Center(
                         child: Center(
                           child: Column(
@@ -170,8 +157,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                   },
                                   children: const <MatchDetailsSegments,
                                       Widget>{
-                                    MatchDetailsSegments.info: Text(
-                                      'Info',
+                                    MatchDetailsSegments.registration: Text(
+                                      'Tilmelding',
                                       style: TextStyle(
                                           color: CupertinoColors.black,
                                           fontSize: 13),
@@ -207,38 +194,88 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
 
   Widget getMatchDetailSegment(
       MatchDetails matchDetails, List<UserDetails> squad) {
-    if (_selectedSegment == MatchDetailsSegments.info) {
+    if (_selectedSegment == MatchDetailsSegments.registration) {
       return Container(
           margin: const EdgeInsets.all(20.0),
           child: Column(
             children: [
+              _buildActionButtonsInfo(matchDetails),
+              const SizedBox(height: 20),
               Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemBackground,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  margin: const EdgeInsets.only(bottom: 20),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Text('Kampdetaljer',
+                padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: CupertinoColors.systemBackground,
+                ),
+                child: matchDetails.matchRegistrationDetailsList!
+                        .where((matchRegistrationDetails) =>
+                            matchRegistrationDetails.isUserParticipating)
+                        .isEmpty
+                    ? const Center(child: Text('Ingen tilmeldte endnu.'))
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tilmeldte (${matchDetails.matchRegistrationDetailsList!.where((matchRegistrationDetails) => matchRegistrationDetails.isUserParticipating).length})',
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        Text(DateHelper.getFormattedDate(matchDetails.date),
-                            style: TextStyle(fontSize: 15)),
-                        SizedBox(height: 5),
-                        Text(DateHelper.getFormattedTime(matchDetails.date),
-                            style: TextStyle(fontSize: 15)),
-                        SizedBox(height: 5),
-                        Text(matchDetails.location,
-                            style: TextStyle(fontSize: 15)),
-                        SizedBox(height: 5),
-                      ],
-                    ),
-                  )),
+                              color: CupertinoColors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...matchDetails.matchRegistrationDetailsList!
+                              .where((d) => d.isUserParticipating)
+                              .map((d) => Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: Text(
+                                      d.userDetails.name,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ))
+                              .toList(),
+                        ],
+                      ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: CupertinoColors.systemBackground,
+                ),
+                child: matchDetails.matchRegistrationDetailsList!
+                        .where((matchRegistrationDetails) =>
+                            !matchRegistrationDetails.isUserParticipating)
+                        .isEmpty
+                    ? const Center(child: Text('Ingen frameldte endnu.'))
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Frameldte (${matchDetails.matchRegistrationDetailsList!.where((matchRegistrationDetails) => !matchRegistrationDetails.isUserParticipating).length})',
+                            style: TextStyle(
+                              color: CupertinoColors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...matchDetails.matchRegistrationDetailsList!
+                              .where((d) => !d.isUserParticipating)
+                              .map((d) => Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: Text(
+                                      d.userDetails.name,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ))
+                              .toList(),
+                        ],
+                      ),
+              )
             ],
           ));
     } else if (_selectedSegment == MatchDetailsSegments.manOfTheMatch) {
@@ -312,17 +349,40 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
     return Text('Kommer snart!');
   }
 
-  Widget _buildActionButtonsOverview() {
+  Widget _buildActionButtonsInfo(MatchDetails matchDetails) {
     return Center(
       child: Container(
-        margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            getButtonItem('Tilmelding', CupertinoIcons.arrow_down_square),
+            getButtonItem(
+              'Tilmeld',
+              CupertinoIcons.add_circled,
+              CupertinoColors.systemGreen,
+              CupertinoColors.white,
+              onTap: () async {
+                var hasUserRegisteredForMatch = await registerForMatch();
+
+                if (hasUserRegisteredForMatch) {
+                  _refreshMatchAndSquad();
+                }
+              },
+            ),
             SizedBox(width: 30),
-            getButtonItem('Bødekassen', CupertinoIcons.money_dollar,
-                onTap: () async {}),
+            getButtonItem(
+              'Afmeld',
+              CupertinoIcons.minus_circle,
+              CupertinoColors.systemRed,
+              CupertinoColors.white,
+              onTap: () async {
+                var hasUnregisteredFromMatch = await unregisterFromMatch();
+
+                if (hasUnregisteredFromMatch) {
+                  _refreshMatchAndSquad();
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -330,12 +390,13 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
   }
 
   Widget getButtonItem(String buttonText, IconData buttonIcon,
+      Color backgroundColor, Color textColor,
       {Function()? onTap}) {
     return Container(
-      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.all(10),
+      width: 100,
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: CupertinoButton(
@@ -343,14 +404,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
         onPressed: onTap,
         child: Column(
           children: [
-            Icon(buttonIcon, color: CupertinoColors.black, size: 24),
+            Icon(buttonIcon, color: textColor, size: 24),
             SizedBox(height: 8),
             Text(
               buttonText,
               style: TextStyle(
-                  color: CupertinoColors.black,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold),
+                  color: textColor, fontSize: 13, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -376,5 +435,19 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
     matchPollRowItems.sort((a, b) => b.votes.compareTo(a.votes));
 
     return matchPollRowItems;
+  }
+
+  Future<bool> registerForMatch() async {
+    var matchRegistration =
+        await MatchRepository.registerForMatch(widget.matchId);
+
+    return matchRegistration > 0;
+  }
+
+  Future<bool> unregisterFromMatch() async {
+    var matchRegistration =
+        await MatchRepository.unregisterFromMatch(widget.matchId);
+
+    return matchRegistration > 0;
   }
 }

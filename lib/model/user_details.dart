@@ -3,6 +3,7 @@ class UserDetails {
   final String name;
   final String email;
   final bool isTeamOwner;
+  final int roleId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -11,6 +12,7 @@ class UserDetails {
       required this.name,
       required this.email,
       required this.isTeamOwner,
+      required this.roleId,
       required this.createdAt,
       required this.updatedAt});
 
@@ -20,6 +22,7 @@ class UserDetails {
       name: json['name'],
       email: json['email'],
       isTeamOwner: json['isTeamOwner'],
+      roleId: json['roleId'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );

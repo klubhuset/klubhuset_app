@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:klubhuset/model/match_details.dart';
 import 'package:klubhuset/repository/match_repository.dart';
