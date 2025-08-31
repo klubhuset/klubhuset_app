@@ -75,9 +75,9 @@ http_parser
 file:///Users/holstchayder/.pub-cache/hosted/pub.dev/http_parser-4.0.2/
 file:///Users/holstchayder/.pub-cache/hosted/pub.dev/http_parser-4.0.2/lib/
 intl
-3.3
-file:///Users/holstchayder/.pub-cache/hosted/pub.dev/intl-0.20.1/
-file:///Users/holstchayder/.pub-cache/hosted/pub.dev/intl-0.20.1/lib/
+3.0
+file:///Users/holstchayder/.pub-cache/hosted/pub.dev/intl-0.19.0/
+file:///Users/holstchayder/.pub-cache/hosted/pub.dev/intl-0.19.0/lib/
 js
 2.19
 file:///Users/holstchayder/.pub-cache/hosted/pub.dev/js-0.6.7/
@@ -250,6 +250,10 @@ flutter
 3.3
 file:///Users/holstchayder/Development/flutter/packages/flutter/
 file:///Users/holstchayder/Development/flutter/packages/flutter/lib/
+flutter_localizations
+3.2
+file:///Users/holstchayder/Development/flutter/packages/flutter_localizations/
+file:///Users/holstchayder/Development/flutter/packages/flutter_localizations/lib/
 flutter_test
 3.3
 file:///Users/holstchayder/Development/flutter/packages/flutter_test/

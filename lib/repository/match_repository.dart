@@ -46,15 +46,16 @@ class MatchRepository {
     String firstTeam,
     String secondTeam,
     DateTime date,
-    String location, {
+    String location,
+    DateTime? meetingTime, {
     String? notes,
   }) async {
     await dotenv.load(); // Initialize dotenv
 
     var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match');
 
-    CreateMatchCommand createMatchCommand =
-        CreateMatchCommand(firstTeam, secondTeam, location, date, notes);
+    CreateMatchCommand createMatchCommand = CreateMatchCommand(
+        firstTeam, secondTeam, location, meetingTime, date, notes);
 
     var response = await http.post(url, body: createMatchCommand.toJson());
 

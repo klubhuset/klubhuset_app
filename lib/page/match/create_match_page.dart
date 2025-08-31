@@ -18,6 +18,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
   final _locationController = TextEditingController();
   final _noteController = TextEditingController();
   DateTime? _selectedDate;
+  DateTime? _selectedMeetingTime;
 
   @override
   void dispose() {
@@ -39,7 +40,6 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
           color: CupertinoColors.systemBackground.resolveFrom(context),
           child: Column(
             children: [
-              // Fjerner overdreven top-padding fra navigation bar
               MediaQuery.removePadding(
                 context: context,
                 removeTop: true,
@@ -89,6 +89,66 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
     );
   }
 
+  Future<void> _pickMeetingTime() async {
+    DateTime tempPickedDate = _selectedMeetingTime ?? DateTime.now();
+
+    await showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 300,
+          color: CupertinoColors.systemBackground.resolveFrom(context),
+          child: Column(
+            children: [
+              MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                child: CupertinoNavigationBar(
+                  middle: Text('Vælg mødetid'),
+                  leading: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Text('Annullér'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  trailing: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Text('OK'),
+                    onPressed: () {
+                      setState(() {
+                        _selectedMeetingTime = tempPickedDate;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: CupertinoColors.separator,
+                      width: 0.0,
+                    ),
+                  ),
+                ),
+              ),
+              // Date/time picker
+              Expanded(
+                child: CupertinoDatePicker(
+                  initialDateTime: tempPickedDate,
+                  mode: CupertinoDatePickerMode.time,
+                  use24hFormat: true,
+                  onDateTimeChanged: (DateTime newDate) {
+                    tempPickedDate = newDate;
+                  },
+                ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -118,7 +178,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
             child: CupertinoFormSection.insetGrouped(
               children: [
                 CupertinoFormRow(
-                  prefix: Text('Første hold',
+                  prefix: Text('Hjemmehold',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   child: CupertinoTextFormFieldRow(
                     controller: _teamAController,
@@ -126,7 +186,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
                   ),
                 ),
                 CupertinoFormRow(
-                  prefix: Text('Andet hold',
+                  prefix: Text('Udehold',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   child: CupertinoTextFormFieldRow(
                     controller: _teamBController,
@@ -134,7 +194,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
                   ),
                 ),
                 CupertinoFormRow(
-                  prefix: Text('Dato',
+                  prefix: Text('Tidspunkt',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   child: GestureDetector(
                     onTap: _pickDateTime,
@@ -148,6 +208,31 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
                             ? DateFormat('dd.MM.yyyy - HH:mm')
                                 .format(_selectedDate!)
                             : 'Vælg dato og tid',
+                        style: TextStyle(
+                          color: _selectedDate != null
+                              ? CupertinoColors.label
+                              : CupertinoColors.placeholderText,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                CupertinoFormRow(
+                  prefix: Text('Mødetid',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: GestureDetector(
+                    onTap: _pickMeetingTime,
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      child: Text(
+                        _selectedDate != null
+                            ? DateFormat('dd.MM.yyyy - HH:mm')
+                                .format(_selectedDate!)
+                            : 'VALGFRIT: Vælg mødetid',
                         style: TextStyle(
                           color: _selectedDate != null
                               ? CupertinoColors.label
@@ -187,6 +272,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
     final location = _locationController.text.trim();
     final notes = _noteController.text.trim();
     final date = _selectedDate;
+    final meetingTime = _selectedMeetingTime;
 
     if (teamA.isEmpty || teamB.isEmpty || date == null) {
       await _showError('Udfyld begge hold og vælg dato.');
@@ -204,6 +290,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
       teamB,
       date,
       location,
+      meetingTime,
       notes: notes,
     );
 

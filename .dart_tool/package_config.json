@@ -74,6 +74,12 @@
       "languageVersion": "3.5"
     },
     {
+      "name": "flutter_localizations",
+      "rootUri": "file:///Users/holstchayder/Development/flutter/packages/flutter_localizations",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "flutter_secure_storage",
       "rootUri": "file:///Users/holstchayder/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4",
       "packageUri": "lib/",
@@ -135,9 +141,9 @@
     },
     {
       "name": "intl",
-      "rootUri": "file:///Users/holstchayder/.pub-cache/hosted/pub.dev/intl-0.20.1",
+      "rootUri": "file:///Users/holstchayder/.pub-cache/hosted/pub.dev/intl-0.19.0",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.0"
     },
     {
       "name": "js",
@@ -392,7 +398,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-06-19T18:27:36.394284Z",
+  "generated": "2025-08-31T06:58:34.711214Z",
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/holstchayder/Development/flutter",

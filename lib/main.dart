@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:klubhuset/page/login/login_page.dart';
 import 'package:klubhuset/page/login/register.dart';
 import 'package:klubhuset/services/auth_service.dart';
@@ -52,6 +53,16 @@ class KlubhusetApp extends StatelessWidget {
           brightness: Brightness.light,
           primaryColor: CupertinoColors.systemIndigo,
           scaffoldBackgroundColor: CupertinoColors.systemBackground),
+      // Danish and English localization support
+      localizationsDelegates: <LocalizationsDelegate<dynamic>>[
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: <Locale>[
+        Locale('da'),
+        Locale('en'),
+      ],
       home: authService.currentUser == null
           ? const LoginScreen()
           : const MainPage(),

@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_dotenv: ^5.0.2
   cupertino_modal_sheet: ^1.0.0
   url_launcher: ^6.2.4
@@ -41,7 +43,7 @@ dependencies:
   provider: ^6.1.2
   modal_bottom_sheet: ^3.0.0
   http: ^1.2.2
-  intl: ^0.20.1
+  intl: ^0.19.0
   flutter_secure_storage: ^9.2.4
 
 dev_dependencies:

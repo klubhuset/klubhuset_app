@@ -2,6 +2,7 @@ class CreateMatchCommand {
   final String firstTeam;
   final String secondTeam;
   final String location;
+  final DateTime? meetingTime;
   final DateTime date;
   final String? notes;
 
@@ -9,6 +10,7 @@ class CreateMatchCommand {
     this.firstTeam,
     this.secondTeam,
     this.location,
+    this.meetingTime,
     this.date,
     this.notes,
   );
@@ -18,6 +20,7 @@ class CreateMatchCommand {
       'firstTeam': firstTeam,
       'secondTeam': secondTeam,
       'location': location,
+      'meetingTime': meetingTime.toString(),
       'date': date.toString(),
     };
   }
