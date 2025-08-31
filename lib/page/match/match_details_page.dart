@@ -111,7 +111,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                   style: TextStyle(fontSize: 30),
                                 ),
                                 SizedBox(height: 30),
-                                Text('Kampdetaljer',
+                                Text('Detaljer',
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold)),
@@ -207,36 +207,33 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                 decoration: const BoxDecoration(
                   color: CupertinoColors.systemBackground,
                 ),
-                child: matchDetails.matchRegistrationDetailsList!
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tilmeldte (${matchDetails.matchRegistrationDetailsList!.where((matchRegistrationDetails) => matchRegistrationDetails.isUserParticipating).length})',
+                      style: TextStyle(
+                        color: CupertinoColors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (matchDetails.matchRegistrationDetailsList!
                         .where((matchRegistrationDetails) =>
                             matchRegistrationDetails.isUserParticipating)
-                        .isEmpty
-                    ? const Center(child: Text('Ingen tilmeldte endnu.'))
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tilmeldte (${matchDetails.matchRegistrationDetailsList!.where((matchRegistrationDetails) => matchRegistrationDetails.isUserParticipating).length})',
-                            style: TextStyle(
-                              color: CupertinoColors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          ...matchDetails.matchRegistrationDetailsList!
-                              .where((d) => d.isUserParticipating)
-                              .map((d) => Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: Text(
-                                      d.userDetails.name,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ))
-                              .toList(),
-                        ],
-                      ),
+                        .isNotEmpty)
+                      const SizedBox(height: 10),
+                    ...matchDetails.matchRegistrationDetailsList!
+                        .where((d) => d.isUserParticipating)
+                        .map((d) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(
+                                d.userDetails.name,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            )),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
               Container(
@@ -245,36 +242,69 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                 decoration: const BoxDecoration(
                   color: CupertinoColors.systemBackground,
                 ),
-                child: matchDetails.matchRegistrationDetailsList!
-                        .where((matchRegistrationDetails) =>
-                            !matchRegistrationDetails.isUserParticipating)
-                        .isEmpty
-                    ? const Center(child: Text('Ingen frameldte endnu.'))
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Frameldte (${matchDetails.matchRegistrationDetailsList!.where((matchRegistrationDetails) => !matchRegistrationDetails.isUserParticipating).length})',
-                            style: TextStyle(
-                              color: CupertinoColors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          ...matchDetails.matchRegistrationDetailsList!
-                              .where((d) => !d.isUserParticipating)
-                              .map((d) => Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: Text(
-                                      d.userDetails.name,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ))
-                              .toList(),
-                        ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Frameldte - ${matchDetails.matchRegistrationDetailsList!.where((matchRegistrationDetails) => !matchRegistrationDetails.isUserParticipating).length}',
+                      style: TextStyle(
+                        color: CupertinoColors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...matchDetails.matchRegistrationDetailsList!
+                        .where((d) => !d.isUserParticipating)
+                        .map((d) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(
+                                d.userDetails.name,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            )),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: CupertinoColors.systemBackground,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ej tilkendegivet - ${squad.where((player) => !matchDetails.matchRegistrationDetailsList!.any((registration) => registration.userDetails.id == player.id)).length}',
+                      style: TextStyle(
+                        color: CupertinoColors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (squad
+                        .where((player) => !matchDetails
+                            .matchRegistrationDetailsList!
+                            .any((registration) =>
+                                registration.userDetails.id == player.id))
+                        .isNotEmpty)
+                      const SizedBox(height: 10),
+                    ...squad
+                        .where((player) => !matchDetails
+                            .matchRegistrationDetailsList!
+                            .any((registration) =>
+                                registration.userDetails.id == player.id))
+                        .map((d) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(
+                                d.name,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            )),
+                  ],
+                ),
               )
             ],
           ));
