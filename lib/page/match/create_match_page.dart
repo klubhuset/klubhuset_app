@@ -229,12 +229,12 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
                       padding:
                           EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                       child: Text(
-                        _selectedDate != null
+                        _selectedMeetingTime != null
                             ? DateFormat('dd.MM.yyyy - HH:mm')
-                                .format(_selectedDate!)
+                                .format(_selectedMeetingTime!)
                             : 'VALGFRIT: Vælg mødetid',
                         style: TextStyle(
-                          color: _selectedDate != null
+                          color: _selectedMeetingTime != null
                               ? CupertinoColors.label
                               : CupertinoColors.placeholderText,
                           fontSize: 17,

@@ -3,27 +3,33 @@ import 'package:klubhuset/model/match_registration_details.dart';
 
 class MatchDetails {
   final int id;
-  final String firstTeam;
-  final String secondTeam;
+  final String homeTeam;
+  final String awayTeam;
   final DateTime date;
+  final DateTime? meetingTime;
   final String location;
   final String? notes;
   final MatchPollDetails? matchPollDetails;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int? homeTeamScore;
+  final int? awayTeamScore;
   final bool isCurrentUserRegistered;
   final List<MatchRegistrationDetails>? matchRegistrationDetailsList;
 
   MatchDetails({
     required this.id,
-    required this.firstTeam,
-    required this.secondTeam,
+    required this.homeTeam,
+    required this.awayTeam,
     required this.date,
+    this.meetingTime,
     required this.location,
     required this.createdAt,
     required this.updatedAt,
     this.notes,
     this.matchPollDetails,
+    this.homeTeamScore,
+    this.awayTeamScore,
     this.isCurrentUserRegistered = false,
     this.matchRegistrationDetailsList = const [],
   });
@@ -31,9 +37,10 @@ class MatchDetails {
   factory MatchDetails.fromJson(Map<String, dynamic> json) {
     return MatchDetails(
       id: json['id'],
-      firstTeam: json['firstTeam'],
-      secondTeam: json['secondTeam'],
+      homeTeam: json['homeTeam'],
+      awayTeam: json['awayTeam'],
       date: DateTime.parse(json['date']),
+      meetingTime: _parseMeetingTime(json['meetingTime']),
       location: json['location'],
       notes: json['notes'],
       matchPollDetails: json['matchPoll'] != null
@@ -41,6 +48,8 @@ class MatchDetails {
           : null,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      homeTeamScore: json['homeTeamScore'],
+      awayTeamScore: json['awayTeamScore'],
       isCurrentUserRegistered: json['isCurrentUserRegistered'],
       matchRegistrationDetailsList: json['matchRegistrationDetailsList'] != null
           ? List<MatchRegistrationDetails>.from(
@@ -51,6 +60,25 @@ class MatchDetails {
   }
 
   get matchName {
-    return '$firstTeam vs $secondTeam';
+    return '$homeTeam vs $awayTeam';
   }
+
+  get hasMatchBeenPlayed {
+    return homeTeamScore != null && awayTeamScore != null;
+  }
+}
+
+DateTime? _parseMeetingTime(dynamic v) {
+  if (v == null) return null;
+  final s = v.toString();
+  final re = RegExp(r'^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$');
+  final m = re.firstMatch(s);
+  if (m != null) {
+    final h = int.parse(m.group(1)!);
+    final mm = int.parse(m.group(2)!);
+    final ss = m.group(3) != null ? int.parse(m.group(3)!) : 0;
+    return DateTime.utc(1970, 1, 1, h, mm, ss);
+  }
+  // Ellers prøv ISO
+  return DateTime.parse(s);
 }

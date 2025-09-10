@@ -86,16 +86,20 @@ class _MatchProgrammePageState extends State<MatchProgrammePage> {
                           DateHelper.getFormattedTime(matchDetails.date);
 
                       return GestureDetector(
-                          onTap: () {
-                            Navigator.of(context)
-                                .push(MaterialWithModalsPageRoute(
-                                    builder: (context) => MatchDetailsPage(
-                                          matchId: matchDetails.id,
-                                        )));
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialWithModalsPageRoute(
+                                builder: (context) =>
+                                    MatchDetailsPage(matchId: matchDetails.id),
+                              ),
+                            );
+
+                            if (!mounted) return;
+                            _refreshMatches();
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 25),
+                                vertical: 15, horizontal: 28),
                             decoration: BoxDecoration(
                               color: CupertinoColors.white,
                               border: Border(
@@ -110,11 +114,11 @@ class _MatchProgrammePageState extends State<MatchProgrammePage> {
                               children: [
                                 // Date
                                 SizedBox(
-                                  width: 60,
+                                  width: 65,
                                   child: Text(
                                     date,
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ),
@@ -126,17 +130,17 @@ class _MatchProgrammePageState extends State<MatchProgrammePage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        matchDetails.firstTeam,
+                                        matchDetails.homeTeam,
                                         style: TextStyle(
-                                          fontSize: 15,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        matchDetails.secondTeam,
+                                        matchDetails.awayTeam,
                                         style: TextStyle(
-                                          fontSize: 15,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -144,17 +148,46 @@ class _MatchProgrammePageState extends State<MatchProgrammePage> {
                                   ),
                                 ),
 
-                                // Time
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    time,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: CupertinoColors.systemGrey2,
-                                    ),
-                                  ),
-                                ),
+                                matchDetails.hasMatchBeenPlayed
+                                    // Result
+                                    ? Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              matchDetails.homeTeamScore
+                                                  .toString(),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              matchDetails.awayTeamScore
+                                                  .toString(),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    // Time
+                                    : Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          time,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: CupertinoColors.systemGrey2,
+                                          ),
+                                        ),
+                                      ),
                               ],
                             ),
                           ));

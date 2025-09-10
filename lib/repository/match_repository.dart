@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:klubhuset/model/update_match_score_command.dart';
 
 class MatchRepository {
   static final _secureStorage = FlutterSecureStorage();
@@ -164,5 +165,39 @@ class MatchRepository {
 
     final jsonResponse = jsonDecode(response.body);
     return jsonResponse['id'];
+  }
+
+  static Future<void> updateMatchScore(
+      int matchId, int homeTeamScore, int awayTeamScore) async {
+    await dotenv.load(); // Initialize dotenv
+
+    final token = await _secureStorage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('No token found. User might not be logged in.');
+    }
+
+    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/score');
+
+    final command = UpdateMatchScoreCommand(
+      matchId: matchId,
+      homeTeamScore: homeTeamScore,
+      awayTeamScore: awayTeamScore,
+    );
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(command.toJson()),
+    );
+
+    if (response.statusCode == 401) {
+      throw Exception('Unauthorized. Please log in again.');
+    } else if (response.statusCode != 200) {
+      throw Exception('Failed to upodate match score');
+    }
   }
 }

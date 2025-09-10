@@ -83,6 +83,20 @@ class _AssignFinesModalState extends State<AssignFinesModal> {
               onSuccess: (context, data) {
                 var squad = data['squad'] as List<UserDetails>;
 
+                if (fineTypesExpanded.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        'Ingen bødetyper fundet.',
+                        style: TextStyle(
+                          color: CupertinoColors.systemGrey,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  );
+                }
                 return CupertinoListSection.insetGrouped(
                   dividerMargin: 0,
                   additionalDividerMargin: 0,

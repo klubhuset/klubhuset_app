@@ -9,7 +9,8 @@ class DateHelper {
     return DateFormat('dd-MM').format(date);
   }
 
-  static String getFormattedTime(DateTime date) {
+  static String getFormattedTime(DateTime? date) {
+    if (date == null) return '-';
     return DateFormat('HH:mm').format(date);
   }
 }
