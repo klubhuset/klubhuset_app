@@ -1,3 +1,4 @@
+import 'package:klubhuset/model/match_event_details.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/match_registration_details.dart';
 
@@ -16,6 +17,7 @@ class MatchDetails {
   final int? awayTeamScore;
   final bool isCurrentUserRegistered;
   final List<MatchRegistrationDetails>? matchRegistrationDetailsList;
+  final List<MatchEventDetails>? matchEventDetailsList;
 
   MatchDetails({
     required this.id,
@@ -32,6 +34,7 @@ class MatchDetails {
     this.awayTeamScore,
     this.isCurrentUserRegistered = false,
     this.matchRegistrationDetailsList = const [],
+    this.matchEventDetailsList = const [],
   });
 
   factory MatchDetails.fromJson(Map<String, dynamic> json) {
@@ -55,6 +58,10 @@ class MatchDetails {
           ? List<MatchRegistrationDetails>.from(
               json['matchRegistrationDetailsList']
                   .map((x) => MatchRegistrationDetails.fromJson(x)))
+          : [],
+      matchEventDetailsList: json['matchEventDetailsList'] != null
+          ? List<MatchEventDetails>.from(json['matchEventDetailsList']
+              .map((x) => MatchEventDetails.fromJson(x)))
           : [],
     );
   }

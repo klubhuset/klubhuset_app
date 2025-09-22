@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:klubhuset/model/create_match_comand.dart';
+import 'package:klubhuset/model/create_match_event_command.dart';
 import 'package:klubhuset/model/register_for_unregister_from_match_command.dart';
 import 'package:klubhuset/model/match_details.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -200,4 +201,81 @@ class MatchRepository {
       throw Exception('Failed to upodate match score');
     }
   }
+
+  static Future<List<int>> createMatchEvents(
+      List<CreateMatchEventCommand> createMatchEventCommands) async {
+    await dotenv.load(); // Initialize dotenv
+
+    final token = await _secureStorage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('No token found. User might not be logged in.');
+    }
+
+    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/event');
+
+    var jsonEncoded =
+        jsonEncode(createMatchEventCommands.map((e) => e.toJson()).toList());
+
+    var response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncoded,
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to create match');
+    }
+
+    var jsonDecoded = jsonDecode(response.body);
+
+    return _parseIds(jsonDecoded);
+  }
+
+  static Future<bool> deleteMatchEvent(int matchEventId) async {
+    // TODO: Implement this method
+    return true;
+  }
+
+  static List<int> _parseIds(dynamic decoded) {
+    if (decoded == null) return const [];
+
+    // { ids: [...] }
+    if (decoded is Map<String, dynamic>) {
+      if (decoded['ids'] is List) {
+        return (decoded['ids'] as List).map(_toInt).toList();
+      }
+      if (decoded['id'] != null) {
+        return [_toInt(decoded['id'])];
+      }
+      if (decoded['data'] is List) {
+        final List data = decoded['data'];
+        return data
+            .whereType<Map>()
+            .where((m) => m['id'] != null)
+            .map((m) => _toInt(m['id']))
+            .toList();
+      }
+    }
+
+    // [ {id: 1}, {id: 2} ] or [1,2]
+    if (decoded is List) {
+      if (decoded.isEmpty) return const [];
+      if (decoded.first is int || decoded.first is String) {
+        return decoded.map(_toInt).toList();
+      }
+      return decoded
+          .whereType<Map>()
+          .where((m) => m['id'] != null)
+          .map((m) => _toInt(m['id']))
+          .toList();
+    }
+
+    return const [];
+  }
+
+  static int _toInt(dynamic v) => v is int ? v : int.parse(v.toString());
 }

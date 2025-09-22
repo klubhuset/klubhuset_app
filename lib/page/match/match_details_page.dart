@@ -6,7 +6,11 @@ import 'package:klubhuset/component/button/button_small.dart';
 import 'package:klubhuset/component/future_handler.dart';
 import 'package:klubhuset/component/match_poll_row_item.dart';
 import 'package:klubhuset/helpers/date_helper.dart';
+import 'package:klubhuset/model/card_type.dart';
+import 'package:klubhuset/model/create_match_event_command.dart';
 import 'package:klubhuset/model/match_details.dart';
+import 'package:klubhuset/model/match_event_details.dart';
+import 'package:klubhuset/model/match_event_type.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/page/match_polls/create_match_poll_page.dart';
@@ -15,7 +19,7 @@ import 'package:klubhuset/repository/match_repository.dart';
 import 'package:klubhuset/repository/users_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-enum MatchDetailsSegments { registration, statistics, manOfTheMatch, fines }
+enum MatchDetailsSegments { registration, events, manOfTheMatch, fines }
 
 enum _PickRole { scorer, assist }
 
@@ -260,8 +264,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                               color: CupertinoColors.black,
                                               fontSize: 13),
                                         ),
-                                        MatchDetailsSegments.statistics: Text(
-                                          'Statistik',
+                                        MatchDetailsSegments.events: Text(
+                                          'Begivenheder',
                                           style: TextStyle(
                                               color: CupertinoColors.black,
                                               fontSize: 13),
@@ -282,8 +286,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                           ),
                           // Pass currentUser if needed to getMatchDetailSegment
                           Center(
-                              child:
-                                  getMatchDetailSegment(matchDetails, squad)),
+                              child: getMatchDetailSegment(
+                                  matchDetails, squad, currentUser)),
                         ],
                       );
                     },
@@ -295,8 +299,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
         ));
   }
 
-  Widget getMatchDetailSegment(
-      MatchDetails matchDetails, List<UserDetails> squad) {
+  Widget getMatchDetailSegment(MatchDetails matchDetails,
+      List<UserDetails> squad, UserDetails currentUserData) {
     if (_selectedSegment == MatchDetailsSegments.registration) {
       return Container(
           margin: const EdgeInsets.all(20.0),
@@ -462,7 +466,10 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
           ),
         ),
       );
-    } else if (_selectedSegment == MatchDetailsSegments.statistics) {
+    } else if (_selectedSegment == MatchDetailsSegments.events) {
+      final events =
+          matchDetails.matchEventDetailsList ?? <MatchEventDetails>[];
+
       return Container(
         margin: const EdgeInsets.all(20.0),
         padding: const EdgeInsets.all(20.0),
@@ -470,15 +477,48 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
           color: CupertinoColors.systemBackground,
           borderRadius: BorderRadius.circular(12.0),
         ),
-        child: Center(
-          child: ButtonSmall(
-            buttonText: 'Tilføj statistik',
-            onPressed: () async {
-              addGoalscorer();
-            },
-            outlined: true,
-            icon: CupertinoIcons.add,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.center,
+              child: ButtonSmall(
+                buttonText: 'Tilføj begivenhed',
+                onPressed: () => addGoalscorer(currentUserData),
+                outlined: true,
+                icon: CupertinoIcons.add,
+              ),
+            ),
+            const SizedBox(height: 30),
+            if (events.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Center(
+                  child: Text('Ingen begivenheder endnu',
+                      style: TextStyle(color: CupertinoColors.inactiveGray)),
+                ),
+              )
+            else
+              Column(
+                children: [
+                  const _LabeledDivider(label: 'Begivenheder'),
+                  const SizedBox(height: 12),
+                  ...events.map((e) {
+                    final isDeleting = _deletingEventIds.contains(e.id);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _EventTile(
+                        event: e,
+                        showDelete: currentUserData.isTeamOwner,
+                        isDeleting: isDeleting,
+                        onDelete: () => _confirmAndDeleteEvent(e.id),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+          ],
         ),
       );
     }
@@ -785,7 +825,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
     awayNode.dispose();
   }
 
-  Future<void> addGoalscorer() async {
+  Future<void> addGoalscorer(UserDetails currentUserData) async {
     final data = await matchAndSquadData;
     final squad = (data['squad'] as List<UserDetails>);
 
@@ -838,13 +878,17 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
               if (staged.isEmpty || isSaving) return;
               setModalState(() => isSaving = true);
               try {
-                for (final d in staged) {
-                  // await MatchRepository.addGoalEvent(
-                  //   matchId: widget.matchId,
-                  //   scorerUserId: d.scorerId!,
-                  //   assistUserId: d.assistId,
-                  // );
-                }
+                await MatchRepository.createMatchEvents(
+                  staged
+                      .map((d) => CreateMatchEventCommand(
+                            matchId: widget.matchId,
+                            type: MatchEventType.goal,
+                            teamId: currentUserData.teamDetails.id,
+                            goalscorerUserId: d.scorerId!,
+                            assistMakerUserId: d.assistId,
+                          ))
+                      .toList(),
+                );
                 if (!mounted) return;
                 await _refreshMatchAndSquad();
                 Navigator.of(modalContext).pop();
@@ -939,8 +983,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                       style: TextStyle(fontSize: 15)),
                                 },
                                 onValueChanged: (v) {
-                                  if (v != null)
+                                  if (v != null) {
                                     setModalState(() => activeRole = v);
+                                  }
                                 },
                               ),
                               const SizedBox(height: 6),
@@ -1101,6 +1146,59 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
       },
     );
   }
+
+  // Tracker rækkers “busy”-tilstand når der slettes
+  final Set<int> _deletingEventIds = {};
+
+  Future<void> _confirmAndDeleteEvent(int eventId) async {
+    final ok = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (_) => CupertinoAlertDialog(
+        title: const Text('Slet begivenhed?'),
+        content: const Text('Dette kan ikke fortrydes.'),
+        actions: [
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text('Slet'),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+          CupertinoDialogAction(
+            child: const Text('Annullér'),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true) return;
+
+    setState(() => _deletingEventIds.add(eventId));
+    try {
+      final success = await MatchRepository.deleteMatchEvent(eventId);
+      if (!success) {
+        throw Exception('Server afviste sletning');
+      }
+      if (!mounted) return;
+      await _refreshMatchAndSquad();
+    } catch (e) {
+      if (!mounted) return;
+      await showCupertinoDialog(
+        context: context,
+        builder: (_) => CupertinoAlertDialog(
+          title: const Text('Kunne ikke slette'),
+          content: Text('$e'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _deletingEventIds.remove(eventId));
+    }
+  }
 }
 
 class _LabeledDivider extends StatelessWidget {
@@ -1223,6 +1321,211 @@ class _Badge extends StatelessWidget {
         label,
         style: const TextStyle(fontSize: 12, color: CupertinoColors.black),
       ),
+    );
+  }
+}
+
+class _EventTile extends StatelessWidget {
+  final MatchEventDetails event;
+  final bool showDelete;
+  final bool isDeleting;
+  final VoidCallback? onDelete;
+
+  const _EventTile({
+    required this.event,
+    this.showDelete = false,
+    this.isDeleting = false,
+    this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final leading = _EventLeadingIcon(event: event);
+    final title = _buildTitle(event);
+    final subtitle = _buildSubtitle(event);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: CupertinoColors.systemGrey),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          leading,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                title,
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  subtitle,
+                ]
+              ],
+            ),
+          ),
+          if (showDelete)
+            isDeleting
+                ? const SizedBox(
+                    width: 20, height: 20, child: CupertinoActivityIndicator())
+                : CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minSize: 20,
+                    onPressed: onDelete,
+                    child: const Icon(CupertinoIcons.delete,
+                        color: CupertinoColors.destructiveRed, size: 20),
+                  ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTitle(MatchEventDetails e) {
+    switch (e.type) {
+      case MatchEventType.goal:
+        return Text(
+          e.goalscorerUserName,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          overflow: TextOverflow.ellipsis,
+        );
+      case MatchEventType.card:
+        return Row(
+          children: [
+            Flexible(
+              child: Text(
+                e.goalscorerUserName, // spillerens navn (samme felt anvendes i din model)
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 6),
+            _CardChip(cardType: e.cardType),
+          ],
+        );
+    }
+  }
+
+  Widget? _buildSubtitle(MatchEventDetails e) {
+    switch (e.type) {
+      case MatchEventType.goal:
+        final assist = e.assistMakerUserName == null
+            ? 'Ingen assist'
+            : 'Assist: ${e.assistMakerUserName}';
+        return Text(
+          assist,
+          style: const TextStyle(
+              fontSize: 13, color: CupertinoColors.inactiveGray),
+          overflow: TextOverflow.ellipsis,
+        );
+      case MatchEventType.card:
+        return null;
+    }
+  }
+}
+
+class _EventLeadingIcon extends StatelessWidget {
+  final MatchEventDetails event;
+  const _EventLeadingIcon({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    switch (event.type) {
+      case MatchEventType.goal:
+        return _CircleIcon(
+          icon: Icons.sports_soccer,
+        );
+      case MatchEventType.card:
+        final isRed = event.cardType == CardType.red;
+        final isSecond = event.cardType == CardType.secondYellow;
+        return _CardSquare(
+          color: isRed ? const Color(0xFFEF5350) : const Color(0xFFFFD600),
+          secondYellowStripe: isSecond,
+        );
+    }
+  }
+}
+
+class _CircleIcon extends StatelessWidget {
+  final IconData icon;
+  const _CircleIcon({required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34,
+      height: 34,
+      alignment: Alignment.center,
+      child: Icon(icon, size: 18, color: CupertinoColors.black),
+    );
+  }
+}
+
+class _CardSquare extends StatelessWidget {
+  final Color color;
+  final bool secondYellowStripe;
+  const _CardSquare({required this.color, this.secondYellowStripe = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          width: 24,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: Colors.black26, width: 0.5),
+          ),
+        ),
+        if (secondYellowStripe)
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Container(width: 4, color: Colors.black26),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CardChip extends StatelessWidget {
+  final CardType? cardType;
+  const _CardChip({required this.cardType});
+
+  @override
+  Widget build(BuildContext context) {
+    String label = 'Kort';
+    Color bg = CupertinoColors.systemGrey5;
+    Color fg = CupertinoColors.black;
+
+    if (cardType == CardType.red) {
+      label = 'Rødt kort';
+      bg = const Color(0xFFFFEBEE);
+      fg = const Color(0xFFC62828);
+    } else if (cardType == CardType.secondYellow) {
+      label = '2. gule';
+      bg = const Color(0xFFFFF8E1);
+      fg = const Color(0xFFF9A825);
+    } else {
+      label = 'Gult kort';
+      bg = const Color(0xFFFFF8E1);
+      fg = const Color(0xFFF9A825);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Text(label, style: TextStyle(fontSize: 12, color: fg)),
     );
   }
 }

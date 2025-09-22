@@ -1,3 +1,5 @@
+import 'package:klubhuset/model/team_details.dart';
+
 class UserDetails {
   final int id;
   final String name;
@@ -6,6 +8,7 @@ class UserDetails {
   final int roleId;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final TeamDetails teamDetails;
 
   UserDetails(
       {required this.id,
@@ -14,7 +17,8 @@ class UserDetails {
       required this.isTeamOwner,
       required this.roleId,
       required this.createdAt,
-      required this.updatedAt});
+      required this.updatedAt,
+      required this.teamDetails});
 
   factory UserDetails.fromJson(Map<String, dynamic> json) {
     return UserDetails(
@@ -25,6 +29,7 @@ class UserDetails {
       roleId: json['roleId'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      teamDetails: TeamDetails.fromJson(json['teamDetails']),
     );
   }
 }
