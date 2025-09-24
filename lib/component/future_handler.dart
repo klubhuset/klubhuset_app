@@ -8,6 +8,7 @@ class FutureHandler<T> extends StatelessWidget {
   final Widget Function(BuildContext)? onError;
   final Widget? loadingIndicator;
   final String? noDataFoundMessage;
+  final bool allowEmpty;
 
   FutureHandler({
     required this.future,
@@ -15,6 +16,7 @@ class FutureHandler<T> extends StatelessWidget {
     this.onError,
     this.loadingIndicator,
     this.noDataFoundMessage,
+    this.allowEmpty = false,
   });
 
   @override
@@ -22,31 +24,31 @@ class FutureHandler<T> extends StatelessWidget {
     return FutureBuilder<T>(
       future: future,
       builder: (context, snapshot) {
-        // Loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return LoadingIndicator();
+          return loadingIndicator ?? LoadingIndicator();
         }
 
-        // Error state
         if (snapshot.hasError) {
+          if (onError != null) return onError!(context);
           return ErrorMessage(
-              message: 'Der skete en fejl. Prøv venligst igen senere.');
-        }
-
-        // Empty or no data
-        if (!snapshot.hasData ||
-            snapshot.data == null ||
-            snapshot.data is List && (snapshot.data as List).isEmpty) {
-          return Center(
-            child: Text(
-              (noDataFoundMessage ?? 'Ingen data tilgængelig'),
-              textAlign: TextAlign.center,
-            ),
+            message: 'Der skete en fejl. Prøv venligst igen senere.',
           );
         }
 
-        // Success state
-        return onSuccess(context, snapshot.data as T);
+        if (!snapshot.hasData || snapshot.data == null) {
+          return Center(
+            child: Text((noDataFoundMessage ?? 'Ingen data tilgængelig')),
+          );
+        }
+
+        final data = snapshot.data as T;
+        if (!allowEmpty && data is List && data.isEmpty) {
+          return Center(
+            child: Text((noDataFoundMessage ?? 'Ingen data tilgængelig')),
+          );
+        }
+
+        return onSuccess(context, data);
       },
     );
   }

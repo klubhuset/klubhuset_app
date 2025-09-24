@@ -3,24 +3,34 @@ import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/repository/authentication_repository.dart';
 import 'package:klubhuset/services/secure_storage_service.dart';
 
-enum UserRole { player, teamOwner, admin }
-
-String userRoleToString(UserRole role) {
-  switch (role) {
-    case UserRole.player:
-      return 'Player';
-    case UserRole.teamOwner:
-      return 'Team Owner';
-    case UserRole.admin:
-      return 'Admin';
-  }
-}
-
 class AuthService with ChangeNotifier {
   UserDetails? _currentUser;
 
   UserDetails? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
+
+  /// Retrieve current user
+  Future<UserDetails?> getCurrentUser() async {
+    try {
+      final cachedUser = await SecureStorageService.getUserInfo();
+      if (cachedUser != null) {
+        _currentUser = cachedUser;
+        notifyListeners();
+        return _currentUser;
+      }
+
+      final apiUser = await AuthenticationRepository.getCurrentUser();
+      _currentUser = apiUser;
+
+      await SecureStorageService.setUserInfo(apiUser);
+
+      notifyListeners();
+      return _currentUser;
+    } catch (e) {
+      debugPrint('Fejl ved hentning af bruger: $e');
+      return null;
+    }
+  }
 
   Future<bool> login(String email, String password) async {
     final result = await AuthenticationRepository.login(email, password);
@@ -29,16 +39,10 @@ class AuthService with ChangeNotifier {
       final token = result['data']['token'];
       await SecureStorageService.setToken(token);
 
-      _currentUser = await AuthenticationRepository.getCurrentUser();
-
-      await SecureStorageService.setUserInfo(
-        id: _currentUser!.id,
-        name: _currentUser!.name,
-        roleId: _currentUser!.roleId,
-      );
+      final apiUser = await AuthenticationRepository.getCurrentUser();
+      await SecureStorageService.setUserInfo(apiUser);
 
       notifyListeners();
-
       return true;
     } else {
       _currentUser = null;
@@ -72,6 +76,8 @@ class AuthService with ChangeNotifier {
 
     if (success) {
       _currentUser = null;
+      await SecureStorageService.clearUserData();
+      await SecureStorageService.deleteToken();
       notifyListeners();
       return true;
     } else {

@@ -70,6 +70,35 @@ class MatchRepository {
     return json['id'];
   }
 
+  static Future<void> deleteMatch(int id) async {
+    await dotenv.load(); // Initialize dotenv
+
+    // Get token
+    final token = await _secureStorage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('No token found. User might not be logged in.');
+    }
+
+    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/$id');
+
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return;
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized. Please log in again.');
+    } else {
+      throw Exception('Failed to delete match');
+    }
+  }
+
   static Future<MatchDetails> getMatch(int id) async {
     await dotenv.load(); // Initialize dotenv
 
@@ -236,8 +265,32 @@ class MatchRepository {
   }
 
   static Future<bool> deleteMatchEvent(int matchEventId) async {
-    // TODO: Implement this method
-    return true;
+    await dotenv.load(); // Initialize dotenv
+
+    final token = await _secureStorage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('No token found. User might not be logged in.');
+    }
+
+    final url =
+        Uri.parse('${dotenv.env['API_BASE_URL']}/match/event/$matchEventId');
+
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized. Please log in again.');
+    } else {
+      throw Exception('Failed to delete match event');
+    }
   }
 
   static List<int> _parseIds(dynamic decoded) {

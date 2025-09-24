@@ -14,10 +14,11 @@ import 'package:klubhuset/model/match_event_type.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
 import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/page/match_polls/create_match_poll_page.dart';
-import 'package:klubhuset/repository/authentication_repository.dart';
 import 'package:klubhuset/repository/match_repository.dart';
 import 'package:klubhuset/repository/users_repository.dart';
+import 'package:klubhuset/services/auth_service.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 enum MatchDetailsSegments { registration, events, manOfTheMatch, fines }
 
@@ -40,7 +41,7 @@ class MatchDetailsPage extends StatefulWidget {
 
 class _MatchDetailsPageState extends State<MatchDetailsPage> {
   late Future<Map<String, dynamic>> matchAndSquadData;
-  late Future<UserDetails> currentUserData;
+  late Future<UserDetails> currentUser;
   bool _isManOfTheMatchVoted = false;
   MatchPollDetails? matchPollDetails;
   int _homeGoals = 0;
@@ -53,7 +54,14 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
     super.initState();
 
     matchAndSquadData = _fetchMatchAndSquad();
-    currentUserData = AuthenticationRepository.getCurrentUser();
+
+    // Load logged in user via AuthService (cache -> API fallback)
+    currentUser = context.read<AuthService>().getCurrentUser().then((u) {
+      if (u == null) {
+        throw Exception('Ingen bruger fundet. Log venligst ind igen.');
+      }
+      return u;
+    });
   }
 
   Future<Map<String, dynamic>> _fetchMatchAndSquad() async {
@@ -114,7 +122,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
 
                   // Use FutureHandler for currentUserData
                   return FutureHandler<UserDetails>(
-                    future: currentUserData,
+                    future: currentUser,
                     noDataFoundMessage: 'Ingen bruger fundet.',
                     onSuccess: (context, currentUser) {
                       return Column(
@@ -272,7 +280,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                                         ),
                                         MatchDetailsSegments.manOfTheMatch:
                                             Text(
-                                          'MVP',
+                                          'MOTM',
                                           style: TextStyle(
                                               color: CupertinoColors.black,
                                               fontSize: 13),
@@ -505,13 +513,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                   const _LabeledDivider(label: 'Begivenheder'),
                   const SizedBox(height: 12),
                   ...events.map((e) {
-                    final isDeleting = _deletingEventIds.contains(e.id);
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: _EventTile(
                         event: e,
                         showDelete: currentUserData.isTeamOwner,
-                        isDeleting: isDeleting,
+                        isDeleting: false,
                         onDelete: () => _confirmAndDeleteEvent(e.id),
                       ),
                     );
@@ -1147,24 +1154,21 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
     );
   }
 
-  // Tracker rækkers “busy”-tilstand når der slettes
-  final Set<int> _deletingEventIds = {};
-
   Future<void> _confirmAndDeleteEvent(int eventId) async {
     final ok = await showCupertinoDialog<bool>(
       context: context,
-      builder: (_) => CupertinoAlertDialog(
+      builder: (dialogCtx) => CupertinoAlertDialog(
         title: const Text('Slet begivenhed?'),
         content: const Text('Dette kan ikke fortrydes.'),
         actions: [
           CupertinoDialogAction(
             isDestructiveAction: true,
             child: const Text('Slet'),
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(dialogCtx).pop(true),
           ),
           CupertinoDialogAction(
             child: const Text('Annullér'),
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.of(dialogCtx).pop(false),
           ),
         ],
       ),
@@ -1172,31 +1176,43 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
 
     if (ok != true) return;
 
-    setState(() => _deletingEventIds.add(eventId));
+    showCupertinoDialog(
+      context: context,
+      builder: (_) => const CupertinoAlertDialog(
+        content: Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: CupertinoActivityIndicator(),
+        ),
+      ),
+    );
+
     try {
       final success = await MatchRepository.deleteMatchEvent(eventId);
-      if (!success) {
-        throw Exception('Server afviste sletning');
-      }
+      if (!success) throw Exception('Server afviste sletning');
+
       if (!mounted) return;
+
+      Navigator.of(context, rootNavigator: true).pop();
+
       await _refreshMatchAndSquad();
     } catch (e) {
       if (!mounted) return;
+
+      Navigator.of(context, rootNavigator: true).pop();
+
       await showCupertinoDialog(
         context: context,
-        builder: (_) => CupertinoAlertDialog(
+        builder: (errCtx) => CupertinoAlertDialog(
           title: const Text('Kunne ikke slette'),
           content: Text('$e'),
           actions: [
             CupertinoDialogAction(
               child: const Text('OK'),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(errCtx).pop(),
             ),
           ],
         ),
       );
-    } finally {
-      if (mounted) setState(() => _deletingEventIds.remove(eventId));
     }
   }
 }

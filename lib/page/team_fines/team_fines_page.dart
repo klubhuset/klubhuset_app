@@ -12,7 +12,8 @@ import 'package:klubhuset/page/team_fines/create_fine_type_modal.dart';
 import 'package:klubhuset/page/team_fines/deposit_modal.dart';
 import 'package:klubhuset/page/team_fines/deposit_personal_modal.dart';
 import 'package:klubhuset/repository/fines_repository.dart';
-import 'package:klubhuset/services/secure_storage_service.dart';
+import 'package:klubhuset/services/auth_service.dart';
+import 'package:provider/provider.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum TeamOwnerFinesSegments { overview, fineTypes, personal }
@@ -26,7 +27,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
   late Future<FineBoxDetails> fineBoxDetails;
   late Future<List<FineTypeDetails>> fineTypeDetails;
   late Future<List<UserFineDetails>> userFineDetails;
-  int? currentUserId;
+  late Future<UserDetails> currentUserData;
 
   TeamOwnerFinesSegments _selectedSegment = TeamOwnerFinesSegments.overview;
 
@@ -38,8 +39,13 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     fineBoxDetails = FinesRepository.getFineBox();
     fineTypeDetails = FinesRepository.getFineTypes();
 
-    // Load logged in user ID
-    _loadCurrentUserId();
+    // Load logged in user via AuthService (cache -> API fallback)
+    currentUserData = context.read<AuthService>().getCurrentUser().then((u) {
+      if (u == null) {
+        throw Exception('Ingen bruger fundet. Log venligst ind igen.');
+      }
+      return u;
+    });
   }
 
   Future<void> _refreshFineBox() async {
@@ -54,16 +60,6 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     });
   }
 
-  Future<void> _loadCurrentUserId() async {
-    // Read userId from secure storage
-    final id = await SecureStorageService.getUserId();
-    if (id != null) {
-      setState(() {
-        currentUserId = int.tryParse(id);
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -76,49 +72,49 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
         child: SafeArea(
           child: SingleChildScrollView(
             child: Container(
-                margin: EdgeInsets.only(top: 20),
-                child: Column(
-                  children: [
-                    Container(
-                        padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                        width: double.infinity,
-                        child: CupertinoSlidingSegmentedControl<
-                            TeamOwnerFinesSegments>(
-                          backgroundColor: CupertinoColors.systemGrey2,
-                          // This represents the currently selected segmented control.
-                          groupValue: _selectedSegment,
-                          // Callback that sets the selected segmented control.
-                          onValueChanged: (TeamOwnerFinesSegments? value) {
-                            if (value != null) {
-                              setState(() {
-                                _selectedSegment = value;
-                              });
-                            }
-                          },
-                          children: const <TeamOwnerFinesSegments, Widget>{
-                            TeamOwnerFinesSegments.overview: Text(
-                              'Overblik',
-                              style: TextStyle(
-                                  color: CupertinoColors.black, fontSize: 13),
-                            ),
-                            TeamOwnerFinesSegments.fineTypes: Text(
-                              'Bødetyper',
-                              style: TextStyle(
-                                  color: CupertinoColors.black, fontSize: 13),
-                            ),
-                            TeamOwnerFinesSegments.personal: Text(
-                              'Personlig',
-                              style: TextStyle(
-                                  color: CupertinoColors.black, fontSize: 13),
-                            ),
-                          },
-                        )),
-                    SizedBox(
-                      width: double.infinity,
-                      child: getTeamFinesSegment(width),
-                    )
-                  ],
-                )),
+              margin: EdgeInsets.only(top: 20),
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    width: double.infinity,
+                    child: CupertinoSlidingSegmentedControl<
+                        TeamOwnerFinesSegments>(
+                      backgroundColor: CupertinoColors.systemGrey2,
+                      groupValue: _selectedSegment,
+                      onValueChanged: (TeamOwnerFinesSegments? value) {
+                        if (value != null) {
+                          setState(() {
+                            _selectedSegment = value;
+                          });
+                        }
+                      },
+                      children: const <TeamOwnerFinesSegments, Widget>{
+                        TeamOwnerFinesSegments.overview: Text(
+                          'Overblik',
+                          style: TextStyle(
+                              color: CupertinoColors.black, fontSize: 13),
+                        ),
+                        TeamOwnerFinesSegments.fineTypes: Text(
+                          'Bødetyper',
+                          style: TextStyle(
+                              color: CupertinoColors.black, fontSize: 13),
+                        ),
+                        TeamOwnerFinesSegments.personal: Text(
+                          'Personlig',
+                          style: TextStyle(
+                              color: CupertinoColors.black, fontSize: 13),
+                        ),
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: getTeamFinesSegment(width),
+                  )
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -127,52 +123,67 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
 
   Widget? getTeamFinesSegment(double width) {
     return FutureHandler<FineBoxDetails>(
-        future: fineBoxDetails,
-        onSuccess: (context, data) {
-          var userFineDetails = data.userFineDetails;
+      future: fineBoxDetails,
+      onSuccess: (context, fineBox) {
+        var allUserFineDetails = fineBox.userFineDetails;
 
-          if (_selectedSegment == TeamOwnerFinesSegments.overview) {
-            // Overview section
-            return Column(
-              children: [
-                _buildOverallBalanceSection(data),
-                _buildActionButtonsOverview(data),
-                _buildMobilePaySection(),
-                _buildUserFineDetailsSection(userFineDetails, width),
-              ],
-            );
-          } else if (_selectedSegment == TeamOwnerFinesSegments.fineTypes) {
-            // Fine types section
-            return FutureHandler(
-                future: fineTypeDetails,
-                onSuccess: (context, data) {
-                  return Column(
-                    children: [
-                      _buildActionButtonFineTypes(data),
-                      _buildFineTypesSection(data, width)
-                    ],
-                  );
-                });
-          } else {
-            // TODO: This should be changed to the logged in user instead
-            var userFineDetails = data.userFineDetails
-                .where((element) => element.id == currentUserId)
-                .first;
-            UserDetails userDetails = userFineDetails.userDetails;
+        if (_selectedSegment == TeamOwnerFinesSegments.overview) {
+          return FutureHandler<UserDetails>(
+              future: currentUserData,
+              onSuccess: (context, user) {
+                return Column(
+                  children: [
+                    _buildOverallBalanceSection(fineBox),
+                    if (user.isTeamOwner) _buildActionButtonsOverview(fineBox),
+                    if (user.isTeamOwner) _buildMobilePaySection(),
+                    _buildUserFineDetailsSection(allUserFineDetails, width),
+                  ],
+                );
+              });
+        } else if (_selectedSegment == TeamOwnerFinesSegments.fineTypes) {
+          return FutureHandler<List<FineTypeDetails>>(
+            future: fineTypeDetails,
+            allowEmpty: true,
+            onSuccess: (context, fineTypes) {
+              return Column(
+                children: [
+                  _buildActionButtonFineTypes(fineTypes),
+                  _buildFineTypesSection(fineTypes, width),
+                ],
+              );
+            },
+          );
+        } else {
+          return FutureHandler<UserDetails>(
+            future: currentUserData,
+            onSuccess: (context, user) {
+              final matches = allUserFineDetails
+                  .where((u) => u.userDetails.id == user.id)
+                  .toList();
 
-            return Column(
-              children: [
-                _buildPersonalBalanceSection(userFineDetails),
-                _buildActionButtonsPersonal(
-                  data,
-                  userFineDetails,
-                  userDetails,
-                ),
-                _buildPersonalFineDetailsSection(userFineDetails, width),
-              ],
-            );
-          }
-        });
+              if (matches.isEmpty) {
+                // Ingen bøder for den nuværende bruger endnu
+                return _buildEmptyPersonalSection(user);
+              }
+
+              final userFineDetails = matches.first;
+
+              return Column(
+                children: [
+                  _buildPersonalBalanceSection(userFineDetails),
+                  _buildActionButtonsPersonal(
+                    fineBox,
+                    userFineDetails,
+                    user,
+                  ),
+                  _buildPersonalFineDetailsSection(userFineDetails, width),
+                ],
+              );
+            },
+          );
+        }
+      },
+    );
   }
 
   CupertinoNavigationBar _buildNavigationBar() {
@@ -180,7 +191,6 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
       transitionBetweenRoutes: false,
       leading: CupertinoButton(
         padding: EdgeInsets.zero,
-        // TODO: This should go back to the previous page if the previous page was the match details
         onPressed: () => Navigator.of(context)
             .popUntil((route) => route.settings.name == '/'),
         child: Icon(CupertinoIcons.chevron_left, semanticLabel: 'Tilbage'),
@@ -202,9 +212,9 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildCurrentBalanceText(data.currentAmount),
-            SizedBox(height: 20), // Ensure space between sections
+            SizedBox(height: 20),
             dividerSection(),
-            SizedBox(height: 20), // Ensure space after the divider
+            SizedBox(height: 20),
             _buildBalanceRow(data),
           ],
         ),
@@ -260,7 +270,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
         Text(
-          'Balance',
+          'I kassen nu',
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
@@ -272,9 +282,9 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildBalanceColumn(
-            data.currentAmount + data.totalOwedAmount, 'Balance efter bøder'),
+            data.currentAmount + data.totalOwedAmount, 'Når alle har betalt'),
         verticalDividerSection(),
-        _buildBalanceColumn(data.totalOwedAmount, 'Ubetalte bøder'),
+        _buildBalanceColumn(data.totalOwedAmount, 'Manglende beløb'),
       ],
     );
   }
@@ -285,7 +295,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
       child: Column(
         children: [
           Text(amount.toString(), style: TextStyle(fontSize: 24)),
-          SizedBox(height: 5), // Space between price and label
+          SizedBox(height: 5),
           Text(label,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         ],
@@ -308,7 +318,6 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                   .isEmpty;
 
               if (hasUserPaidAllFines) {
-                // Show CupertinoDialog if user has no fines to pay
                 showCupertinoDialog(
                   context: context,
                   builder: (context) => CupertinoAlertDialog(
@@ -317,7 +326,7 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
                     actions: <CupertinoDialogAction>[
                       CupertinoDialogAction(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
+                          Navigator.of(context).pop();
                         },
                         child: Text('Ok'),
                       ),
@@ -389,29 +398,33 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
 
   Widget _buildMobilePaySection() {
     return Container(
-        margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-        padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-        decoration: BoxDecoration(
-          color: CupertinoColors.systemBackground,
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Betaling',
-                    style: TextStyle(
-                        color: CupertinoColors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold)),
+      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Betaling',
+                style: TextStyle(
+                  color: CupertinoColors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              SizedBox(height: 20),
-              MobilePayButton(),
-            ],
-          ),
-        ));
+            ),
+            SizedBox(height: 20),
+            MobilePayButton(),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPersonalFineDetailsSection(
@@ -464,75 +477,117 @@ class _TeamFinesPageState extends State<TeamFinesPage> {
     );
   }
 
-  Widget _buildActionButtonFineTypes(List<FineTypeDetails> fineTypeDetails) {
+  Widget _buildEmptyPersonalSection(UserDetails user) {
     return Center(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Button(
-                buttonText: 'Opret bødetype',
-                onPressed: () async {
-                  final result = await showCupertinoModalBottomSheet(
-                    expand: true,
-                    context: context,
-                    builder: (context) => CreateFineTypeModal(
-                        fineTypeDetailsList: fineTypeDetails),
-                  );
-
-                  if (result == true) {
-                    _refreshFineTypes();
-                  }
-                }),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: CupertinoColors.systemBackground,
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Column(
+          children: const [
+            Text(
+              'Ingen bøder tildelt endnu.',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildActionButtonFineTypes(List<FineTypeDetails> fineTypeDetails) {
+    return FutureHandler<UserDetails>(
+      future: currentUserData,
+      onSuccess: (context, user) {
+        if (!user.isTeamOwner) {
+          return const SizedBox.shrink();
+        } else {
+          return Center(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Button(
+                    buttonText: 'Opret bødetype',
+                    onPressed: () async {
+                      final result = await showCupertinoModalBottomSheet(
+                        expand: true,
+                        context: context,
+                        builder: (context) => CreateFineTypeModal(
+                          fineTypeDetailsList: fineTypeDetails,
+                        ),
+                      );
+
+                      if (result == true) {
+                        _refreshFineTypes();
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+
   Widget _buildFineTypesSection(
-      List<FineTypeDetails> fineTypeDetails, double width) {
+    List<FineTypeDetails> fineTypeDetails,
+    double width,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
-      padding: EdgeInsets.fromLTRB(25, 20, 25, 20),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+      decoration: const BoxDecoration(
         color: CupertinoColors.systemBackground,
       ),
-      child: fineTypeDetails.isEmpty
-          ? Center(child: Text('Ingen bødertyper endnu.'))
-          : Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Holdets bødetyper',
-                      style: TextStyle(
-                          color: CupertinoColors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold)),
-                ),
-                FractionallySizedBox(
-                  widthFactor: 1,
-                  child: DataTable(
-                    horizontalMargin: 0,
-                    columns: [
-                      DataColumn(
-                          label:
-                              SizedBox(width: width * .4, child: Text('Type'))),
-                      DataColumn(label: SizedBox(child: Text('Standardbeløb'))),
-                    ],
-                    rows: fineTypeDetails.map((fineTypeDetail) {
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(fineTypeDetail.title)),
-                          DataCell(Text('${fineTypeDetail.defaultAmount},-')),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Holdets bødetyper',
+              style: TextStyle(
+                color: CupertinoColors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+          ),
+          const SizedBox(height: 16),
+          if (fineTypeDetails.isEmpty)
+            const Text(
+              'Ingen bødertyper endnu.',
+              style: TextStyle(fontSize: 14, color: CupertinoColors.systemGrey),
+            )
+          else
+            FractionallySizedBox(
+              widthFactor: 1,
+              child: DataTable(
+                horizontalMargin: 0,
+                columns: [
+                  DataColumn(
+                    label: SizedBox(width: width * .4, child: Text('Type')),
+                  ),
+                  DataColumn(label: SizedBox(child: Text('Standardbeløb'))),
+                ],
+                rows: fineTypeDetails.map((fineTypeDetail) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(fineTypeDetail.title)),
+                      DataCell(Text('${fineTypeDetail.defaultAmount},-')),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

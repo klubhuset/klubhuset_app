@@ -1,3 +1,5 @@
+import 'package:klubhuset/model/team_details.dart';
+import 'package:klubhuset/model/user_details.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
@@ -9,18 +11,15 @@ class SecureStorageService {
   // Token methods
   // ------------------------
 
-  // Store auth token
   static Future<void> setToken(String token) async {
     await _storage.delete(key: 'token');
     await _storage.write(key: 'token', value: token);
   }
 
-  // Delete auth token
   static Future<void> deleteToken() async {
     await _storage.delete(key: 'token');
   }
 
-  // Read auth token
   static Future<String?> getToken() async {
     return await _storage.read(key: 'token');
   }
@@ -29,37 +28,69 @@ class SecureStorageService {
   // User info methods
   // ------------------------
 
-  // Save user information (ID, name, role)
-  static Future<void> setUserInfo({
-    required int id,
-    required String name,
-    required int roleId,
-  }) async {
-    await _storage.write(key: 'userId', value: id.toString());
-    await _storage.write(key: 'userName', value: name);
-    await _storage.write(key: 'roleId', value: roleId.toString());
+  static Future<void> setUserInfo(UserDetails user) async {
+    await _storage.write(key: 'id', value: user.id.toString());
+    await _storage.write(key: 'name', value: user.name);
+    await _storage.write(key: 'email', value: user.email);
+    await _storage.write(key: 'roleId', value: user.roleId.toString());
+    await _storage.write(
+        key: 'isTeamOwner', value: user.isTeamOwner.toString());
+    await _storage.write(
+        key: 'createdAt', value: user.createdAt.toIso8601String());
+    await _storage.write(
+        key: 'updatedAt', value: user.updatedAt.toIso8601String());
+    await _storage.write(key: 'teamName', value: user.teamDetails.title);
   }
 
-  // Get user ID
-  static Future<String?> getUserId() async {
-    return await _storage.read(key: 'userId');
-  }
-
-  // Get user name
-  static Future<String?> getUserName() async {
-    return await _storage.read(key: 'userName');
-  }
-
-  // Get user role
-  static Future<String?> getUserRole() async {
-    return await _storage.read(key: 'roleId');
-  }
-
-  // Delete all user info (used on logout)
   static Future<void> clearUserData() async {
-    await _storage.delete(key: 'userId');
-    await _storage.delete(key: 'userName');
-    await _storage.delete(key: 'roleId');
-    await deleteToken(); // Also remove token
+    await _storage.deleteAll();
+    await deleteToken();
+  }
+
+  // ------------------------
+  // Get User Details from current user
+  // ------------------------
+  static Future<UserDetails?> getUserInfo() async {
+    final idStr = await _storage.read(key: 'id');
+    final name = await _storage.read(key: 'name');
+    final roleStr = await _storage.read(key: 'roleId');
+    final emailStr = await _storage.read(key: 'email');
+    final isTeamOwnerStr = await _storage.read(key: 'isTeamOwner');
+    final createdAtStr = await _storage.read(key: 'createdAt');
+    final updatedAtStr = await _storage.read(key: 'updatedAt');
+    final teamName = await _storage.read(key: 'teamName');
+
+    if ([
+      idStr,
+      name,
+      emailStr,
+      roleStr,
+      isTeamOwnerStr,
+      createdAtStr,
+      updatedAtStr,
+      teamName
+    ].contains(null)) return null;
+
+    try {
+      final bool isTeamOwner = isTeamOwnerStr!.toLowerCase() == 'true';
+
+      return UserDetails(
+        id: int.parse(idStr!),
+        name: name!,
+        roleId: int.parse(roleStr!),
+        email: emailStr!,
+        isTeamOwner: isTeamOwner,
+        createdAt: DateTime.parse(createdAtStr!),
+        updatedAt: DateTime.parse(updatedAtStr!),
+        teamDetails: TeamDetails(
+          id: 1,
+          title: teamName!,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    } catch (_) {
+      return null;
+    }
   }
 }

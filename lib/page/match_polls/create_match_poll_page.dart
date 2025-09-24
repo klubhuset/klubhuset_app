@@ -39,7 +39,9 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
   Widget build(BuildContext context) {
     var userVotes = context.watch<UserVotesState>().userVotes;
 
-    var matchesToBeSelected = widget.matches.map((x) => x.matchName).toList();
+    final hasMatches = widget.matches.isNotEmpty;
+    final matchNames = widget.matches.map((x) => x.matchName).toList();
+    final safeIdx = _safeIndex(matchNames.length);
 
     return CupertinoPageScaffold(
         backgroundColor: CupertinoColors.systemGrey6,
@@ -82,36 +84,37 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
                     _DatePickerItem(
                       children: <Widget>[
                         const Text('Kamp'),
-                        CupertinoButton(
-                          // Display a CupertinoDatePicker in date picker mode.
-                          onPressed: () {
-                            _showDialog(
-                              CupertinoPicker(
-                                magnification: 1.22,
-                                squeeze: 1.2,
-                                useMagnifier: true,
-                                itemExtent: 32.0,
-                                // This sets the initial item.
-                                scrollController: FixedExtentScrollController(
-                                  initialItem: selectedMatchIndex,
-                                ),
-                                // This is called when selected item is changed.
-                                onSelectedItemChanged:
-                                    (dynamic selectedItemIndex) {
-                                  setState(() {
-                                    selectedMatchIndex = selectedItemIndex;
-                                  });
+                        hasMatches
+                            ? CupertinoButton(
+                                onPressed: () {
+                                  _showDialog(
+                                    CupertinoPicker(
+                                      magnification: 1.22,
+                                      squeeze: 1.2,
+                                      useMagnifier: true,
+                                      itemExtent: 32.0,
+                                      scrollController:
+                                          FixedExtentScrollController(
+                                        initialItem: safeIdx,
+                                      ),
+                                      onSelectedItemChanged: (int i) {
+                                        setState(() => selectedMatchIndex = i);
+                                      },
+                                      children: List<Widget>.generate(
+                                          matchNames.length, (int i) {
+                                        return Center(
+                                            child: Text(matchNames[i]));
+                                      }),
+                                    ),
+                                  );
                                 },
-                                children: List<Widget>.generate(
-                                    matchesToBeSelected.length, (int index) {
-                                  return Center(
-                                      child: Text(matchesToBeSelected[index]));
-                                }),
+                                child: Text(matchNames[safeIdx]),
+                              )
+                            : const Text(
+                                'Ingen kampe tilgængelige',
+                                style: TextStyle(
+                                    color: CupertinoColors.inactiveGray),
                               ),
-                            );
-                          },
-                          child: Text(matchesToBeSelected[selectedMatchIndex]),
-                        ),
                       ],
                     ),
                   ])),
@@ -161,57 +164,50 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
 
   Future<MatchPollDetails?> createMatchPoll(
       BuildContext context, List<UserVote> userVotes) async {
-    int matchId = widget.matches[selectedMatchIndex].id;
-    bool doesMatchPollAlreadyExistsForMatch =
-        widget.matchPolls.any((x) => x.matchId == matchId);
-
-    if (doesMatchPollAlreadyExistsForMatch) {
-      // Show CupertinoDialog if match name exists
-      showCupertinoDialog(
+    if (widget.matches.isEmpty) {
+      await showCupertinoDialog(
         context: context,
-        builder: (context) => CupertinoAlertDialog(
+        builder: (_) => const CupertinoAlertDialog(
+          title: Text('Ingen kampe'),
+          content: Text('Der er ingen kampe at oprette en afstemning for.'),
+        ),
+      );
+      return null;
+    }
+
+    final idx = _safeIndex(widget.matches.length);
+    final matchId = widget.matches[idx].id;
+
+    final exists = widget.matchPolls.any((x) => x.matchId == matchId);
+    if (exists) {
+      await showCupertinoDialog(
+        context: context,
+        builder: (_) => const CupertinoAlertDialog(
           title: Text('Fejl'),
           content: Text(
               'Afstemning til kampen eksisterer allerede. Vælg en anden kamp.'),
-          actions: <CupertinoDialogAction>[
-            CupertinoDialogAction(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Ok'),
-            ),
-          ],
         ),
       );
-
       return null;
     }
 
     if (userVotes.isEmpty) {
-      // Show CupertinoDialog if there is no votes
-      showCupertinoDialog(
+      await showCupertinoDialog(
         context: context,
-        builder: (context) => CupertinoAlertDialog(
+        builder: (_) => const CupertinoAlertDialog(
           title: Text('Fejl'),
           content: Text('Afgiv mindst én stemme for at oprette en afstemning.'),
-          actions: <CupertinoDialogAction>[
-            CupertinoDialogAction(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Ok'),
-            ),
-          ],
         ),
       );
-
       return null;
     }
 
-    int matchPollId =
+    final matchPollId =
         await MatchPollsRepository.createMatchPoll(matchId, userVotes);
 
-    Provider.of<UserVotesState>(context, listen: false).removeAllUserVotes();
+    if (context.mounted) {
+      Provider.of<UserVotesState>(context, listen: false).removeAllUserVotes();
+    }
 
     return await MatchPollsRepository.getMatchPoll(matchPollId);
   }
@@ -227,6 +223,11 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     }
 
     return matchPollRowItems;
+  }
+
+  int _safeIndex(int length) {
+    if (length <= 0) return 0;
+    return selectedMatchIndex.clamp(0, length - 1);
   }
 }
 
