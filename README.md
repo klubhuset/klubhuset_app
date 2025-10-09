@@ -19,3 +19,16 @@ samples, guidance on mobile development, and a full API reference.
 
 test@klubhuset.dk
 123456
+
+# App Store TestFlight Guide
+
+Part 1:
+
+1. Open the Runner.xcworkspace in XCode
+2. Go to Product -> Archive
+3. Click Distribute App -> Choose App Store Connect -> Upload
+
+Part 2:
+
+1. Go to App Store Connect
+2. Choose the app -> tab TestFlight
