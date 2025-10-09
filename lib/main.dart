@@ -30,7 +30,7 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> get routes {
     return {
-      login: (context) => const LoginScreen(),
+      login: (context) => const LoginPage(),
       home: (context) => const MainPage(),
       register: (context) => const RegisterScreen(),
     };
@@ -64,7 +64,7 @@ class KlubhusetApp extends StatelessWidget {
         Locale('en'),
       ],
       home: authService.currentUser == null
-          ? const LoginScreen()
+          ? const LoginPage()
           : const MainPage(),
       // home: const MainPage(),
       routes: AppRoutes.routes,
