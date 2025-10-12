@@ -455,7 +455,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                       final matchDetails = data['matchDetails'] as MatchDetails;
 
                       if (mounted) {
-                        final result = await showCupertinoModalBottomSheet(
+                        final createdMatchPollDetails =
+                            await showCupertinoModalBottomSheet(
                           expand: true,
                           context: context,
                           builder: (context) => CreateMatchPollPage(
@@ -464,8 +465,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage> {
                           ),
                         );
 
-                        if (result == true) {
-                          _setMatchPollDetails(result);
+                        if (createdMatchPollDetails != null) {
+                          _setMatchPollDetails(createdMatchPollDetails);
                         }
                       }
                     }),

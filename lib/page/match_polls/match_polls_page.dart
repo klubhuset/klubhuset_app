@@ -101,7 +101,8 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
 
                   if (!context.mounted) return;
 
-                  final result = await showCupertinoModalBottomSheet(
+                  final createdMatchPollDetails =
+                      await showCupertinoModalBottomSheet(
                     expand: true,
                     context: context,
                     builder: (context) => CreateMatchPollPage(
@@ -111,7 +112,7 @@ class _MatchPollsListPageState extends State<MatchPollsListPage> {
                     ),
                   );
 
-                  if (result == true) {
+                  if (createdMatchPollDetails != null) {
                     _refreshMatchPolls();
                   }
                 },
