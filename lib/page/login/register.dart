@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:klubhuset/component/button/full_width_button.dart';
 import 'package:klubhuset/component/loading_indicator.dart';
 import 'package:klubhuset/services/auth_service.dart';
 import 'package:klubhuset/repository/authentication_repository.dart';
-import 'package:provider/provider.dart';
+import 'package:klubhuset/services/platform_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -37,19 +39,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       2,
     );
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
 
-    if (result['success']) {
-      if (!mounted) return;
+    if (!mounted) return;
 
+    if (result['success'] == true) {
+      // Auto-login after successful registration
       final authService = Provider.of<AuthService>(context, listen: false);
       final loginSuccess = await authService.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-
       if (loginSuccess) {
         Navigator.of(context).pushReplacementNamed('/home');
       }
@@ -59,6 +59,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
             result['message'] ?? 'Registering mislykkedes. Prøv igen.';
       });
     }
+  }
+
+  // --- Validators (Danish messages; English comments) ---
+  String? _nameValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Indtast venligst dit navn';
+    }
+    return null;
+  }
+
+  String? _emailValidator(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Indtast venligst din email';
+    if (!v.contains('@') || !v.contains('.')) {
+      return 'Indtast venligst en gyldig email';
+    }
+    return null;
+  }
+
+  String? _passwordValidator(String? value) {
+    final v = value ?? '';
+    if (v.isEmpty) return 'Indtast venligst en adgangskode';
+    if (v.length < 6) return 'Adgangskoden skal være mindst 6 tegn';
+    return null;
   }
 
   @override
@@ -71,134 +95,173 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final useCupertino = PlatformService.isIOS;
     final theme = Theme.of(context);
 
-    return CupertinoPageScaffold(
-      backgroundColor: CupertinoColors.systemGrey6,
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(30, 50, 30, 30),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(
-                  Icons.sports_soccer,
-                  size: 80,
+    // Shared content built once; fields switch inline based on platform
+    final content = SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(30, 50, 30, 30),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Icon(
+                Icons.sports_soccer,
+                size: 80,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Klubhuset',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineSmall?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Klubhuset',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
+              ),
+              const SizedBox(height: 40),
+              Text(
+                'Opret bruger',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
                 ),
-                const SizedBox(height: 40),
-                Text(
-                  'Opret bruger',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                  ),
-                ),
-                const SizedBox(height: 30),
+              ),
+              const SizedBox(height: 30),
 
-                // Navn
-                _buildTextField(
-                  controller: _nameController,
-                  placeholder: 'Navn',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Indtast venligst dit navn';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // Email
-                _buildTextField(
-                  controller: _emailController,
-                  placeholder: 'E-mail',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Indtast venligst din email';
-                    }
-                    if (!value.contains('@') || !value.contains('.')) {
-                      return 'Indtast venligst en gyldig email';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // Password
-                _buildTextField(
-                  controller: _passwordController,
-                  placeholder: 'Adgangskode',
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Indtast venligst en adgangskode';
-                    }
-                    if (value.length < 6) {
-                      return 'Adgangskoden skal være mindst 6 tegn';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 30),
-
-                if (_errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(
-                        color: theme.colorScheme.error,
-                        fontSize: 14,
+              // --- Name field ---
+              useCupertino
+                  ? _cupertinoField(
+                      controller: _nameController,
+                      placeholder: 'Navn',
+                      validator: _nameValidator,
+                      keyboardType: TextInputType.name,
+                      autofillHints: const [AutofillHints.name],
+                    )
+                  : TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Navn',
+                        border: OutlineInputBorder(),
                       ),
-                      textAlign: TextAlign.center,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.name,
+                      autofillHints: const [AutofillHints.name],
+                      validator: _nameValidator,
                     ),
-                  ),
 
-                _isLoading
-                    ? const LoadingIndicator()
-                    : FullWidthButton(
-                        buttonText: 'Opret konto',
-                        onPressed: _register,
+              const SizedBox(height: 20),
+
+              // --- Email field ---
+              useCupertino
+                  ? _cupertinoField(
+                      controller: _emailController,
+                      placeholder: 'E-mail',
+                      validator: _emailValidator,
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [
+                        AutofillHints.username,
+                        AutofillHints.email
+                      ],
+                    )
+                  : TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'E-mail',
+                        border: OutlineInputBorder(),
                       ),
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [
+                        AutofillHints.username,
+                        AutofillHints.email
+                      ],
+                      validator: _emailValidator,
+                    ),
 
-                const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-                FullWidthButton(
-                  buttonText: 'Annullér',
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  outlined: true,
+              // --- Password field ---
+              useCupertino
+                  ? _cupertinoField(
+                      controller: _passwordController,
+                      placeholder: 'Adgangskode',
+                      validator: _passwordValidator,
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.password],
+                      onSubmitted: (_) => _register(),
+                    )
+                  : TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Adgangskode',
+                        border: OutlineInputBorder(),
+                      ),
+                      textInputAction: TextInputAction.done,
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.password],
+                      onFieldSubmitted: (_) => _register(),
+                      validator: _passwordValidator,
+                    ),
+
+              const SizedBox(height: 30),
+
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(
+                      color: theme.colorScheme.error,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ],
-            ),
+
+              _isLoading
+                  ? const LoadingIndicator()
+                  : FullWidthButton(
+                      buttonText: 'Opret konto',
+                      onPressed: _register,
+                    ),
+
+              const SizedBox(height: 20),
+
+              FullWidthButton(
+                buttonText: 'Annullér',
+                onPressed: () => Navigator.of(context).pop(),
+                outlined: true,
+              ),
+            ],
           ),
         ),
       ),
     );
+
+    // Wrap in the native scaffold for each platform
+    return useCupertino
+        ? const CupertinoTheme(
+            // keeps Cupertino text colors consistent
+            data: CupertinoThemeData(brightness: Brightness.light),
+            child: SizedBox(), // replaced below via Builder to access context
+          )
+        : Scaffold(
+            backgroundColor: theme.colorScheme.surface,
+            body: content,
+          );
   }
 
-  Widget _buildTextField({
+  /// Reusable Cupertino field with inline validator error presentation.
+  Widget _cupertinoField({
     required TextEditingController controller,
     required String placeholder,
     required String? Function(String?) validator,
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
+    List<String>? autofillHints,
+    void Function(String)? onSubmitted,
   }) {
     return FormField<String>(
       validator: validator,
@@ -210,15 +273,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: controller,
               obscureText: obscureText,
               keyboardType: keyboardType,
+              autofillHints: autofillHints,
+              textInputAction:
+                  obscureText ? TextInputAction.done : TextInputAction.next,
+              onSubmitted: onSubmitted,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
               placeholder: placeholder,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black, width: 1.5),
                 borderRadius: BorderRadius.circular(5),
               ),
-              onChanged: (value) {
-                state.didChange(value);
-              },
+              onChanged: state.didChange,
             ),
             if (state.hasError)
               Padding(
