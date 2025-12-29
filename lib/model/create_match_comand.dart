@@ -16,12 +16,18 @@ class CreateMatchCommand {
   );
 
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> json = {
       'firstTeam': firstTeam,
       'secondTeam': secondTeam,
       'location': location,
-      'meetingTime': meetingTime.toString(),
       'date': date.toString(),
+      if (notes != null && notes!.trim().isNotEmpty) 'notes': notes,
     };
+
+    if (meetingTime != null) {
+      json['meetingTime'] = meetingTime.toString();
+    }
+
+    return json;
   }
 }

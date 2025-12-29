@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:klubhuset/helpers/api_config.dart';
 import 'package:klubhuset/model/user_details.dart';
 import 'package:klubhuset/services/secure_storage_service.dart';
 
@@ -10,7 +11,7 @@ class AuthenticationRepository {
       String email, String password) async {
     await dotenv.load(); // Initialize dotenv
 
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/authentication/login');
+    final url = Uri.parse('${ApiConfig.baseUrl}/authentication/login');
     try {
       final response = await http.post(
         url,
@@ -45,8 +46,7 @@ class AuthenticationRepository {
       String name, String email, String password, int roleId) async {
     await dotenv.load(); // Initialize dotenv
 
-    final url =
-        Uri.parse('${dotenv.env['API_BASE_URL']}/authentication/register');
+    final url = Uri.parse('${ApiConfig.baseUrl}/authentication/register');
     try {
       final response = await http.post(
         url,
@@ -90,8 +90,7 @@ class AuthenticationRepository {
       throw Exception('Token not found. Please login again.');
     }
 
-    final url =
-        Uri.parse('${dotenv.env['API_BASE_URL']}/authentication/current_user');
+    final url = Uri.parse('${ApiConfig.baseUrl}/authentication/current_user');
     try {
       final response = await http.get(
         url,

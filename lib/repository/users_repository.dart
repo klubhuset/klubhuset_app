@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:klubhuset/helpers/api_config.dart';
 import 'package:klubhuset/model/add_user_to_team_command.dart';
 import 'package:klubhuset/model/user_details.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,7 @@ class UsersRepository {
   static Future<List<UserDetails>> getSquad() async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/user/all');
+    var url = Uri.parse('${ApiConfig.baseUrl}/user/all');
 
     var response = await http.get(url);
 
@@ -26,7 +27,7 @@ class UsersRepository {
   static Future<int> createPlayer(String name, String email) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/user');
+    var url = Uri.parse('${ApiConfig.baseUrl}/user');
 
     AddUserToTeamCommand addUserToTeamCommand =
         AddUserToTeamCommand(name, email, false);

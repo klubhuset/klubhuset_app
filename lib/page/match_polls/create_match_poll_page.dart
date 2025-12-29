@@ -182,10 +182,16 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     if (exists) {
       await showCupertinoDialog(
         context: context,
-        builder: (_) => const CupertinoAlertDialog(
-          title: Text('Fejl'),
-          content: Text(
+        builder: (BuildContext modalContext) => CupertinoAlertDialog(
+          title: const Text('Fejl'),
+          content: const Text(
               'Afstemning til kampen eksisterer allerede. Vælg en anden kamp.'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.of(modalContext).pop(),
+            ),
+          ],
         ),
       );
       return null;
@@ -194,9 +200,15 @@ class _CreateMatchPollPageState extends State<CreateMatchPollPage> {
     if (userVotes.isEmpty) {
       await showCupertinoDialog(
         context: context,
-        builder: (_) => const CupertinoAlertDialog(
+        builder: (BuildContext modalContext) => CupertinoAlertDialog(
           title: Text('Fejl'),
           content: Text('Afgiv mindst én stemme for at oprette en afstemning.'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.of(modalContext).pop(),
+            ),
+          ],
         ),
       );
       return null;

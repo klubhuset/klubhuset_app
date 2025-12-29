@@ -57,8 +57,6 @@ class _MatchProgrammePageState extends State<MatchProgrammePage> {
                 semanticLabel: 'Tilbage'),
           ),
           middle: const Text('Kampprogram'),
-
-          // 👇 Vis kun knappen hvis currentUser.isTeamOwner == true
           trailing: FutureHandler<UserDetails>(
             future: currentUser,
             loadingIndicator: const SizedBox.shrink(),
@@ -88,14 +86,20 @@ class _MatchProgrammePageState extends State<MatchProgrammePage> {
             },
           ),
         ),
+
+        // Matches
         child: SafeArea(
           child: SingleChildScrollView(
             child: FutureHandler<List<MatchDetails>>(
               future: matches,
               noDataFoundMessage: 'Ingen kampe fundet.',
               onSuccess: (context, data) {
+                // Sort descending on match date
+                final sorted = [...data]
+                  ..sort((a, b) => b.date.compareTo(a.date));
+
                 return Column(
-                  children: data.map((matchDetails) {
+                  children: sorted.map((matchDetails) {
                     final date =
                         DateHelper.getFormattedShortDate(matchDetails.date);
                     final time = DateHelper.getFormattedTime(matchDetails.date);

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:klubhuset/helpers/api_config.dart';
 import 'package:klubhuset/model/create_match_poll_command.dart';
 import 'package:klubhuset/model/create_match_poll_user_command.dart';
 import 'package:klubhuset/model/match_poll_details.dart';
@@ -11,7 +12,7 @@ class MatchPollsRepository {
   static Future<List<MatchPollDetails>> getMatchPolls() async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/matchpoll/all');
+    var url = Uri.parse('${ApiConfig.baseUrl}/match/matchpoll/all');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -27,7 +28,7 @@ class MatchPollsRepository {
   static Future<MatchPollDetails> getMatchPoll(int id) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/matchpoll/$id');
+    var url = Uri.parse('${ApiConfig.baseUrl}/match/matchpoll/$id');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -43,7 +44,7 @@ class MatchPollsRepository {
       int matchId, List<UserVote> userVotes) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/matchpoll');
+    var url = Uri.parse('${ApiConfig.baseUrl}/match/matchpoll');
 
     List<CreateMatchPollUserVoteCommand> createMatchPollUserVoteCommands =
         userVotes

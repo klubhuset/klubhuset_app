@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:klubhuset/helpers/api_config.dart';
 import 'package:klubhuset/model/create_match_comand.dart';
 import 'package:klubhuset/model/create_match_event_command.dart';
 import 'package:klubhuset/model/register_for_unregister_from_match_command.dart';
@@ -23,7 +24,7 @@ class MatchRepository {
       throw Exception('No token found. User might not be logged in.');
     }
 
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match');
+    final url = Uri.parse('${ApiConfig.baseUrl}/match');
     final response = await http.get(
       url,
       headers: {
@@ -54,7 +55,7 @@ class MatchRepository {
   }) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/match');
+    var url = Uri.parse('${ApiConfig.baseUrl}/match');
 
     CreateMatchCommand createMatchCommand = CreateMatchCommand(
         firstTeam, secondTeam, location, meetingTime, date, notes);
@@ -109,7 +110,7 @@ class MatchRepository {
       throw Exception('No token found. User might not be logged in.');
     }
 
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/$id');
+    final url = Uri.parse('${ApiConfig.baseUrl}/match/$id');
     final response = await http.get(
       url,
       headers: {
@@ -138,7 +139,7 @@ class MatchRepository {
       throw Exception('No token found. User might not be logged in.');
     }
 
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/register');
+    final url = Uri.parse('${ApiConfig.baseUrl}/match/register');
 
     final command = RegisterForUnregisterFromMatchCommand(
       matchId: matchId.toString(),
@@ -172,7 +173,7 @@ class MatchRepository {
       throw Exception('No token found. User might not be logged in.');
     }
 
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/unregister');
+    final url = Uri.parse('${ApiConfig.baseUrl}/match/unregister');
 
     final command = RegisterForUnregisterFromMatchCommand(
       matchId: matchId.toString(),
@@ -207,7 +208,7 @@ class MatchRepository {
       throw Exception('No token found. User might not be logged in.');
     }
 
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/score');
+    final url = Uri.parse('${ApiConfig.baseUrl}/match/score');
 
     final command = UpdateMatchScoreCommand(
       matchId: matchId,
@@ -241,7 +242,7 @@ class MatchRepository {
       throw Exception('No token found. User might not be logged in.');
     }
 
-    final url = Uri.parse('${dotenv.env['API_BASE_URL']}/match/event');
+    final url = Uri.parse('${ApiConfig.baseUrl}/match/event');
 
     var jsonEncoded =
         jsonEncode(createMatchEventCommands.map((e) => e.toJson()).toList());
@@ -273,8 +274,7 @@ class MatchRepository {
       throw Exception('No token found. User might not be logged in.');
     }
 
-    final url =
-        Uri.parse('${dotenv.env['API_BASE_URL']}/match/event/$matchEventId');
+    final url = Uri.parse('${ApiConfig.baseUrl}/match/event/$matchEventId');
 
     final response = await http.delete(
       url,

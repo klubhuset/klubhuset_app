@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:klubhuset/helpers/api_config.dart';
 import 'package:klubhuset/model/create_fine_type_command.dart';
 import 'package:klubhuset/model/create_user_fine_command.dart';
 import 'package:klubhuset/model/create_user_fines_command.dart';
@@ -13,7 +14,7 @@ class FinesRepository {
   static Future<List<FineTypeDetails>> getFineTypes() async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/types');
+    var url = Uri.parse('${ApiConfig.baseUrl}/fine/types');
 
     var response = await http.get(url);
 
@@ -30,7 +31,7 @@ class FinesRepository {
   static Future<FineBoxDetails> getFineBox() async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/fine_box');
+    var url = Uri.parse('${ApiConfig.baseUrl}/fine/fine_box');
 
     var response = await http.get(url);
 
@@ -47,7 +48,7 @@ class FinesRepository {
       List<CreateUserFineCommand> createUserFineCommands) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/users');
+    var url = Uri.parse('${ApiConfig.baseUrl}/fine/users');
 
     var createUserFinesCommand = CreateUserFinesCommand(createUserFineCommands);
 
@@ -67,7 +68,7 @@ class FinesRepository {
       int fineBoxId, String amountToDeposit, List<int> userFineIds) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/fine_box/deposit');
+    var url = Uri.parse('${ApiConfig.baseUrl}/fine/fine_box/deposit');
 
     var depositAmountToFineBoxCommand = DepositAmountToFineBoxCommand(
         fineBoxId: fineBoxId.toString(),
@@ -87,7 +88,7 @@ class FinesRepository {
   static Future<bool> createFineType(String title, String defaultAmount) async {
     await dotenv.load(); // Initialize dotenv
 
-    var url = Uri.parse('${dotenv.env['API_BASE_URL']}/fine/type');
+    var url = Uri.parse('${ApiConfig.baseUrl}/fine/type');
 
     var createFineTypeCommmand =
         CreateFineTypeCommand(title: title, defaultAmount: defaultAmount);
