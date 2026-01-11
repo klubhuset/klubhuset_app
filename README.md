@@ -22,13 +22,34 @@ test@klubhuset.dk
 
 # App Store TestFlight Guide
 
-Part 1:
+## Part 1:
 
 1. Open the Runner.xcworkspace in XCode
 2. Go to Product -> Archive
 3. Click Distribute App -> Choose App Store Connect -> Upload
 
-Part 2:
+## Part 2:
 
 1. Go to App Store Connect
 2. Choose the app -> tab TestFlight
+
+# Google Play Console Guide
+
+## Before uploading
+
+Two main files needs to exists before being able to upload the App.
+
+1. A generated keystore has to be used to sign and upload the App.
+   - For now, a test keystore has been created
+   - Current Keystore location: /Users/holstchayder/Development/GitHub/klubhuset_app/android/app/my-release-key.jks
+2. A key.properties file (placed in /Users/holstchayder/Development/GitHub/klubhuset_app/android/key.properties) with the following values:
+   - keyAlias=my-key-store-password
+   - keyAlias=my-key-password
+   - keyAlias=my-key-alias
+   - storeFile=my-release-key.jks
+
+## Uploading the app
+
+1. Run "flutter build appbundle --build-number=$(date +%s)"
+2. Go to "build/app/outputs/bundle/release/" and find the file "app-release.aab"
+3. Upload the file to Google Play Console
