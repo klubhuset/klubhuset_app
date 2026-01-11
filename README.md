@@ -41,7 +41,8 @@ Two main files needs to exists before being able to upload the App.
 
 1. A generated keystore has to be used to sign and upload the App.
    - For now, a test keystore has been created
-   - Current Keystore location: /Users/holstchayder/Development/GitHub/klubhuset_app/android/app/my-release-key.jks
+     - Current Keystore location: /Users/holstchayder/Development/GitHub/klubhuset_app/android/app/my-release-key.jks
+   - To generate a new one, make Java is installed and run: "keytool -genkeypair -v \ -keystore ~/my-release-key.jks \ -keyalg RSA -keysize 2048 -validity 10000 \ -alias my-key-alias"
 2. A key.properties file (placed in /Users/holstchayder/Development/GitHub/klubhuset_app/android/key.properties) with the following values:
    - keyAlias=my-key-store-password
    - keyAlias=my-key-password
