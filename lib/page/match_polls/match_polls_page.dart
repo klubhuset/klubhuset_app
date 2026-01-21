@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/helpers/date_helper.dart';
-import 'package:klubhuset/model/match_details.dart';
-import 'package:klubhuset/model/match_poll_details.dart';
-import 'package:klubhuset/model/user_details.dart';
-import 'package:klubhuset/repository/match_polls_repository.dart';
-import 'package:klubhuset/repository/match_repository.dart';
-import 'package:klubhuset/repository/users_repository.dart';
-import 'package:klubhuset/page/match_polls/create_match_poll_page.dart';
-import 'package:klubhuset/services/auth_service.dart';
+import 'package:kopa/component/future_handler.dart';
+import 'package:kopa/helpers/date_helper.dart';
+import 'package:kopa/model/match_details.dart';
+import 'package:kopa/model/match_poll_details.dart';
+import 'package:kopa/model/user_details.dart';
+import 'package:kopa/repository/match_polls_repository.dart';
+import 'package:kopa/repository/match_repository.dart';
+import 'package:kopa/repository/users_repository.dart';
+import 'package:kopa/page/match_polls/create_match_poll_page.dart';
+import 'package:kopa/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 

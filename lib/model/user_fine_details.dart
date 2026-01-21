@@ -1,5 +1,5 @@
-import 'package:klubhuset/model/fine_details.dart';
-import 'package:klubhuset/model/user_details.dart';
+import 'package:kopa/model/fine_details.dart';
+import 'package:kopa/model/user_details.dart';
 
 class UserFineDetails {
   final int id;

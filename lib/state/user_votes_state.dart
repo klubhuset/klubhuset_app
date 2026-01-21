@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/model/user_vote.dart';
+import 'package:kopa/model/user_vote.dart';
 
 class UserVotesState extends ChangeNotifier {
   final List<UserVote> _userVotes = [];

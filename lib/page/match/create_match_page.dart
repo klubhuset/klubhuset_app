@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:klubhuset/model/match_details.dart';
-import 'package:klubhuset/repository/match_repository.dart';
+import 'package:kopa/model/match_details.dart';
+import 'package:kopa/repository/match_repository.dart';
 
 class CreateMatchPage extends StatefulWidget {
   final List<MatchDetails> matches;

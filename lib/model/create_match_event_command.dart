@@ -1,5 +1,5 @@
-import 'package:klubhuset/model/card_type.dart';
-import 'package:klubhuset/model/match_event_type.dart';
+import 'package:kopa/model/card_type.dart';
+import 'package:kopa/model/match_event_type.dart';
 
 class CreateMatchEventCommand {
   final int matchId;

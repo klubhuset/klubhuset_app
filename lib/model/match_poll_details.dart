@@ -1,5 +1,5 @@
-import 'package:klubhuset/model/match_poll_user_votes_details.dart';
-import 'package:klubhuset/model/user_details.dart';
+import 'package:kopa/model/match_poll_user_votes_details.dart';
+import 'package:kopa/model/user_details.dart';
 
 class MatchPollDetails {
   final int id;

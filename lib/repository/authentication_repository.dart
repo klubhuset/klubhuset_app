@@ -2,9 +2,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:klubhuset/helpers/api_config.dart';
-import 'package:klubhuset/model/user_details.dart';
-import 'package:klubhuset/services/secure_storage_service.dart';
+import 'package:kopa/helpers/api_config.dart';
+import 'package:kopa/model/user_details.dart';
+import 'package:kopa/services/secure_storage_service.dart';
 
 class AuthenticationRepository {
   static Future<Map<String, dynamic>> login(

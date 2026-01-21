@@ -1,12 +1,12 @@
 import 'dart:convert';
-import 'package:klubhuset/helpers/api_config.dart';
-import 'package:klubhuset/model/create_match_poll_command.dart';
-import 'package:klubhuset/model/create_match_poll_user_command.dart';
-import 'package:klubhuset/model/match_poll_details.dart';
+import 'package:kopa/helpers/api_config.dart';
+import 'package:kopa/model/create_match_poll_command.dart';
+import 'package:kopa/model/create_match_poll_user_command.dart';
+import 'package:kopa/model/match_poll_details.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:klubhuset/model/user_vote.dart';
+import 'package:kopa/model/user_vote.dart';
 
 class MatchPollsRepository {
   static Future<List<MatchPollDetails>> getMatchPolls() async {

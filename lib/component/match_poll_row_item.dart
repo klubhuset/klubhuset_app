@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/state/user_votes_state.dart';
-import 'package:klubhuset/model/user_vote.dart';
+import 'package:kopa/state/user_votes_state.dart';
+import 'package:kopa/model/user_vote.dart';
 import 'package:provider/provider.dart';
 
 class MatchPollRowItem extends StatefulWidget {

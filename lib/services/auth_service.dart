@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/model/user_details.dart';
-import 'package:klubhuset/repository/authentication_repository.dart';
-import 'package:klubhuset/services/secure_storage_service.dart';
+import 'package:kopa/model/user_details.dart';
+import 'package:kopa/repository/authentication_repository.dart';
+import 'package:kopa/services/secure_storage_service.dart';
 
 class AuthService with ChangeNotifier {
   UserDetails? _currentUser;

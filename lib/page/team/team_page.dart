@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/repository/users_repository.dart';
-import 'package:klubhuset/page/team/add_user_to_team_page.dart';
-import 'package:klubhuset/model/user_details.dart';
+import 'package:kopa/component/future_handler.dart';
+import 'package:kopa/repository/users_repository.dart';
+import 'package:kopa/page/team/add_user_to_team_page.dart';
+import 'package:kopa/model/user_details.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class TeamPage extends StatefulWidget {

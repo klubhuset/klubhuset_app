@@ -3,11 +3,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:klubhuset/component/button/full_width_button.dart';
-import 'package:klubhuset/component/loading_indicator.dart';
-import 'package:klubhuset/main.dart'; // for AppRoutes.register
-import 'package:klubhuset/services/auth_service.dart';
-import 'package:klubhuset/services/platform_service.dart';
+import 'package:kopa/component/button/full_width_button.dart';
+import 'package:kopa/component/loading_indicator.dart';
+import 'package:kopa/main.dart'; // for AppRoutes.register
+import 'package:kopa/services/auth_service.dart';
+import 'package:kopa/services/platform_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Klubhuset',
+                'Kopa',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall
                     ?.copyWith(color: theme.colorScheme.primary),

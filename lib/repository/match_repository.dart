@@ -1,15 +1,15 @@
 import 'dart:convert';
-import 'package:klubhuset/helpers/api_config.dart';
-import 'package:klubhuset/model/create_match_comand.dart';
-import 'package:klubhuset/model/create_match_event_command.dart';
-import 'package:klubhuset/model/register_for_unregister_from_match_command.dart';
-import 'package:klubhuset/model/match_details.dart';
+import 'package:kopa/helpers/api_config.dart';
+import 'package:kopa/model/create_match_comand.dart';
+import 'package:kopa/model/create_match_event_command.dart';
+import 'package:kopa/model/register_for_unregister_from_match_command.dart';
+import 'package:kopa/model/match_details.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:klubhuset/model/update_match_score_command.dart';
+import 'package:kopa/model/update_match_score_command.dart';
 
 class MatchRepository {
   static final _secureStorage = FlutterSecureStorage();

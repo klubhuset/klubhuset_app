@@ -1,4 +1,4 @@
-import 'package:klubhuset/model/fine_type_details.dart';
+import 'package:kopa/model/fine_type_details.dart';
 
 class FineDetails {
   final int id;

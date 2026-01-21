@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:klubhuset/component/future_handler.dart';
-import 'package:klubhuset/model/create_user_fine_command.dart';
-import 'package:klubhuset/model/user_details.dart';
-import 'package:klubhuset/repository/fines_repository.dart';
-import 'package:klubhuset/repository/users_repository.dart';
+import 'package:kopa/component/future_handler.dart';
+import 'package:kopa/model/create_user_fine_command.dart';
+import 'package:kopa/model/user_details.dart';
+import 'package:kopa/repository/fines_repository.dart';
+import 'package:kopa/repository/users_repository.dart';
 
 class AssignFinesModal extends StatefulWidget {
   @override

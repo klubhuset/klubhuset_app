@@ -1,4 +1,4 @@
-import 'package:klubhuset/model/team_details.dart';
+import 'package:kopa/model/team_details.dart';
 
 class UserDetails {
   final int id;

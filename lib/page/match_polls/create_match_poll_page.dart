@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/match_poll_row_item.dart';
-import 'package:klubhuset/model/match_details.dart';
-import 'package:klubhuset/model/match_poll_details.dart';
-import 'package:klubhuset/model/user_details.dart';
-import 'package:klubhuset/repository/match_polls_repository.dart';
-import 'package:klubhuset/model/user_vote.dart';
-import 'package:klubhuset/state/user_votes_state.dart';
+import 'package:kopa/component/match_poll_row_item.dart';
+import 'package:kopa/model/match_details.dart';
+import 'package:kopa/model/match_poll_details.dart';
+import 'package:kopa/model/user_details.dart';
+import 'package:kopa/repository/match_polls_repository.dart';
+import 'package:kopa/model/user_vote.dart';
+import 'package:kopa/state/user_votes_state.dart';
 import 'package:provider/provider.dart';
 
 class CreateMatchPollPage extends StatefulWidget {

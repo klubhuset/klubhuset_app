@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:klubhuset/helpers/api_config.dart';
-import 'package:klubhuset/model/create_fine_type_command.dart';
-import 'package:klubhuset/model/create_user_fine_command.dart';
-import 'package:klubhuset/model/create_user_fines_command.dart';
-import 'package:klubhuset/model/deposit_amount_to_fine_box_command.dart';
-import 'package:klubhuset/model/fine_box_details.dart';
-import 'package:klubhuset/model/fine_type_details.dart';
+import 'package:kopa/helpers/api_config.dart';
+import 'package:kopa/model/create_fine_type_command.dart';
+import 'package:kopa/model/create_user_fine_command.dart';
+import 'package:kopa/model/create_user_fines_command.dart';
+import 'package:kopa/model/deposit_amount_to_fine_box_command.dart';
+import 'package:kopa/model/fine_box_details.dart';
+import 'package:kopa/model/fine_type_details.dart';
 
 class FinesRepository {
   static Future<List<FineTypeDetails>> getFineTypes() async {

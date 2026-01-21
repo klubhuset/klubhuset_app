@@ -392,13 +392,13 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "klubhuset",
+      "name": "kopa",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2026-01-11T20:40:12.734032Z",
+  "generated": "2026-01-21T20:41:12.432882Z",
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/holstchayder/Development/flutter",

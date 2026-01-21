@@ -1,6 +1,6 @@
-import 'package:klubhuset/model/match_event_details.dart';
-import 'package:klubhuset/model/match_poll_details.dart';
-import 'package:klubhuset/model/match_registration_details.dart';
+import 'package:kopa/model/match_event_details.dart';
+import 'package:kopa/model/match_poll_details.dart';
+import 'package:kopa/model/match_registration_details.dart';
 
 class MatchDetails {
   final int id;

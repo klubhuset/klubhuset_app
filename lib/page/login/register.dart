@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:klubhuset/component/button/full_width_button.dart';
-import 'package:klubhuset/component/loading_indicator.dart';
-import 'package:klubhuset/services/auth_service.dart';
-import 'package:klubhuset/repository/authentication_repository.dart';
-import 'package:klubhuset/services/platform_service.dart';
+import 'package:kopa/component/button/full_width_button.dart';
+import 'package:kopa/component/loading_indicator.dart';
+import 'package:kopa/services/auth_service.dart';
+import 'package:kopa/repository/authentication_repository.dart';
+import 'package:kopa/services/platform_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -114,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Klubhuset',
+                'Kopa',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: theme.colorScheme.primary,

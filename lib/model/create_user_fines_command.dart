@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:klubhuset/model/create_user_fine_command.dart';
+import 'package:kopa/model/create_user_fine_command.dart';
 
 class CreateUserFinesCommand {
   final List<CreateUserFineCommand> createUserFinesCommand;

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/button/button.dart';
-import 'package:klubhuset/helpers/url_opener.dart';
+import 'package:kopa/component/button/button.dart';
+import 'package:kopa/helpers/url_opener.dart';
 
 class MobilePayButton extends StatelessWidget {
   @override

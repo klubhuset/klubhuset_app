@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:klubhuset/helpers/api_config.dart';
-import 'package:klubhuset/model/add_user_to_team_command.dart';
-import 'package:klubhuset/model/user_details.dart';
+import 'package:kopa/helpers/api_config.dart';
+import 'package:kopa/model/add_user_to_team_command.dart';
+import 'package:kopa/model/user_details.dart';
 import 'package:http/http.dart' as http;
 
 class UsersRepository {

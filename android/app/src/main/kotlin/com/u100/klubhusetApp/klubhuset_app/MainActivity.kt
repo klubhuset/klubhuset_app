@@ -1,4 +1,4 @@
-package com.u100.klubhusetApp.klubhuset_app
+package com.u100.kopApp.kopa_app
 
 import io.flutter.embedding.android.FlutterActivity
 

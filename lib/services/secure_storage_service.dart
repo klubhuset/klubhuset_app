@@ -1,5 +1,5 @@
-import 'package:klubhuset/model/team_details.dart';
-import 'package:klubhuset/model/user_details.dart';
+import 'package:kopa/model/team_details.dart';
+import 'package:kopa/model/user_details.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {

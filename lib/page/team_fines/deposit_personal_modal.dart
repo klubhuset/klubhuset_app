@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:klubhuset/component/button/mobile_pay_button.dart';
-import 'package:klubhuset/component/custom_checkbox.dart';
-import 'package:klubhuset/model/fine_details.dart';
-import 'package:klubhuset/model/user_details.dart';
-import 'package:klubhuset/model/user_fine_details.dart';
-import 'package:klubhuset/repository/fines_repository.dart';
+import 'package:kopa/component/button/mobile_pay_button.dart';
+import 'package:kopa/component/custom_checkbox.dart';
+import 'package:kopa/model/fine_details.dart';
+import 'package:kopa/model/user_details.dart';
+import 'package:kopa/model/user_fine_details.dart';
+import 'package:kopa/repository/fines_repository.dart';
 
 class DepositPersonalModal extends StatefulWidget {
   final int fineBoxId;

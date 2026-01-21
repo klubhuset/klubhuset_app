@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/error_message.dart';
-import 'package:klubhuset/component/loading_indicator.dart';
+import 'package:kopa/component/error_message.dart';
+import 'package:kopa/component/loading_indicator.dart';
 
 class FutureHandler<T> extends StatelessWidget {
   final Future<T> future;

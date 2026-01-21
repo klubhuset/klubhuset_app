@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:klubhuset/component/button/full_width_button.dart';
-import 'package:klubhuset/component/loading_indicator.dart';
-import 'package:klubhuset/main.dart';
-import 'package:klubhuset/services/auth_service.dart';
+import 'package:kopa/component/button/full_width_button.dart';
+import 'package:kopa/component/loading_indicator.dart';
+import 'package:kopa/main.dart';
+import 'package:kopa/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class ProfileTab extends StatefulWidget {

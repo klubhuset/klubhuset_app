@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:klubhuset/model/create_match_poll_user_command.dart';
+import 'package:kopa/model/create_match_poll_user_command.dart';
 
 class CreateMatchPollCommand {
   final String matchId;

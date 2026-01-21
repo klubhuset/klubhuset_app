@@ -1,8 +1,8 @@
-# klubhuset
+# kopa
 
 A new Flutter project.
 
-## Getting Started
+# Getting Started
 
 This project is a starting point for a Flutter application.
 
@@ -14,6 +14,12 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+# Building app
+
+For iOS, run "flutter build ios"
+
+For Android, run "flutter build appbundle"
 
 # Test user
 
@@ -54,3 +60,9 @@ Two main files needs to exists before being able to upload the App.
 1. Run "flutter build appbundle --build-number=$(date +%s)"
 2. Go to "build/app/outputs/bundle/release/" and find the file "app-release.aab"
 3. Upload the file to Google Play Console
+
+### Internal test
+
+1. Publish the app
+2. Add e-mails to the "Kopa" mail group
+3. Distribute the following link: https://play.google.com/apps/testing/com.klubhuset.app

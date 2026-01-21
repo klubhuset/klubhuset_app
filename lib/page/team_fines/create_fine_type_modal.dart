@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/model/fine_type_details.dart';
-import 'package:klubhuset/repository/fines_repository.dart';
+import 'package:kopa/model/fine_type_details.dart';
+import 'package:kopa/repository/fines_repository.dart';
 
 class CreateFineTypeModal extends StatefulWidget {
   final List<FineTypeDetails> fineTypeDetailsList;

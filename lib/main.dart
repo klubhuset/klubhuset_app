@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:klubhuset/page/login/login_page.dart';
-import 'package:klubhuset/page/login/register.dart';
-import 'package:klubhuset/services/auth_service.dart';
-import 'package:klubhuset/state/user_votes_state.dart';
-import 'package:klubhuset/tab/home_tab.dart';
-import 'package:klubhuset/tab/profile_tab.dart';
+import 'package:kopa/page/login/login_page.dart';
+import 'package:kopa/page/login/register.dart';
+import 'package:kopa/services/auth_service.dart';
+import 'package:kopa/state/user_votes_state.dart';
+import 'package:kopa/tab/home_tab.dart';
+import 'package:kopa/tab/profile_tab.dart';
 import 'package:provider/provider.dart';
 
-String _appTitle = 'Klubhuset';
+String _appTitle = 'Kopa';
 
 void main() async {
   runApp(
@@ -18,7 +18,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => UserVotesState()),
         ChangeNotifierProvider(create: (context) => AuthService()),
       ],
-      child: const KlubhusetApp(),
+      child: const KopaApp(),
     ),
   );
 }
@@ -37,8 +37,8 @@ class AppRoutes {
   }
 }
 
-class KlubhusetApp extends StatelessWidget {
-  const KlubhusetApp({super.key});
+class KopaApp extends StatelessWidget {
+  const KopaApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:klubhuset/component/button/mobile_pay_button.dart';
-import 'package:klubhuset/repository/fines_repository.dart';
+import 'package:kopa/component/button/mobile_pay_button.dart';
+import 'package:kopa/repository/fines_repository.dart';
 
 class DepositModal extends StatefulWidget {
   final int fineBoxId;
