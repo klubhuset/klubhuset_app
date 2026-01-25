@@ -242,10 +242,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // Wrap in the native scaffold for each platform
     return useCupertino
-        ? const CupertinoTheme(
-            // keeps Cupertino text colors consistent
-            data: CupertinoThemeData(brightness: Brightness.light),
-            child: SizedBox(), // replaced below via Builder to access context
+        ? CupertinoPageScaffold(
+            backgroundColor: CupertinoColors.systemGrey6,
+            child: content,
           )
         : Scaffold(
             backgroundColor: theme.colorScheme.surface,
